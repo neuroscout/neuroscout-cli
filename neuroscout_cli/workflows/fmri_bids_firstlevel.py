@@ -15,8 +15,7 @@ from docopt import docopt
 import json
 import os
 import tempfile
-from base import create_first_level
-from bids.grabbids import BIDSLayout
+from .first_level import create_first_level
 import pandas as pd
 
 
