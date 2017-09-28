@@ -10,23 +10,12 @@ from nipype.workflows.fmri.fsl import (create_modelfit_workflow,
 import os
 
 def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts, config=None,
-                       out_dir=None, transformations={}, TR=2):
+                       out_dir=None, TR=2):
     """
     Set up workflow
     """
     wf = Workflow(name='first_level')
     wf.base_dir = work_dir
-
-    """
-    Perform transformations and save out new event files
-    """
-    transformer = Node(interface=TransformEvents(), name="transformer")
-    transformer.inputs.time_repetition = TR
-    # transformer.inputs.transformation_spec = transformations
-    transformer.inputs.files_directory = os.path.join(work_dir, "events")
-    transformer.inputs.base_dir = bids_dir
-    # transformer.inputs.columns = ['onset', 'duration', 'amplitude']
-    transformer.inputs.header = False
 
     """
     Subject iterator
@@ -39,9 +28,7 @@ def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts, conf
     Data source
     """
 
-    ### TODO fix subject num handling in pybids
-    #### TODO fix OAD order in pybids (or reorder), and remove condition column
-    ##### Wait to see what tal does but in the meantime could fix this is transformer
+    ### TODO Remove dependence on transformer, get event files directly
 
     def get_data(bids_dir, subject_id, event_files_dir, runs):
         from bids.grabbids import BIDSLayout
@@ -64,11 +51,10 @@ def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts, conf
                        name='datasource')
     datasource.inputs.runs = runs
     datasource.inputs.bids_dir = bids_dir
-    wf.connect([(transformer, datasource, [('event_files_dir', 'event_files_dir')]),
-                ((infosource, datasource, [('subject_id', 'subject_id')]))])
+    wf.connect([((infosource, datasource, [('subject_id', 'subject_id')]))])
 
     """
-    Specify model, apply transformations and specify fMRI model
+    Specify fMRI model
     """
 
     modelspec = Node(interface=model.SpecifyModel(), name="modelspec")
