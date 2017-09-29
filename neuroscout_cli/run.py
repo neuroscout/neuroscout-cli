@@ -2,10 +2,10 @@
 neuroscout
 
 Usage:
-    neuroscout first run [-b <local_bids_dir>|-i <install_dir>|-w <work_dir>|-c|--jobs=<n>|--disable-datalad] <bundle> <out_dir>
-    neuroscout first make [-b <local_bids_dir>|-i <install_dir>|-w <work_dir>|-c|--jobs=<n>|--disable-datalad] <bundle> [<out_dir>]
-    neuroscout group run [-w <work_dir>|-c|--jobs=<n>] <firstlv_dir> <output>
-    neuroscout group make <firstlv_dir> [<output>]
+    neuroscout run first_level [-b <local_bids_dir>|-i <install_dir>|-w <work_dir>|-c|--jobs=<n>|--disable-datalad] <bundle> <out_dir>
+    neuroscout make first_level [-b <local_bids_dir>|-i <install_dir>|-w <work_dir>|-c|--jobs=<n>|--disable-datalad] <bundle> [<out_dir>]
+    neuroscout run group [-w <work_dir>|-c|--jobs=<n>] <firstlv_dir> <output>
+    neuroscout make group <firstlv_dir> [<output>]
     neuroscout -h | --help
     neuroscout --version
 
