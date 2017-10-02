@@ -1,6 +1,6 @@
 from neuroscout_cli.commands.base import Command
-from neuroscout_cli.workflows import fmri_bids_firstlevel as first_level
-from neuroscout_cli.workflows import fmri_group as group_level
+from neuroscout_cli.workflows import run_firstlevel
+from neuroscout_cli.workflows import run_group
 
 
 class Run(Command):
@@ -8,14 +8,13 @@ class Run(Command):
         first = self.options.pop('first_level')
         group = self.options.pop('group')
         if first:
-            runner = first_level.FirstLevel(self.options)
+            runner = run_firstlevel.FirstLevel(self.options)
             runner.execute()
         elif group:
-            self.options = group_level.validate_arguments(self.options)
+            self.options = run_group.validate_arguments(self.options)
             run = self.options.pop('run')
-            self.options.pop('make')
             jobs = int(self.options.pop('--jobs'))
-            wf = group_level.group_onesample(**self.options)
+            wf = run_group.group_onesample(**self.options)
 
             if run:
                 if jobs == 1:
