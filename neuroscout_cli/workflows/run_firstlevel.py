@@ -1,17 +1,3 @@
-""""
-Usage:
-    fmri_bids_first run [options] <bundle> <out_dir>
-    fmri_bids_first make [options] <bundle> [<out_dir>]
-
--b <local_bids_dir>     Optional local copy of remote directory
--i <install_dir>        Path to install dataset with datalad
--w <work_dir>           Working directory.
--c                      Stop on first crash.
---jobs=<n>              Number of parallel jobs [default: 1].
---disable-datalad       Don't attempt to use datalad to fetch data
-"""
-
-from docopt import docopt
 import json
 import os
 import tempfile
@@ -25,6 +11,12 @@ class FirstLevel(object):
         self.args = {}
         self.validate_arguments(args)
         self.create_workflow()
+
+    def create_workflow(self):
+        """
+        Import model specific files
+        """
+        self.wf = create_first_level(**self.args)
 
     def execute(self):
         if self.run:
@@ -119,15 +111,3 @@ class FirstLevel(object):
             os.path.join(bids_dir,
                          'task-{}_bold.json'.format(
                              bundle['task_name']))))['RepetitionTime']
-
-    def create_workflow(self):
-        """
-        Import model specific files
-        """
-        self.wf = create_first_level(**self.args)
-
-
-if __name__ == '__main__':
-    args = docopt(__doc__)
-    runner = FirstLevel(args)
-    runner.execute()

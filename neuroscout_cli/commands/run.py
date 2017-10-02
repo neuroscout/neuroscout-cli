@@ -11,15 +11,5 @@ class Run(Command):
             runner = run_firstlevel.FirstLevel(self.options)
             runner.execute()
         elif group:
-            self.options = run_group.validate_arguments(self.options)
-            run = self.options.pop('run')
-            jobs = int(self.options.pop('--jobs'))
-            wf = run_group.group_onesample(**self.options)
-
-            if run:
-                if jobs == 1:
-                    wf.run()
-                else:
-                    wf.run(plugin='MultiProc', plugin_args={'n_procs': jobs})
-            else:
-                wf
+            runner = run_group.GroupLevel(self.options)
+            runner.execute()
