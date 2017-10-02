@@ -3,12 +3,11 @@ Usage:
     fmri_bids_first run [options] <bundle> <out_dir>
     fmri_bids_first make [options] <bundle> [<out_dir>]
 
--b <local_bids_dir>     Optional local copy of remote directory
--i <install_dir>        Path to install dataset with datalad
+-l <local_preproc_dir>  Optional local copy of remote remote preproc
+-d <download_dir>        Path to download remote files
 -w <work_dir>           Working directory.
 -c                      Stop on first crash.
 --jobs=<n>              Number of parallel jobs [default: 1].
---disable-datalad       Don't attempt to use datalad to fetch data
 """
 
 from docopt import docopt
@@ -65,35 +64,20 @@ class FirstLevel(object):
             bundle['runs']).subject.unique())
         self.args['config'] = bundle['config']
         self.args['contrasts'] = bundle['contrasts']
-        self.args['transformations'] = bundle['transformations']
         self.args['task'] = bundle['task_name']
+        self.args['TR'] = bundle['TR']
+        self.args['runs'] = bundle['runs']
         ## For now ignoring name and hash_id
 
         """ Clone bids_dir or use existing"""
-        if args['-b']:
-            bids_dir = args['-b']
+        if args['-l']:
+            preproc_dir = args['-l']
         else:
-            bids_dir = bundle['dataset_address']
+            preproc_dir = None
+        self.args['preproc_dir'] = preproc_dir
 
-        self.args['bids_dir'] = bids_dir
-
-        ## Disable datalad to use full BIDS dataset
-        if not args['--disable-datalad']:
-            from datalad import api as dl
-            from datalad.auto import AutomagicIO
-
-            if not args['-i'] and args['-b']:
-                bids_dir = dl.install(path=bids_dir).path
-            else:
-                if not args['-i']:
-                    args['-i'] = self.args['work_dir']
-                bids_dir = dl.install(source=bids_dir,
-                                      path=args['-i']).path
-
-            automagic = AutomagicIO()
-            automagic.activate()
-
-        """ Write out event files """
+        """ Write out design matrix """
+        ### NEED TO EDIT THIS TO NEW BUNDLE
         pes = pd.DataFrame(bundle.pop('predictor_events')).rename(
             columns={'predictor_id' : 'trial_type'})
 
@@ -112,13 +96,8 @@ class FirstLevel(object):
 
             run_events.to_csv(events_fname, sep='\t', index=False)
 
-        self.args['runs'] = bundle['runs']
+        ### TODO fetch preprocessed fmri data from remote or local source
 
-        """ Set TR """
-        self.args['TR'] = json.load(open(
-            os.path.join(bids_dir,
-                         'task-{}_bold.json'.format(
-                             bundle['task_name']))))['RepetitionTime']
 
     def create_workflow(self):
         """
