@@ -13,7 +13,7 @@ setup(
     keywords='cli',
     entry_points={
         'console_scripts': [
-            'neuroscout=neuroscout_cli.run:main'
+            'neuroscout=neuroscout_cli.cli:main'
         ]
     }
 )

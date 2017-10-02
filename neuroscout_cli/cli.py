@@ -32,30 +32,19 @@ Help:
 """
 
 from docopt import docopt
+from inspect import getmembers, isclass
 from . import __version__ as VERSION
 
 
 def main():
     # CLI entry point
-    import neuroscout_cli.workflows.fmri_bids_firstlevel as first_level
-    import neuroscout_cli.workflows.fmri_group as group_level
+    import neuroscout_cli.commands
     args = docopt(__doc__, version=VERSION)
-    first = args.pop('first')
-    group = args.pop('group')
-    if first:
-        runner = first_level.FirstLevel(args)
-        runner.execute()
-    elif group:
-        args = group_level.validate_arguments(args)
-        run = args.pop('run')
-        args.pop('make')
-        jobs = int(args.pop('--jobs'))
-        wf = group_level.group_onesample(**args)
 
-        if run:
-            if jobs == 1:
-                wf.run()
-            else:
-                wf.run(plugin='MultiProc', plugin_args={'n_procs': jobs})
-        else:
-            wf
+    for (k, v) in args.items():
+        if hasattr(neuroscout_cli.commands, k) and v:
+            module = getattr(neuroscout_cli.commands, k)
+            commands = getmembers(module, isclass)
+            command = [command[1] for command in commands if command[0] != 'Command'][0]
+            command = command(args)
+            command.run()
