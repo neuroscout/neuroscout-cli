@@ -47,6 +47,7 @@ class FirstLevel(object):
         args.pop('make')
 
         """ Process bundle arguments """
+        # TODO: get from bundle file
         bundle = args.pop('<bundle>')
         if not isinstance(bundle, dict):
             bundle = json.load(open(bundle, 'r'))

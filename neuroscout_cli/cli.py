@@ -2,13 +2,16 @@
 neuroscout
 
 Usage:
-    neuroscout run [first_level|group_level] <bundle_id>
+    neuroscout run [first_level|group_level] [-w <work_dir>|-c|--jobs=<n>] <bundle_id>
     neuroscout get [bundle|data] <bundle_id>
     neuroscout clone <bundle_id>
     neuroscout -h | --help
     neuroscout --version
 
 Options:
+    -w  <work_dir>          Working directory.
+    -c                      Stop on first crash.
+    --jobs=<n>              Number of parallel jobs [default: 1].
     -h --help               Show this screen.
     --version               Show version.
 
