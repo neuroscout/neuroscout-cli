@@ -1,4 +1,5 @@
-from .group_level import create_group_level
+from neuroscout_cli.workflows.group_level import create_group_level
+
 import os
 
 
@@ -10,9 +11,6 @@ class GroupLevel(object):
         self.create_workflow()
 
     def create_workflow(self):
-        """
-        Import model specific files
-        """
         self.wf = create_group_level(**self.args)
 
     def execute(self):

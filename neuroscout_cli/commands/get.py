@@ -2,9 +2,9 @@ from neuroscout_cli.commands.base import Command
 
 from datalad import api as dl
 from datalad.auto import AutomagicIO
+from os.path import isdir, exists, join
 import httplib
 import json
-import os.path
 
 
 class Get(Command):
@@ -12,18 +12,16 @@ class Get(Command):
     ''' Command for retrieving neuroscout bundles and data. '''
 
     def is_bundle_local(self):
-        ''' Checks if full bundle is downloaded locally. '''
-        bid = self.options['bundle_id']
-        exists = os.path.isdir(bid)
-        exists = os.path.exists(os.path.join(bid, 'analysis.json'))
-        exists = os.path.exists(os.path.join(bid, 'design'))
-        exists = os.path.exists(os.path.join(bid, 'resources.json'))
-        return exists
+        local = isdir(self.bundle_id)
+        local = exists(join(self.bundle_id, 'analysis.json'))
+        local = exists(join(self.bundle_id, 'design'))
+        local = exists(join(self.bundle_id, 'resources.json'))
+        return local
 
     def download_bundle(self):
         if not self.is_bundle_local():
             conn = httplib.HTTPSConnection('146.6.123.97')
-            conn.request('GET', '/api/analyses/%s/bundle' % self.options['bundle_id'])
+            conn.request('GET', '/api/analyses/%s/bundle' % self.bundle_id)
             response = conn.getresponse()
             bundle = json.loads(response.read())
             conn.close()
@@ -31,7 +29,9 @@ class Get(Command):
             # TODO: write bundle files out to disk
 
     def download_data(self):
-        # TODO: fix this
+        resources = json.load(join(self.bundle_id, 'resources.json'))
+        print resources
+        # TODO: fix this to actually use resources
         if not self.options['-i'] and self.options['-b']:
             bids_dir = dl.install(path=self.options['bids_dir']).path
         else:
@@ -44,6 +44,7 @@ class Get(Command):
         automagic.activate()
 
     def run(self):
+        self.bundle_id = self.options['bundle_id']
         if self.options.pop('bundle'):
             self.download_bundle()
         elif self.options.pop('data'):

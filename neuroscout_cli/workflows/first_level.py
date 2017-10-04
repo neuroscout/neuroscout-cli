@@ -44,13 +44,12 @@ def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts, conf
 
         return func, bm, events
 
-
     datasource = Node(Function(input_names=['bids_dir', 'subject_id',
                                             'event_files_dir', 'runs'],
-                                output_names=['func', 'brainmask',
-                                              'event_files'],
-                                function=get_data),
-                       name='datasource')
+                               output_names=['func', 'brainmask',
+                                             'event_files'],
+                               function=get_data),
+                      name='datasource')
     datasource.inputs.runs = runs
     datasource.inputs.bids_dir = bids_dir
     wf.connect([((infosource, datasource, [('subject_id', 'subject_id')]))])

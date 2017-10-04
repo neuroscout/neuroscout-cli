@@ -1,7 +1,8 @@
+from neuroscout_cli.workflows.first_level import create_first_level
+
 import json
 import os
 import tempfile
-from .first_level import create_first_level
 import pandas as pd
 
 
@@ -13,9 +14,6 @@ class FirstLevel(object):
         self.create_workflow()
 
     def create_workflow(self):
-        """
-        Import model specific files
-        """
         self.wf = create_first_level(**self.args)
 
     def execute(self):
@@ -41,8 +39,7 @@ class FirstLevel(object):
                 if not os.path.exists(args[directory]):
                     os.makedirs(args[directory])
 
-        self.args['work_dir'] = args['-w'] \
-                                     if args['-w'] else tempfile.mkdtemp()
+        self.args['work_dir'] = args['-w'] if args['-w'] else tempfile.mkdtemp()
         self.args['out_dir'] = args['<out_dir>']
 
         self.jobs = int(args.pop('--jobs'))
@@ -59,7 +56,7 @@ class FirstLevel(object):
         self.args['contrasts'] = bundle['contrasts']
         self.args['transformations'] = bundle['transformations']
         self.args['task'] = bundle['task_name']
-        ## For now ignoring name and hash_id
+        # For now ignoring name and hash_id
 
         """ Clone bids_dir or use existing"""
         if args['-b']:
@@ -69,33 +66,17 @@ class FirstLevel(object):
 
         self.args['bids_dir'] = bids_dir
 
-        ## Disable datalad to use full BIDS dataset
-        if not args['--disable-datalad']:
-            from datalad import api as dl
-            from datalad.auto import AutomagicIO
-
-            if not args['-i'] and args['-b']:
-                bids_dir = dl.install(path=bids_dir).path
-            else:
-                if not args['-i']:
-                    args['-i'] = self.args['work_dir']
-                bids_dir = dl.install(source=bids_dir,
-                                      path=args['-i']).path
-
-            automagic = AutomagicIO()
-            automagic.activate()
-
         """ Write out event files """
         pes = pd.DataFrame(bundle.pop('predictor_events')).rename(
-            columns={'predictor_id' : 'trial_type'})
+            columns={'predictor_id': 'trial_type'})
 
         out_path = os.path.join(self.args['work_dir'], 'events')
         if not os.path.exists(out_path):
             os.mkdir(out_path)
 
         for r in bundle['runs']:
-            ## Write out event files for each run_id
-            run_events = pes[pes.run_id==r['id']].drop('run_id', axis=1)
+            # Write out event files for each run_id
+            run_events = pes[pes.run_id == r['id']].drop('run_id', axis=1)
             ses = 'ses-{}_'.format(r['session']) if r['session'] else ''
 
             events_fname = os.path.join(out_path,
