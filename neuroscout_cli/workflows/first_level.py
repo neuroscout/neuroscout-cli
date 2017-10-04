@@ -28,9 +28,7 @@ def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts, conf
     Data source
     """
 
-    ### TODO fix subject num handling in pybids
-    #### TODO fix OAD order in pybids (or reorder), and remove condition column
-    ##### Wait to see what tal does but in the meantime could fix this is transformer
+    ### TODO Remove dependence on transformer, get event files directly
 
     def get_data(bids_dir, subject_id, event_files_dir, runs):
         from bids.grabbids import BIDSLayout
@@ -55,7 +53,7 @@ def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts, conf
     wf.connect([((infosource, datasource, [('subject_id', 'subject_id')]))])
 
     """
-    Specify model, apply transformations and specify fMRI model
+    Specify fMRI model
     """
 
     modelspec = Node(interface=model.SpecifyModel(), name="modelspec")

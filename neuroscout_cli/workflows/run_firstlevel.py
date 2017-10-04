@@ -55,8 +55,9 @@ class FirstLevel(object):
             bundle['runs']).subject.unique())
         self.args['config'] = bundle['config']
         self.args['contrasts'] = bundle['contrasts']
-        self.args['transformations'] = bundle['transformations']
         self.args['task'] = bundle['task_name']
+        self.args['TR'] = bundle['TR']
+        self.args['runs'] = bundle['runs']
         # For now ignoring name and hash_id
 
         """ Clone bids_dir or use existing"""
@@ -67,7 +68,8 @@ class FirstLevel(object):
 
         self.args['bids_dir'] = bids_dir
 
-        """ Write out event files """
+        """ Write out design matrix """
+        ### TODO: NEED TO EDIT THIS TO NEW BUNDLE
         pes = pd.DataFrame(bundle.pop('predictor_events')).rename(
             columns={'predictor_id': 'trial_type'})
 
@@ -86,10 +88,4 @@ class FirstLevel(object):
 
             run_events.to_csv(events_fname, sep='\t', index=False)
 
-        self.args['runs'] = bundle['runs']
-
-        """ Set TR """
-        self.args['TR'] = json.load(open(
-            os.path.join(bids_dir,
-                         'task-{}_bold.json'.format(
-                             bundle['task_name']))))['RepetitionTime']
+        ### TODO fetch preprocessed fmri data from remote or local source
