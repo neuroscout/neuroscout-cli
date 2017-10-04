@@ -10,7 +10,7 @@ import os
 
 
 def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts, config=None,
-                       out_dir=None, transformations={}, TR=2):
+                       out_dir=None, TR=2):
     """
     Set up workflow
     """

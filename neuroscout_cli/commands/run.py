@@ -1,15 +1,21 @@
 from neuroscout_cli.commands.base import Command
-from neuroscout_cli.workflows import run_firstlevel
-from neuroscout_cli.workflows import run_group
+from neuroscout_cli.workflows.run_firstlevel import FirstLevel
+from neuroscout_cli.workflows.run_grouplevel import GroupLevel
 
 
 class Run(Command):
+
+    ''' Command for running neuroscout workflows. '''
+
     def run(self):
         first = self.options.pop('first_level')
-        group = self.options.pop('group')
+        group = self.options.pop('group_level')
         if first:
-            runner = run_firstlevel.FirstLevel(self.options)
+            runner = FirstLevel(self.options)
             runner.execute()
         elif group:
-            runner = run_group.GroupLevel(self.options)
+            runner = GroupLevel(self.options)
             runner.execute()
+        else:
+            # TODO: chain first level and group level
+            pass

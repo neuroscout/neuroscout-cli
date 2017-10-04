@@ -5,7 +5,8 @@ from six import with_metaclass
 
 
 class Command(with_metaclass(ABCMeta)):
-    """A base command."""
+
+    ''' A base command'''
 
     def __init__(self, options, *args, **kwargs):
         self.options = options

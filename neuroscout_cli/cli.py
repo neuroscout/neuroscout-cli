@@ -2,24 +2,18 @@
 neuroscout
 
 Usage:
-    neuroscout run [first_level|group] [-b <local_bids_dir>|-i <install_dir>|-w <work_dir>|-c|--jobs=<n>|--disable-datalad] <bundle> <out_dir>
-    neuroscout get [bundle|data|all] <bundle_id>
+    neuroscout run [first_level|group_level] <bundle_id>
+    neuroscout get [bundle|data] <bundle_id>
     neuroscout clone <bundle_id>
     neuroscout -h | --help
     neuroscout --version
 
 Options:
-    -b <local_bids_dir>     Optional local copy of remote directory.
-    -i <install_dir>        Path to install dataset with datalad.
-    -w <work_dir>           Working directory.
-    -c                      Stop on first crash.
-    --jobs=<n>              Number of parallel jobs [default: 1].
-    --disable-datalad       Don't attempt to use datalad to fetch data.
     -h --help               Show this screen.
     --version               Show version.
 
 Examples:
-    neuroscout first run bundle.json .
+    neuroscout run first_level bundle.json .
 
 Help:
     For help using this tool, please open an issue on the Github
