@@ -1,3 +1,4 @@
+from neuroscout_cli.commands.install import Install
 from neuroscout_cli.workflows.first_level import create_first_level
 
 import json
@@ -43,11 +44,17 @@ class FirstLevel(object):
         self.args['out_dir'] = args['<out_dir>']
 
         self.jobs = int(args.pop('--jobs'))
-        self.run = args.pop('run')
-        args.pop('make')
+
+        # Install the needed inputs
+        install_command = Install({'bundle': False,
+                                   'data': False,
+                                   '-i': self.args['-i'],
+                                   '<bundle_id>': self.args['<bundle_id']})
+        bids_dir = install_command.run()
+
 
         """ Process bundle arguments """
-        # TODO: get from bundle file
+        ### TODO: get from bundle file
         bundle = args.pop('<bundle>')
         if not isinstance(bundle, dict):
             bundle = json.load(open(bundle, 'r'))
@@ -58,15 +65,8 @@ class FirstLevel(object):
         self.args['task'] = bundle['task_name']
         self.args['TR'] = bundle['TR']
         self.args['runs'] = bundle['runs']
-        # For now ignoring name and hash_id
-
-        """ Clone bids_dir or use existing"""
-        if args['-b']:
-            bids_dir = args['-b']
-        else:
-            bids_dir = bundle['dataset_address']
-
         self.args['bids_dir'] = bids_dir
+        # For now ignoring name and hash_id
 
         """ Write out design matrix """
         ### TODO: NEED TO EDIT THIS TO NEW BUNDLE
@@ -87,5 +87,3 @@ class FirstLevel(object):
                 r['subject'], ses, bundle['task_name'], r['number']))
 
             run_events.to_csv(events_fname, sep='\t', index=False)
-
-        ### TODO fetch preprocessed fmri data from remote or local source
