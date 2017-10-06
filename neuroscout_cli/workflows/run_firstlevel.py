@@ -1,4 +1,4 @@
-from neuroscout_cli.commands.install import Install
+from neuroscout_cli.commands import Install
 from neuroscout_cli.workflows.first_level import create_first_level
 
 import json
@@ -49,7 +49,7 @@ class FirstLevel(object):
         install_command = Install({'bundle': False,
                                    'data': False,
                                    '-i': self.args['-i'],
-                                   '<bundle_id>': self.args['<bundle_id']})
+                                   '<bundle_id>': self.args['<bundle_id>']})
         bids_dir = install_command.run()
 
 

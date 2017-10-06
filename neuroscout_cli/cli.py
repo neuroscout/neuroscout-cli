@@ -29,7 +29,6 @@ Help:
 """
 
 from docopt import docopt
-from inspect import getmembers, isclass
 from . import __version__ as VERSION
 
 
@@ -40,8 +39,7 @@ def main():
 
     for (k, v) in args.items():
         if hasattr(neuroscout_cli.commands, k) and v:
-            module = getattr(neuroscout_cli.commands, k)
-            commands = getmembers(module, isclass)
-            command = [command[1] for command in commands if command[0] != 'Command'][0]
+            k = k[0].upper() + k[1:]
+            command = getattr(neuroscout_cli.commands, k)
             command = command(args)
             command.run()
