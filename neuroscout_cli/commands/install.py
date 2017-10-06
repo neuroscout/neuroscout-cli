@@ -39,10 +39,10 @@ class Install(Command):
         remote_path = bundle['preproc_address']
         remote_files = [r['func_path'] for r in bundle['runs']]
         for preprocessed_file in remote_files:
-            url = remote_path + preprocessed_file
-            data = requests.get(url).content
             filename = join(bids_dir, preprocessed_file)
             if not exists(filename):
+                url = remote_path + preprocessed_file
+                data = requests.get(url).content
                 with open(filename, 'w') as f:
                     f.write(data)
 
@@ -54,6 +54,7 @@ class Install(Command):
         self.install_dir = self.options['-i']
         if self.options.pop('bundle'):
             self.download_bundle()
+            return self.bundle_filename
         elif self.options.pop('data'):
             if not self.is_bundle_local():
                 raise Exception("Cannot use [data] option of this command"
@@ -61,4 +62,4 @@ class Install(Command):
             return self.download_data()
         else:
             self.download_bundle()
-            return self.download_data()
+            return self.bundle_filename, self.download_data()

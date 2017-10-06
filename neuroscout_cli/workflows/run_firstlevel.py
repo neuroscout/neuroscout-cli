@@ -50,14 +50,12 @@ class FirstLevel(object):
                                    'data': False,
                                    '-i': self.args['-i'],
                                    '<bundle_id>': self.args['<bundle_id>']})
-        bids_dir = install_command.run()
-
+        bundle, bids_dir = install_command.run()
 
         """ Process bundle arguments """
-        ### TODO: get from bundle file
-        bundle = args.pop('<bundle>')
         if not isinstance(bundle, dict):
-            bundle = json.load(open(bundle, 'r'))
+            with open(bundle, 'r') as f:
+                bundle = json.load(f)
         self.args['subjects'] = list(pd.DataFrame(
             bundle['runs']).subject.unique())
         self.args['config'] = bundle['config']
