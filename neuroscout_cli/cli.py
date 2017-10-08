@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [first_level|group_level] [-i <install_dir>|-w <work_dir>|-c|--jobs=<n>] <bundle_id>
+    neuroscout run [first_level|group_level] [-i <install_dir>|-w <work_dir>|-c|--jobs=<n>|-o <out_dir>] <bundle_id>
     neuroscout install [bundle|data] [-i <install_dir>] <bundle_id>
     neuroscout get <bundle_id>
     neuroscout -h | --help

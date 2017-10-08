@@ -6,6 +6,8 @@ import os
 import tempfile
 import pandas as pd
 
+from os.path import join
+
 
 class FirstLevel(object):
     """ Validates arguments, and connect inputs to first level workflow"""
@@ -34,14 +36,14 @@ class FirstLevel(object):
                        execution={'stop_on_first_crash': True})
             config.update_config(cfg)
 
-        for directory in ['<out_dir>', '-w']:
+        for directory in ['-o', '-w']:
             if args[directory] is not None:
                 args[directory] = os.path.abspath(args[directory])
                 if not os.path.exists(args[directory]):
                     os.makedirs(args[directory])
 
         self.args['work_dir'] = args['-w'] if args['-w'] else tempfile.mkdtemp()
-        self.args['out_dir'] = args['<out_dir>']
+        self.args['out_dir'] = args['-o'] if args['-o'] else os.getcwd()
 
         self.jobs = int(args.pop('--jobs'))
 
@@ -50,12 +52,11 @@ class FirstLevel(object):
                                    'data': False,
                                    '-i': self.args['-i'],
                                    '<bundle_id>': self.args['<bundle_id>']})
-        bundle, bids_dir = install_command.run()
+        bundle_path, bids_dir = install_command.run()
 
         """ Process bundle arguments """
-        if not isinstance(bundle, dict):
-            with open(bundle, 'r') as f:
-                bundle = json.load(f)
+        with open(join(bundle_path, 'full'), 'r') as f:
+            bundle = json.load(f)
         self.args['subjects'] = list(pd.DataFrame(
             bundle['runs']).subject.unique())
         self.args['config'] = bundle['config']
