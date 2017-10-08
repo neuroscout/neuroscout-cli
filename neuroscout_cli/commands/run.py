@@ -1,6 +1,5 @@
 from neuroscout_cli.commands.base import Command
-from neuroscout_cli.workflows.run_firstlevel import FirstLevel
-from neuroscout_cli.workflows.run_grouplevel import GroupLevel
+from neuroscout_cli.workflows.analysis import FirstLevel, GroupLevel
 
 
 class Run(Command):

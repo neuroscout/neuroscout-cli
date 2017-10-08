@@ -1,23 +1,27 @@
 from neuroscout_cli.commands import Install
 from neuroscout_cli.workflows.first_level import create_first_level
+from neuroscout_cli.workflows.group_level import create_group_level
 
 import json
 import os
 import tempfile
 import pandas as pd
 
+from abc import ABCMeta, abstractmethod
 from os.path import join
+from six import with_metaclass
 
 
-class FirstLevel(object):
-    """ Validates arguments, and connect inputs to first level workflow"""
+class Level(with_metaclass(ABCMeta)):
+    """ Validates arguments, and connect inputs to a workflow """
     def __init__(self, args):
         self.args = {}
         self.validate_arguments(args)
         self.create_workflow()
 
+    @abstractmethod
     def create_workflow(self):
-        self.wf = create_first_level(**self.args)
+        pass
 
     def execute(self):
         if self.run:
@@ -47,6 +51,14 @@ class FirstLevel(object):
 
         self.jobs = int(args.pop('--jobs'))
 
+
+class FirstLevel(Level):
+    """ Validates and creates a first level workflow. """
+    def create_workflow(self):
+        self.wf = create_first_level(**self.args)
+
+    def validate_arguments(self, args):
+        super(FirstLevel, self).validate_arguments(args)
         # Install the needed inputs
         install_command = Install({'bundle': False,
                                    'data': False,
@@ -86,3 +98,13 @@ class FirstLevel(object):
                 r['subject'], ses, bundle['task_name'], r['number']))
 
             run_events.to_csv(events_fname, sep='\t', index=False)
+
+
+class GroupLevel(Level):
+    """ Validates and creates a group level workflow. """
+    def create_workflow(self):
+        self.wf = create_group_level(**self.args)
+
+    def validate_arguments(self, args):
+        super(GroupLevel, self).validate_arguments(args)
+        self.args['firstlv_dir'] = args.pop('<firstlv_dir>')
