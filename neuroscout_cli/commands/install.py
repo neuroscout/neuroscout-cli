@@ -54,11 +54,10 @@ class Install(Command):
 
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
-        self.bundle_filename = '%s.json' % self.bundle_id
         self.install_dir = self.options['-i']
         if self.options.pop('bundle'):
             self.download_bundle()
-            return self.bundle_filename
+            return self.bundle_id
         elif self.options.pop('data'):
             if not self.is_bundle_local():
                 raise Exception("Cannot use [data] option of this command"
@@ -66,4 +65,4 @@ class Install(Command):
             return self.download_data()
         else:
             self.download_bundle()
-            return self.bundle_filename, self.download_data()
+            return self.bundle_id, self.download_data()

@@ -16,5 +16,9 @@ class Run(Command):
             runner = GroupLevel(self.options)
             runner.execute()
         else:
-            # TODO: chain first level and group level
-            pass
+            first_runner = FirstLevel(self.options)
+            first_lvdir = first_runner.args['out_dir']
+            first_runner.execute()
+            self.options['first_lvdir'] = first_lvdir
+            group_runner = GroupLevel(self.options)
+            group_runner.execute()

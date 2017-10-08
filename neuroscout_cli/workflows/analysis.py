@@ -8,7 +8,7 @@ import tempfile
 import pandas as pd
 
 from abc import ABCMeta, abstractmethod
-from os.path import join
+from os.path import join, exists
 from six import with_metaclass
 
 
@@ -62,11 +62,11 @@ class FirstLevel(Level):
         # Install the needed inputs
         install_command = Install({'bundle': False,
                                    'data': False,
-                                   '-i': self.args['-i'],
-                                   '<bundle_id>': self.args['<bundle_id>']})
+                                   '-i': args['-i'],
+                                   '<bundle_id>': args['<bundle_id>']})
         bundle_path, bids_dir = install_command.run()
 
-        """ Process bundle arguments """
+        # Process analysis information
         with open(join(bundle_path, 'full'), 'r') as f:
             bundle = json.load(f)
         self.args['subjects'] = list(pd.DataFrame(
@@ -79,25 +79,27 @@ class FirstLevel(Level):
         self.args['bids_dir'] = bids_dir
         # For now ignoring name and hash_id
 
-        """ Write out design matrix """
-        ### TODO: NEED TO EDIT THIS TO NEW BUNDLE
-        pes = pd.DataFrame(bundle.pop('predictor_events')).rename(
-            columns={'predictor_id': 'trial_type'})
+        # Process design matrix/events
+        ### TODO: update to use pybids
+        with open(join(bundle_path, 'events'), 'r') as f:
+            design_matrix = json.load(f)
+        events = pd.DataFrame(design_matrix)
 
-        out_path = os.path.join(self.args['work_dir'], 'events')
-        if not os.path.exists(out_path):
+        out_path = join(self.args['work_dir'], 'events')
+        if not exists(out_path):
             os.mkdir(out_path)
 
         for r in bundle['runs']:
             # Write out event files for each run_id
-            run_events = pes[pes.run_id == r['id']].drop('run_id', axis=1)
+            # Uncomment below line when testing with > single run
+            # run_events = events[events.run_id == r['id']].drop('run_id', axis=1)
             ses = 'ses-{}_'.format(r['session']) if r['session'] else ''
-
-            events_fname = os.path.join(out_path,
-                                        'sub-{}_{}task-{}_run-{}_events.tsv'.format(
-                r['subject'], ses, bundle['task_name'], r['number']))
-
-            run_events.to_csv(events_fname, sep='\t', index=False)
+            fname = 'sub-{}_{}task-{}_run-{}_events.tsv'.format(r['subject'],
+                                                                ses,
+                                                                bundle['task_name'],
+                                                                r['number'])
+            events_path = join(out_path, fname)
+            events.to_csv(events_path, sep='\t', index=False)
 
 
 class GroupLevel(Level):
