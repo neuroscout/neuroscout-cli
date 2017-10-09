@@ -50,6 +50,7 @@ class Level(with_metaclass(ABCMeta)):
         self.args['out_dir'] = args['-o'] if args['-o'] else os.getcwd()
 
         self.jobs = int(args.pop('--jobs'))
+        self.run = True
 
 
 class FirstLevel(Level):
