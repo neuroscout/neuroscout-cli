@@ -14,9 +14,9 @@ class Install(Command):
 
     def is_bundle_local(self):
         local = isdir(self.bundle_id)
-        local = exists(join(self.bundle_id, 'resources'))
-        local = exists(join(self.bundle_id, 'events'))
-        local = exists(join(self.bundle_id, 'full'))
+        local &= exists(join(self.bundle_id, 'resources'))
+        local &= exists(join(self.bundle_id, 'events'))
+        local &= exists(join(self.bundle_id, 'full'))
         return local
 
     def download_bundle(self):
