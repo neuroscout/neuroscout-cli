@@ -27,7 +27,7 @@ class Install(Command):
             with open(self.bundle_filename, 'w') as f:
                 json.dump(bundle, f)
 
-    def download_data(self):
+    def download_data(self, install_dir):
         # Data addresses are stored in the resources file of the bundle
         with open(join(self.bundle_id, 'resources'), 'r') as f:
             resources = json.load(f)
@@ -35,7 +35,7 @@ class Install(Command):
         # Use datalad to get the raw BIDS dataset
         bids_dir = resources['dataset_address']
         bids_dir = dl.install(source=bids_dir,
-                              path=self.install_dir).path
+                              path=install_dir).path
         automagic = AutomagicIO()
         automagic.activate()
 
@@ -54,7 +54,6 @@ class Install(Command):
 
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
-        self.install_dir = self.options['-i']
         if self.options.pop('bundle'):
             self.download_bundle()
             return self.bundle_id
@@ -62,7 +61,7 @@ class Install(Command):
             if not self.is_bundle_local():
                 raise Exception("Cannot use [data] option of this command"
                                 "unless the bundle is available locally.")
-            return self.download_data()
+            return self.download_data(self.options['-i'])
         else:
             self.download_bundle()
-            return self.bundle_id, self.download_data()
+            return self.bundle_id, self.download_data(self.options['-i'])

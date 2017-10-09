@@ -1,9 +1,9 @@
 from .install import Install
-from .get import Get
+from .ls import Ls
 from .run import Run
 
 __all__ = [
     'Install',
-    'Get',
+    'Ls',
     'Run'
 ]
