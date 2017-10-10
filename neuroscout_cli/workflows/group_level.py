@@ -1,15 +1,3 @@
-""""
-Usage:
-    fmri_bids_group run [options] <firstlv_dir> <output>
-    fmri_bids_group make <firstlv_dir> [<output>]
-
--w <work_dir>           Working directory.
--c                      Stop on first crash.
---jobs=<n>              Number of parallel jobs [default: 1].
-"""
-from docopt import docopt
-import os
-
 from nipype import Workflow, Node
 from nipype import DataGrabber, DataSink
 from nipype.interfaces.fsl import (L2Model, Merge, FLAMEO,
@@ -18,10 +6,11 @@ import nipype.interfaces.fsl as fsl
 from nipype.interfaces.fsl.maths import BinaryMaths
 from glob import glob
 import re
+import os
 
 
-def group_onesample(firstlv_dir, work_dir=None,
-                    out_dir=None, no_reversal=False):
+def create_group_level(firstlv_dir, work_dir=None,
+                       out_dir=None, no_reversal=False):
     max_cope = sorted(glob(os.path.join(firstlv_dir, '*/copes/*.nii.gz')))[-1].split('/')[-1]
     n_contrasts = int(re.findall('cope([0-9]*).*', max_cope)[0])
 
@@ -116,45 +105,3 @@ def group_onesample(firstlv_dir, work_dir=None,
         wf.connect(cluster2, 'localmax_txt_file', sinker, 'stats.@neg_localmax')
 
     return wf
-
-
-def validate_arguments(args):
-    """ Validate and preload command line arguments """
-
-    # Clean up names
-    var_names = {'<firstlv_dir>': 'firstlv_dir',
-                 '<output>': 'out_dir',
-                 '-w': 'work_dir'}
-
-    if args.pop('-c'):
-        from nipype import config
-        cfg = dict(logging=dict(workflow_level='DEBUG'),
-                   execution={'stop_on_first_crash': True})
-        config.update_config(cfg)
-
-    for old, new in var_names.iteritems():
-        args[new] = args.pop(old)
-
-    for directory in ['out_dir', 'work_dir']:
-        if args[directory] is not None:
-            args[directory] = os.path.abspath(args[directory])
-            if not os.path.exists(args[directory]):
-                os.makedirs(args[directory])
-
-    return args
-
-
-if __name__ == '__main__':
-    arguments = validate_arguments(docopt(__doc__))
-    run = arguments.pop('run')
-    arguments.pop('make')
-    jobs = int(arguments.pop('--jobs'))
-    wf = group_onesample(**arguments)
-
-    if run:
-        if jobs == 1:
-            wf.run()
-        else:
-            wf.run(plugin='MultiProc', plugin_args={'n_procs': jobs})
-    else:
-        wf
