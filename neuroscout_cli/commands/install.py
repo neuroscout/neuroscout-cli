@@ -5,6 +5,7 @@ from datalad.auto import AutomagicIO
 from os.path import isdir, exists, join
 import requests
 import json
+import tarfile
 
 
 class Install(Command):
@@ -13,23 +14,26 @@ class Install(Command):
     data. '''
 
     def is_bundle_local(self):
-        local = isdir(self.bundle_id)
-        local &= exists(join(self.bundle_id, 'resources'))
-        local &= exists(join(self.bundle_id, 'events'))
-        local &= exists(join(self.bundle_id, 'full'))
+        local = isdir(self.bundle_name)
+        local &= exists(join(self.bundle_id, 'resources.json'))
+        local &= exists(join(self.bundle_id, 'events.tsv'))
+        local &= exists(join(self.bundle_id, 'analysis.json'))
         return local
 
     def download_bundle(self):
         if not self.is_bundle_local():
             endpoint = 'http://146.6.123.97/api/analyses/%s/bundle' % self.bundle_id
-            ### TODO: use tarball endpoint
-            bundle = requests.get(endpoint).json()
-            with open(self.bundle_filename, 'w') as f:
-                json.dump(bundle, f)
+            bundle = requests.get(endpoint)
+            tarname = self.bundle_name + '.tar.gz'
+            with open(tarname, 'w') as f:
+                f.write(bundle.content)
+
+            compressed = tarfile.open(tarname)
+            compressed.extractall(self.bundle_name)
 
     def download_data(self, install_dir):
         # Data addresses are stored in the resources file of the bundle
-        with open(join(self.bundle_id, 'resources'), 'r') as f:
+        with open(join(self.bundle_name, 'resources.json'), 'r') as f:
             resources = json.load(f)
 
         # Use datalad to get the raw BIDS dataset
@@ -54,9 +58,10 @@ class Install(Command):
 
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
+        self.bundle_name = self.bundle_id + '_bundle'
         if self.options.pop('bundle'):
             self.download_bundle()
-            return self.bundle_id
+            return self.bundle_name
         elif self.options.pop('data'):
             if not self.is_bundle_local():
                 raise Exception("Cannot use [data] option of this command"
@@ -64,4 +69,4 @@ class Install(Command):
             return self.download_data(self.options['-i'])
         else:
             self.download_bundle()
-            return self.bundle_id, self.download_data(self.options['-i'])
+            return self.bundle_name, self.download_data(self.options['-i'])

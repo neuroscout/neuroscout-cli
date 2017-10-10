@@ -68,7 +68,7 @@ class FirstLevel(Level):
         bundle_path, bids_dir = install_command.run()
 
         # Process analysis information
-        with open(join(bundle_path, 'full'), 'r') as f:
+        with open(join(bundle_path, 'analysis.json'), 'r') as f:
             bundle = json.load(f)
         self.args['subjects'] = list(pd.DataFrame(
             bundle['runs']).subject.unique())
@@ -82,9 +82,7 @@ class FirstLevel(Level):
 
         # Process design matrix/events
         ### TODO: update to use pybids
-        with open(join(bundle_path, 'events'), 'r') as f:
-            design_matrix = json.load(f)
-        events = pd.DataFrame(design_matrix)
+        events = pd.DataFrame.from_csv(join(bundle_path, 'events.tsv'), sep='\t')
 
         out_path = join(self.args['work_dir'], 'events')
         if not exists(out_path):
