@@ -17,6 +17,11 @@ Options:
     -h --help               Show this screen.
     --version               Show version.
 
+Commands:
+    run                     Runs a first level, group level, or full analysis.
+    install                 Installs a bundle and/or dataset.
+    ls                      Lists the available files in a bundle's dataset.
+
 Examples:
     neuroscout run first_level bundle.json .
 
