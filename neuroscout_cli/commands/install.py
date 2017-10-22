@@ -15,9 +15,9 @@ class Install(Command):
 
     def is_bundle_local(self):
         local = isdir(self.bundle_name)
-        local &= exists(join(self.bundle_id, 'resources.json'))
-        local &= exists(join(self.bundle_id, 'events.tsv'))
-        local &= exists(join(self.bundle_id, 'analysis.json'))
+        local &= exists(join(self.bundle_name, 'resources.json'))
+        local &= exists(join(self.bundle_name, 'events.tsv'))
+        local &= exists(join(self.bundle_name, 'analysis.json'))
         return local
 
     def download_bundle(self):
