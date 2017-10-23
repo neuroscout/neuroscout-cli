@@ -9,8 +9,11 @@ from nipype.workflows.fmri.fsl import (create_modelfit_workflow,
 import os
 
 
-def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts, config=None,
-                       out_dir=None, TR=2):
+def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts,
+                       event_files_dir,
+                       config=None,
+                       out_dir=None,
+                       TR=2):
     """
     Set up workflow
     """
@@ -50,6 +53,7 @@ def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts, conf
                       name='datasource')
     datasource.inputs.runs = runs
     datasource.inputs.bids_dir = bids_dir
+    datasource.inputs.event_files_dir = event_files_dir
     wf.connect([((infosource, datasource, [('subject_id', 'subject_id')]))])
 
     """

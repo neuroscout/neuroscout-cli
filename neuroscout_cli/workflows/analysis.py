@@ -58,6 +58,14 @@ class FirstLevel(Level):
     def create_workflow(self):
         self.wf = create_first_level(**self.args)
 
+    def contrasts_bids_to_fsl(self, bids_contrasts):
+        fsl_contrasts = []
+        for bids_con in bids_contrasts:
+            preds = [p['name'] for p in bids_con['predictors']]
+            fsl_con = [bids_con['name'], bids_con['contrastType'], preds, bids_con['weights']]
+            fsl_contrasts.append(fsl_con)
+        return fsl_contrasts
+
     def validate_arguments(self, args):
         super(FirstLevel, self).validate_arguments(args)
         # Install the needed inputs
@@ -73,7 +81,7 @@ class FirstLevel(Level):
         self.args['subjects'] = list(pd.DataFrame(
             bundle['runs']).subject.unique())
         self.args['config'] = bundle['config']
-        self.args['contrasts'] = bundle['contrasts']
+        self.args['contrasts'] = self.contrasts_bids_to_fsl(bundle['contrasts'])
         self.args['task'] = bundle['task_name']
         self.args['TR'] = bundle['TR']
         self.args['runs'] = bundle['runs']
@@ -87,6 +95,7 @@ class FirstLevel(Level):
         out_path = join(self.args['work_dir'], 'events')
         if not exists(out_path):
             os.mkdir(out_path)
+        self.args['event_files_dir'] = out_path
 
         for r in bundle['runs']:
             # Write out event files for each run_id
@@ -98,7 +107,9 @@ class FirstLevel(Level):
                                                                 bundle['task_name'],
                                                                 r['number'])
             events_path = join(out_path, fname)
-            events.to_csv(events_path, sep='\t', index=False)
+            events = events.reset_index()
+            events = events[['onset', 'duration', 'amplitude']]
+            events.to_csv(events_path, sep='\t', index=False, header=False)
 
 
 class GroupLevel(Level):
