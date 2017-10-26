@@ -8,7 +8,7 @@ import tempfile
 import pandas as pd
 
 from abc import ABCMeta, abstractmethod
-from os.path import join, exists
+from os.path import join
 from six import with_metaclass
 
 
@@ -61,7 +61,7 @@ class FirstLevel(Level):
     def contrasts_bids_to_fsl(self, bids_contrasts):
         fsl_contrasts = []
         for bids_con in bids_contrasts:
-            preds = [p['name'] for p in bids_con['predictors']]
+            preds = [str(p['id']) for p in bids_con['predictors']]
             fsl_con = [bids_con['name'], bids_con['contrastType'], preds, bids_con['weights']]
             fsl_contrasts.append(fsl_con)
         return fsl_contrasts
@@ -87,29 +87,7 @@ class FirstLevel(Level):
         self.args['runs'] = bundle['runs']
         self.args['bids_dir'] = bids_dir
         # For now ignoring name and hash_id
-
-        # Process design matrix/events
-        ### TODO: update to use pybids
-        events = pd.DataFrame.from_csv(join(bundle_path, 'events.tsv'), sep='\t')
-
-        out_path = join(self.args['work_dir'], 'events')
-        if not exists(out_path):
-            os.mkdir(out_path)
-        self.args['event_files_dir'] = out_path
-
-        for r in bundle['runs']:
-            # Write out event files for each run_id
-            # Uncomment below line when testing with > single run
-            # run_events = events[events.run_id == r['id']].drop('run_id', axis=1)
-            ses = 'ses-{}_'.format(r['session']) if r['session'] else ''
-            fname = 'sub-{}_{}task-{}_run-{}_events.tsv'.format(r['subject'],
-                                                                ses,
-                                                                bundle['task_name'],
-                                                                r['number'])
-            events_path = join(out_path, fname)
-            events = events.reset_index()
-            events = events[['onset', 'duration', 'amplitude']]
-            events.to_csv(events_path, sep='\t', index=False, header=False)
+        self.args['event_data'] = pd.DataFrame.from_csv(join(bundle_path, 'events.tsv'), sep='\t')
 
 
 class GroupLevel(Level):

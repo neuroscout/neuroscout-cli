@@ -1,7 +1,6 @@
 from nipype.pipeline.engine import Workflow, Node
 import nipype.algorithms.modelgen as model
 from nipype.interfaces.io import DataSink
-
 from nipype.interfaces.utility import Function, IdentityInterface
 from nipype.workflows.fmri.fsl import (create_modelfit_workflow,
                                        create_fixed_effects_flow)
@@ -10,7 +9,7 @@ import os
 
 
 def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts,
-                       event_files_dir,
+                       event_data,
                        config=None,
                        out_dir=None,
                        TR=2):
@@ -31,29 +30,47 @@ def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts,
     Data source
     """
 
-    ### TODO Remove dependence on transformer, get event files directly
-
-    def get_data(bids_dir, subject_id, event_files_dir, runs):
-        from bids.grabbids import BIDSLayout
+    def get_data(bids_dir, subject_id, event_data, runs):
         import os
-        events = BIDSLayout(event_files_dir).get(
-            subject=subject_id, return_type='file')
+        from nipype.interfaces.base import Bunch
+        # Convert design matrix to bunches
+        subject_bunches = []
+        subject_data = event_data[event_data['subject'] == int(subject_id)]
+        subject_runs = [int(r['number']) for r in runs if r['subject'] == subject_id]
+        for r, run_data in subject_data.groupby('run'):
+            if r in subject_runs:
+                conds = []
+                onsets = []
+                durations = []
+                amplitudes = []
+                for c, cond_data in run_data.groupby('condition'):
+                    cond_data = cond_data.reset_index()
+                    conds.append(str(c))
+                    onsets.append(cond_data['onset'].tolist())
+                    durations.append(cond_data['duration'].tolist())
+                    amplitudes.append(cond_data['amplitude'].tolist())
+                bunch = Bunch(conditions=conds,
+                              onsets=onsets,
+                              durations=durations,
+                              amplitudes=amplitudes)
+                subject_bunches.append(bunch)
+
         func = [r['func_path'] for r in runs if r['subject'] == subject_id]
         func = [os.path.join(bids_dir, f) for f in func]
         bm = [r['mask_path'] for r in runs if r['subject'] == subject_id]
         bm = [os.path.join(bids_dir, b) for b in bm]
 
-        return func, bm, events
+        return func, bm, subject_bunches
 
     datasource = Node(Function(input_names=['bids_dir', 'subject_id',
-                                            'event_files_dir', 'runs'],
+                                            'event_data', 'runs'],
                                output_names=['func', 'brainmask',
-                                             'event_files'],
+                                             'subject_info'],
                                function=get_data),
                       name='datasource')
     datasource.inputs.runs = runs
     datasource.inputs.bids_dir = bids_dir
-    datasource.inputs.event_files_dir = event_files_dir
+    datasource.inputs.event_data = event_data
     wf.connect([((infosource, datasource, [('subject_id', 'subject_id')]))])
 
     """
@@ -65,7 +82,7 @@ def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts,
     modelspec.inputs.time_repetition = TR
     modelspec.inputs.high_pass_filter_cutoff = 100.
 
-    wf.connect(datasource, 'event_files', modelspec, 'event_files')
+    wf.connect(datasource, 'subject_info', modelspec, 'subject_info')
     wf.connect(datasource, 'func', modelspec, 'functional_runs')
 
     """
