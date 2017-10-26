@@ -19,6 +19,6 @@ class Run(Command):
             first_runner = FirstLevel(self.options)
             first_lvdir = first_runner.args['out_dir']
             first_runner.execute()
-            self.options['first_lvdir'] = first_lvdir
+            self.options['-f'] = first_lvdir
             group_runner = GroupLevel(self.options)
             group_runner.execute()

@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [first_level|group_level] [-i <install_dir>|-w <work_dir>|-o <out_dir>|-c|--jobs=<n>] <bundle_id>
+    neuroscout run [first_level|group_level] [-i <install_dir>|-w <work_dir>|-o <out_dir>|-c|--jobs=<n>|-f <firstlv_dir>] <bundle_id>
     neuroscout install [bundle|data] [-i <install_dir>] <bundle_id>
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -12,6 +12,7 @@ Options:
     -i <install_dir>        Directory to download data and remote files.
     -w <work_dir>           Working directory.
     -o <out_dir>            Output directory.
+    -f <firstlv_dir>        First level analysis diretory, only applicable for group level.
     -c                      Stop on first crash.
     --jobs=<n>              Number of parallel jobs [default: 1].
     -h --help               Show this screen.

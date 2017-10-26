@@ -34,7 +34,7 @@ class Level(with_metaclass(ABCMeta)):
 
     def validate_arguments(self, args):
         """ Validate and preload command line arguments """
-        if args.pop('-c'):
+        if args['-c']:
             from nipype import config
             cfg = dict(logging=dict(workflow_level='DEBUG'),
                        execution={'stop_on_first_crash': True})
@@ -49,7 +49,7 @@ class Level(with_metaclass(ABCMeta)):
         self.args['work_dir'] = args['-w'] if args['-w'] else tempfile.mkdtemp()
         self.args['out_dir'] = args['-o'] if args['-o'] else os.getcwd()
 
-        self.jobs = int(args.pop('--jobs'))
+        self.jobs = int(args['--jobs'])
         self.run = True
 
 
@@ -97,4 +97,4 @@ class GroupLevel(Level):
 
     def validate_arguments(self, args):
         super(GroupLevel, self).validate_arguments(args)
-        self.args['firstlv_dir'] = args.pop('<firstlv_dir>')
+        self.args['firstlv_dir'] = args['-f'] if args['-f'] else None

@@ -42,7 +42,7 @@ def create_group_level(firstlv_dir, work_dir=None,
     mergevarcopes = Node(Merge(dimension='t'), name='merge_varcopes')
     wf.connect(dg, 'varcopes', mergevarcopes, 'in_files')
 
-    mask_file = fsl.Info.standard_image('MNI_3mm_brain_mask_thr.nii.gz')
+    mask_file = fsl.Info.standard_image('MNI152_T1_2mm_brain_mask.nii.gz')
     flame = Node(FLAMEO(), name='flameo')
     flame.inputs.mask_file = mask_file
     flame.inputs.run_mode = 'flame1'

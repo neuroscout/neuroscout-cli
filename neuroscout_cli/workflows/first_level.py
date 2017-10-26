@@ -59,6 +59,7 @@ def create_first_level(bids_dir, work_dir, task, subjects, runs, contrasts,
         func = [os.path.join(bids_dir, f) for f in func]
         bm = [r['mask_path'] for r in runs if r['subject'] == subject_id]
         bm = [os.path.join(bids_dir, b) for b in bm]
+        bm = bm[0]  # DANGER DANGER (but gets it to work)
 
         return func, bm, subject_bunches
 
