@@ -12,6 +12,7 @@ class Ls(Command):
 
     def run(self):
         # Install the needed bundle
+        # This command should probably not download the files to list them
         install_command = Install({'bundle': False,
                                    'data': False,
                                    '-i': tempfile.mkdtemp(),

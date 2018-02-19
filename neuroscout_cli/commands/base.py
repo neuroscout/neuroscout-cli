@@ -1,10 +1,9 @@
 """The base command."""
 
 from abc import ABCMeta, abstractmethod
-from six import with_metaclass
 
 
-class Command(with_metaclass(ABCMeta)):
+class Command(metaclass=ABCMeta):
 
     ''' A base command'''
 

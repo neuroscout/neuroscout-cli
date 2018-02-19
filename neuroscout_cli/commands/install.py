@@ -1,12 +1,10 @@
 from neuroscout_cli.commands.base import Command
-
-from datalad import api as dl
-from datalad.auto import AutomagicIO
-from os.path import isdir, exists, join
+from neuroscout_cli import API_URL
+from datalad.api import install
+from pathlib import Path
 import requests
 import json
 import tarfile
-
 
 class Install(Command):
 
@@ -14,44 +12,46 @@ class Install(Command):
     data. '''
 
     def is_bundle_local(self):
-        local = isdir(self.bundle_name)
-        local &= exists(join(self.bundle_name, 'resources.json'))
-        local &= exists(join(self.bundle_name, 'events.tsv'))
-        local &= exists(join(self.bundle_name, 'analysis.json'))
+        local = (self.install_dir / 'bundle').isdir()
+        local &= (self.install_dir / 'bundle' / 'resources.json').exists()
+        local &= (self.install_dir / 'bundle' / 'events.tsv').exists()
+        local &= (self.install_dir / 'bundle' / 'analysis.json').exists()
         return local
 
     def download_bundle(self):
         if not self.is_bundle_local():
-            endpoint = 'http://146.6.123.97/api/analyses/%s/bundle' % self.bundle_id
+            endpoint = API_URL + 'analyses/{}/bundle'.format(self.bundle_id)
             bundle = requests.get(endpoint)
-            tarname = self.bundle_name + '.tar.gz'
+
+            tarname = self.install_dir / 'bundle.tar.gz'
             with open(tarname, 'w') as f:
                 f.write(bundle.content)
 
             compressed = tarfile.open(tarname)
-            compressed.extractall(self.bundle_name)
+            compressed.extractall(self.install_dir / 'bundle')
 
-    def download_data(self, install_dir):
+        return self.bundle_name
+
+    def download_data(self):
         # Data addresses are stored in the resources file of the bundle
-        with open(join(self.bundle_name, 'resources.json'), 'r') as f:
+        with (self.install_dir / 'bundle' / 'resources.json').open() as f:
             resources = json.load(f)
 
-        # Use datalad to get the raw BIDS dataset
-        bids_dir = resources['dataset_address']
-        bids_dir = dl.install(source=bids_dir,
-                              path=install_dir).path
-        automagic = AutomagicIO()
-        automagic.activate()
+        # Use datalad to install the raw BIDS dataset
+        bids_dir = install(source=resources['dataset_address'],
+                           path=self.install_dir.as_posix()).path
+
+        # Pre-fetch specific files from the original dataset?
 
         # Fetch remote preprocessed files
         remote_path = resources['preproc_address']
         remote_files = resources['func_paths'] + resources['mask_paths']
         for resource in remote_files:
-            filename = join(bids_dir, resource)
-            if not exists(filename):
+            filename = Path(bids_dir) / 'preproc' / resource
+            if not filename.exists():
                 url = remote_path + resource
                 data = requests.get(url).content
-                with open(filename, 'w') as f:
+                with filename.open() as f:
                     f.write(data)
 
         return bids_dir
@@ -59,14 +59,14 @@ class Install(Command):
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
         self.bundle_name = self.bundle_id + '_bundle'
+        self.install_dir = Path(self.options.pop('-i'), '.') / self.bundle_name
+
         if self.options.pop('bundle'):
-            self.download_bundle()
-            return self.bundle_name
+            return self.download_bundle()
         elif self.options.pop('data'):
             if not self.is_bundle_local():
                 raise Exception("Cannot use [data] option of this command"
                                 "unless the bundle is available locally.")
-            return self.download_data(self.options['-i'])
+            return self.download_data()
         else:
-            self.download_bundle()
-            return self.bundle_name, self.download_data(self.options['-i'])
+            return self.download_bundle(), self.download_data()

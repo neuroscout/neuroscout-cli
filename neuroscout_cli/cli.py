@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [first_level|group_level] [-i <install_dir>|-w <work_dir>|-o <out_dir>|-c|--jobs=<n>|-f <firstlv_dir>] <bundle_id>
+    neuroscout run [run|session|participant|dataset] [-i <install_dir>|-w <work_dir>|-o <out_dir>|--jobs=<n>] <bundle_id>
     neuroscout install [bundle|data] [-i <install_dir>] <bundle_id>
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -12,8 +12,6 @@ Options:
     -i <install_dir>        Directory to download data and remote files.
     -w <work_dir>           Working directory.
     -o <out_dir>            Output directory.
-    -f <firstlv_dir>        First level analysis diretory, only applicable for group level.
-    -c                      Stop on first crash.
     --jobs=<n>              Number of parallel jobs [default: 1].
     -h --help               Show this screen.
     --version               Show version.
@@ -24,15 +22,13 @@ Commands:
     ls                      Lists the available files in a bundle's dataset.
 
 Examples:
-    neuroscout run first_level bundle.json .
+    neuroscout run dataset bundle.json .
 
 Help:
     For help using this tool, please open an issue on the Github
     repository: https://github.com/PsychoinformaticsLab/neuroscout-cli.
 
-    For help using neuroscout and creating a bundle, visit the main
-    neuroscout Github repository:
-    https://github.com/PsychoinformaticsLab/neuroscout.
+    For help using neuroscout and creating a bundle, visit www.neuroscout.org.
 """
 
 from docopt import docopt
