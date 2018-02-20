@@ -1,6 +1,6 @@
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli.commands.install import Install
-from fitins.cli.run import main
+from fitlins.cli.run import main
 
 class Run(Command):
 

@@ -5,6 +5,7 @@ from pathlib import Path
 import requests
 import json
 import tarfile
+import logging
 
 class Install(Command):
 
@@ -12,18 +13,19 @@ class Install(Command):
     data. '''
 
     def is_bundle_local(self):
-        local = (self.bundle_dir).isdir()
+        local = (self.bundle_dir).is_dir()
         local &= (self.bundle_dir / 'resources.json').exists()
-        local &= (self.bundle_dir / 'events.tsv').exists()
+        local &= len(list(self.bundle_dir.glob('*events.tsv'))) > 0
         local &= (self.bundle_dir / 'analysis.json').exists()
         return local
 
     def download_bundle(self):
         if not self.is_bundle_local():
+            logging.info("Downloading bundle...")
             endpoint = API_URL + 'analyses/{}/bundle'.format(self.bundle_id)
             bundle = requests.get(endpoint)
 
-            self.bundle_dir.mkdirs()
+            self.bundle_dir.mkdir()
 
             tarname = self.bundle_dir / 'bundle.tar.gz'
             with tarname.open() as f:
@@ -39,18 +41,21 @@ class Install(Command):
         with (self.bundle_dir / 'resources.json').open() as f:
             resources = json.load(f)
 
+        logging.info("Installing dataset...")
         # Use datalad to install the raw BIDS dataset
         bids_dir = install(source=resources['dataset_address'],
-                           path=self.install_dir.as_posix()).path
+                           path=(self.install_dir/'dataset').as_posix()).path
 
         # Pre-fetch specific files from the original dataset?
+
+        logging.info("Fetching remote resources...")
 
         # Fetch remote preprocessed files
         remote_path = resources['preproc_address']
         remote_files = resources['func_paths'] + resources['mask_paths']
 
         preproc_dir = Path(bids_dir) / 'derivatives' / 'preproc'
-        preproc_dir.mkdir(exists_ok=True)
+        preproc_dir.mkdir(exist_ok=True, parents=True)
 
         for resource in remote_files:
             filename = preproc_dir / resource
@@ -64,8 +69,8 @@ class Install(Command):
 
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
-        self.install_dir = Path(self.options.pop('-i'), '.')
-        self.bundle_dir = self.install_dir /  '{}_bundle'.format(self.bundle_id)
+        self.install_dir = Path(self.options.pop('-i'), '.') / self.bundle_id
+        self.bundle_dir = self.install_dir /  'bundle'
 
 
         if self.options.pop('bundle'):
