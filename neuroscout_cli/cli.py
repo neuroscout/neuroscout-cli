@@ -2,17 +2,18 @@
 neuroscout
 
 Usage:
-    neuroscout run [run|session|participant|dataset] [-i <install_dir>|-w <work_dir>|-o <out_dir>|--jobs=<n>] <bundle_id>
-    neuroscout install [bundle|data] [-i <install_dir>] <bundle_id>
+    neuroscout run <bundle_id> [-a <analysis_level>] [-i <install_dir> ] [-w <work_dir>] [-o <out_dir>] [--nthreads=<n>]
+    neuroscout install <bundle_id> [bundle|data] [-i <install_dir>]
     neuroscout ls <bundle_id>
     neuroscout -h | --help
     neuroscout --version
 
 Options:
+    -a <analysis_level>     Processing stage to be run (default: dataset)
     -i <install_dir>        Directory to download data and remote files.
-    -w <work_dir>           Working directory.
     -o <out_dir>            Output directory.
-    --jobs=<n>              Number of parallel jobs [default: 1].
+    -w <work_dir>           Working directory.
+    --nthreads=<n>          Number of parallel jobs [default: 1].
     -h --help               Show this screen.
     --version               Show version.
 

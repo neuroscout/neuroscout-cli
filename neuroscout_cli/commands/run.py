@@ -1,24 +1,27 @@
 from neuroscout_cli.commands.base import Command
-from neuroscout_cli.workflows.analysis import FirstLevel, GroupLevel
-
+from neuroscout_cli.commands.install import Install
+from fitins.cli.run import main
 
 class Run(Command):
 
     ''' Command for running neuroscout workflows. '''
 
     def run(self):
-        first = self.options.pop('first_level')
-        group = self.options.pop('group_level')
-        if first:
-            runner = FirstLevel(self.options)
-            runner.execute()
-        elif group:
-            runner = GroupLevel(self.options)
-            runner.execute()
-        else:
-            first_runner = FirstLevel(self.options)
-            first_lvdir = first_runner.args['out_dir']
-            first_runner.execute()
-            self.options['-f'] = first_lvdir
-            group_runner = GroupLevel(self.options)
-            group_runner.execute()
+        install_command = Install(self.options.copy())
+        bundle_path, bids_dir = install_command.run()
+
+        all_args = [
+            bids_dir,
+            self.options.pop('o', '.'),
+            self.options.pop('-a', 'dataset'),
+            '--model={}'.format((bundle_path / 'model.json').as_posix())
+        ]
+
+        # Add remaining optional arguments
+
+        for name, value in self.options.items():
+            if name.startswith('-'):
+                all_args.append('{} {}'.format(name, value))
+
+        # Call fitlins as if CLI
+        main(all_args)

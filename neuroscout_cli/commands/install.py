@@ -12,10 +12,10 @@ class Install(Command):
     data. '''
 
     def is_bundle_local(self):
-        local = (self.install_dir / 'bundle').isdir()
-        local &= (self.install_dir / 'bundle' / 'resources.json').exists()
-        local &= (self.install_dir / 'bundle' / 'events.tsv').exists()
-        local &= (self.install_dir / 'bundle' / 'analysis.json').exists()
+        local = (self.bundle_dir).isdir()
+        local &= (self.bundle_dir / 'resources.json').exists()
+        local &= (self.bundle_dir / 'events.tsv').exists()
+        local &= (self.bundle_dir / 'analysis.json').exists()
         return local
 
     def download_bundle(self):
@@ -23,18 +23,20 @@ class Install(Command):
             endpoint = API_URL + 'analyses/{}/bundle'.format(self.bundle_id)
             bundle = requests.get(endpoint)
 
-            tarname = self.install_dir / 'bundle.tar.gz'
-            with open(tarname, 'w') as f:
+            self.bundle_dir.mkdirs()
+
+            tarname = self.bundle_dir / 'bundle.tar.gz'
+            with tarname.open() as f:
                 f.write(bundle.content)
 
             compressed = tarfile.open(tarname)
-            compressed.extractall(self.install_dir / 'bundle')
+            compressed.extractall(self.bundle_dir)
 
-        return self.bundle_name
+        return self.bundle_dir
 
     def download_data(self):
         # Data addresses are stored in the resources file of the bundle
-        with (self.install_dir / 'bundle' / 'resources.json').open() as f:
+        with (self.bundle_dir / 'resources.json').open() as f:
             resources = json.load(f)
 
         # Use datalad to install the raw BIDS dataset
@@ -46,8 +48,12 @@ class Install(Command):
         # Fetch remote preprocessed files
         remote_path = resources['preproc_address']
         remote_files = resources['func_paths'] + resources['mask_paths']
+
+        preproc_dir = Path(bids_dir) / 'derivatives' / 'preproc'
+        preproc_dir.mkdir(exists_ok=True)
+
         for resource in remote_files:
-            filename = Path(bids_dir) / 'preproc' / resource
+            filename = preproc_dir / resource
             if not filename.exists():
                 url = remote_path + resource
                 data = requests.get(url).content
@@ -58,8 +64,9 @@ class Install(Command):
 
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
-        self.bundle_name = self.bundle_id + '_bundle'
-        self.install_dir = Path(self.options.pop('-i'), '.') / self.bundle_name
+        self.install_dir = Path(self.options.pop('-i'), '.')
+        self.bundle_dir = self.install_dir /  '{}_bundle'.format(self.bundle_id)
+
 
         if self.options.pop('bundle'):
             return self.download_bundle()
