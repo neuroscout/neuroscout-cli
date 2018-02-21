@@ -2,27 +2,26 @@
 neuroscout
 
 Usage:
-    neuroscout run <bundle_id> [-a <analysis_level>] [-i <install_dir> ] [-w <work_dir>] [-o <out_dir>] [--nthreads=<n>] [--debug]
-    neuroscout install <bundle_id> [bundle|data] [-i <install_dir>] [--debug]
+    neuroscout [-d] run <bundle_id> [-a <analysis_level> -w <work_dir> -o <out_dir> --nthreads=<n>]
+    neuroscout [-d] install <bundle_id> [bundle|data]
     neuroscout ls <bundle_id>
     neuroscout -h | --help
     neuroscout --version
 
 Options:
-    -a <analysis_level>     Processing stage to be run (default: dataset)
+    -a <analysis_level>     Processing stage to be run [default: dataset]
     -i <install_dir>        Directory to download data and remote files.
     -o <out_dir>            Output directory.
     -w <work_dir>           Working directory.
-    --nthreads=<n>          Number of parallel jobs [default: 1].
+    --nthreads=<n>          Number of parallel jobs [default: 1]
     -h --help               Show this screen.
-    --version               Show version.
-    --debug                 Debug level logging
+    -v, --version           Show version.
+    -d, --debug             Debug mode
 
 Commands:
     run                     Runs a first level, group level, or full analysis.
     install                 Installs a bundle and/or dataset.
-    ls
-                        Lists the available files in a bundle's dataset.
+    ls                      Lists the available files in a bundle's dataset.
 
 Examples:
     neuroscout run dataset bundle.json .
