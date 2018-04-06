@@ -37,6 +37,7 @@ Help:
 from docopt import docopt
 from . import __version__ as VERSION
 import logging
+import sys
 
 def main():
     # CLI entry point
@@ -52,3 +53,4 @@ def main():
             command = getattr(neuroscout_cli.commands, k)
             command = command(args)
             command.run()
+            sys.exit(0)

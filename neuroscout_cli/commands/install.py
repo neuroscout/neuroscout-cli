@@ -32,7 +32,7 @@ class Install(Command):
                 raise Exception("Error fetching bundle.")
 
             tarname = Path(tempfile.mkdtemp()) / 'bundle.tar.gz'
-            with tarname.open('w') as f:
+            with tarname.open('wb') as f:
                 f.write(bundle.content)
 
             self.bundle_dir.mkdir(parents=True, exist_ok=True)
@@ -40,7 +40,9 @@ class Install(Command):
             compressed = tarfile.open(tarname)
             compressed.extractall(self.bundle_dir)
 
-        return self.bundle_dir
+        print("Bundle installed at {}".format(self.bundle_dir.absolute()))
+
+        return self.bundle_dir.absolute()
 
     def download_data(self):
         # Data addresses are stored in the resources file of the bundle
