@@ -6,6 +6,7 @@ import requests
 import json
 import tarfile
 import logging
+import tempfile
 
 class Install(Command):
 
@@ -25,11 +26,11 @@ class Install(Command):
             endpoint = API_URL + 'analyses/{}/bundle'.format(self.bundle_id)
             bundle = requests.get(endpoint)
 
-            self.bundle_dir.mkdir()
-
-            tarname = self.bundle_dir / 'bundle.tar.gz'
+            tarname = Path(tempfile.mkdtemp()) / 'bundle.tar.gz'
             with tarname.open() as f:
                 f.write(bundle.content)
+
+            self.bundle_dir.mkdir(parents=True, exist_ok=True)
 
             compressed = tarfile.open(tarname)
             compressed.extractall(self.bundle_dir)
@@ -44,7 +45,7 @@ class Install(Command):
         logging.info("Installing dataset...")
         # Use datalad to install the raw BIDS dataset
         bids_dir = install(source=resources['dataset_address'],
-                           path=(self.install_dir/'dataset').as_posix()).path
+                           path=(self.install_dir).as_posix()).path
 
         # Pre-fetch specific files from the original dataset?
 
@@ -54,7 +55,7 @@ class Install(Command):
         remote_path = resources['preproc_address']
         remote_files = resources['func_paths'] + resources['mask_paths']
 
-        preproc_dir = Path(bids_dir) / 'derivatives' / 'preproc'
+        preproc_dir = Path(bids_dir) / 'derivatives' / 'fmriprep'
         preproc_dir.mkdir(exist_ok=True, parents=True)
 
         for resource in remote_files:
@@ -69,8 +70,8 @@ class Install(Command):
 
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
-        self.install_dir = Path(self.options.pop('-i'), '.') / self.bundle_id
-        self.bundle_dir = self.install_dir /  'bundle'
+        self.install_dir = Path(self.options.pop('-i'), '.')
+        self.bundle_dir = self.install_dir /  'derivatives' / 'neuroscout' / self.bundle_id
 
 
         if self.options.pop('bundle'):
