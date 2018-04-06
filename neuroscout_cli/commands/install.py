@@ -26,8 +26,13 @@ class Install(Command):
             endpoint = API_URL + 'analyses/{}/bundle'.format(self.bundle_id)
             bundle = requests.get(endpoint)
 
+            if bundle.status_code != 200:
+                if json.loads(bundle.content)['message'] == 'Resource not found':
+                    raise Exception("Bundle could not be found. Check your spelling and try again.")
+                raise Exception("Error fetching bundle.")
+
             tarname = Path(tempfile.mkdtemp()) / 'bundle.tar.gz'
-            with tarname.open() as f:
+            with tarname.open('w') as f:
                 f.write(bundle.content)
 
             self.bundle_dir.mkdir(parents=True, exist_ok=True)
@@ -70,7 +75,7 @@ class Install(Command):
 
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
-        self.install_dir = Path(self.options.pop('-i'), '.')
+        self.install_dir = Path(self.options.pop('-i') or '.')
         self.bundle_dir = self.install_dir /  'derivatives' / 'neuroscout' / self.bundle_id
 
 

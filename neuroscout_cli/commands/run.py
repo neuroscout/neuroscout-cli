@@ -1,12 +1,15 @@
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli.commands.install import Install
-from fitlins.cli.run import main
+from fitlins.cli.run import run as runfitlns
 
 class Run(Command):
 
     ''' Command for running neuroscout workflows. '''
 
     def run(self):
+        if self.options.pop('--no-install', False):
+            self.options['bundle'] = True
+
         install_command = Install(self.options.copy())
         bundle_path, bids_dir = install_command.run()
 
@@ -24,4 +27,4 @@ class Run(Command):
                 all_args.append('{} {}'.format(name, value))
 
         # Call fitlins as if CLI
-        main(all_args)
+        runfitlns(all_args)
