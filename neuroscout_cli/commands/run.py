@@ -23,13 +23,15 @@ class Run(Command):
         if out_dir == "bundle_dir":
             out_dir = (install_command.bundle_dir).absolute().as_posix()
 
+        dataset_dir = install_command.dataset_dir.absolute()
+
         ## Set up fitlins args
         fitlins_args = [
-            install_command.dataset_dir.absolute().as_posix(),
+            dataset_dir.as_posix(),
             out_dir,
             'dataset',
-            '--model={}'.format((bundle_path / 'model.json').as_posix()),
-            '-p {}'.format(install_command.dataset_dir.absolute() / 'derivatives' / 'fmriprep')
+            '--model={}'.format((bundle_path / 'model.json').absolute().as_posix()),
+            '--preproc-dir={}'.format((dataset_dir / 'derivatives' / 'fmriprep').as_posix())
         ]
 
         # Fitlins invalid keys
