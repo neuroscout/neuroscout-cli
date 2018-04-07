@@ -10,7 +10,7 @@ Usage:
 
 Options:
     -i <install_dir>        Directory to download dataset and bundle [default: .]
-    -o <out_dir>            Output directory
+    -o <out_dir>            Output directory [default: bundle_dir]
     -w <work_dir>           Working directory
     --nthreads=<n>          Number of parallel jobs [default: 1]
     -n, --no-download       Dont download dataset (if available locally)

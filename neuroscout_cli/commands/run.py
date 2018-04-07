@@ -19,20 +19,32 @@ class Run(Command):
         }
         json.dump(layout, (bundle_path.parents[0] / 'layout.json').open('w'))
 
+        out_dir = self.options.pop('-o')
+        if out_dir == "bundle_dir":
+            out_dir = (install_command.bundle_dir).absolute().as_posix()
+
         ## Set up fitlins args
         fitlins_args = [
-            install_command.dataset_dir.as_posix(),
-            self.options.pop('o', '.'),
+            install_command.dataset_dir.absolute().as_posix(),
+            out_dir,
             'dataset',
-            '--model={}'.format((bundle_path / 'model.json').as_posix())
+            '--model={}'.format((bundle_path / 'model.json').as_posix()),
+            '-p {}'.format(install_command.dataset_dir.absolute() / 'derivatives' / 'fmriprep')
         ]
+
+        # Fitlins invalid keys
+        invalid = ['--no-download', '--version', '--help', '-i']
+        for k in invalid:
+            self.options.pop(k, None)
 
         # Add remaining optional arguments
         for name, value in self.options.items():
-            if name.startswith('-'):
-                fitlins_args.append('{} {}'.format(name, value))
-
-        print(fitlins_args)
+            if name.startswith('--'):
+                if value is True:
+                    fitlins_args.append('{}'.format(name))
+            elif name.startswith('-'):
+                if value is not None:
+                    fitlins_args.append('{} {}'.format(name, value))
 
         # Call fitlins as if CLI
         runfitlns(fitlins_args)
