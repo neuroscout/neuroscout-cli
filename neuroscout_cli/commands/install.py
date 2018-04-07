@@ -6,7 +6,6 @@ import requests
 import json
 import tarfile
 import logging
-import tempfile
 
 class Install(Command):
 
@@ -33,28 +32,29 @@ class Install(Command):
         self.dataset_dir = self.install_dir / self.resources['dataset_name']
         self.bundle_dir = self.dataset_dir / 'derivatives' / 'neuroscout' / self.bundle_id
 
-        self.bundle_dir.mkdir(parents=True, exist_ok=True)
-        tf.extractall(self.bundle_dir)
-
-        print("Bundle installed at {}".format(self.bundle_dir.absolute()))
+        ## Probably need to add option to force-redownload
+        if not self.bundle_dir.exists():
+            self.bundle_dir.mkdir(parents=True, exist_ok=True)
+            tf.extractall(self.bundle_dir)
+            print("Bundle installed at {}".format(self.bundle_dir.absolute()))
 
         return self.bundle_dir.absolute()
 
     def download_data(self):
+        self.download_bundle()
         logging.info("Installing dataset...")
         # Use datalad to install the raw BIDS dataset
-        bids_dir = install(source=self.resources['dataset_address'],
-                           path=(self.install_dir).as_posix()).path
+        install(source=self.resources['dataset_address'],
+                path=(self.dataset_dir).as_posix()).path
 
         # Pre-fetch specific files from the original dataset?
-
         logging.info("Fetching remote resources...")
 
         # Fetch remote preprocessed files
         remote_path = self.resources['preproc_address']
         remote_files = self.resources['func_paths'] + self.resources['mask_paths']
 
-        preproc_dir = Path(bids_dir) / 'derivatives' / 'fmriprep'
+        preproc_dir = Path(self.dataet_dir) / 'derivatives' / 'fmriprep'
         preproc_dir.mkdir(exist_ok=True, parents=True)
 
         for resource in remote_files:
@@ -65,7 +65,7 @@ class Install(Command):
                 with filename.open() as f:
                     f.write(data)
 
-        return bids_dir
+        return self.dataset_dir
 
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
@@ -75,9 +75,6 @@ class Install(Command):
         if self.options.pop('bundle'):
             return self.download_bundle()
         elif self.options.pop('data'):
-            if not self.is_bundle_local():
-                raise Exception("Cannot use [data] option of this command"
-                                "unless the bundle is available locally.")
             return self.download_data()
         else:
-            return self.download_bundle(), self.download_data()
+            return self.download_data()
