@@ -1,7 +1,7 @@
 """The base command."""
 
 from abc import ABCMeta, abstractmethod
-
+from pathlib import Path
 
 class Command(metaclass=ABCMeta):
 
@@ -11,6 +11,8 @@ class Command(metaclass=ABCMeta):
         self.options = options
         self.args = args
         self.kwargs = kwargs
+        self.home = Path.home() / '.neuroscout'
+        self.home.mkdir(exist_ok=True)
 
     @abstractmethod
     def run(self):

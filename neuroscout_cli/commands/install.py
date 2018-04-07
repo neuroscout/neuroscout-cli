@@ -12,16 +12,8 @@ class Install(Command):
 
     ''' Command for retrieving neuroscout bundles and their corresponding
     data. '''
-
-    def is_bundle_local(self):
-        local = (self.bundle_dir).is_dir()
-        local &= (self.bundle_dir / 'resources.json').exists()
-        local &= len(list(self.bundle_dir.glob('*events.tsv'))) > 0
-        local &= (self.bundle_dir / 'analysis.json').exists()
-        return local
-
     def download_bundle(self):
-        if not self.is_bundle_local():
+        if not self.bundle_cache.exists():
             logging.info("Downloading bundle...")
             endpoint = API_URL + 'analyses/{}/bundle'.format(self.bundle_id)
             bundle = requests.get(endpoint)
@@ -31,27 +23,27 @@ class Install(Command):
                     raise Exception("Bundle could not be found. Check your spelling and try again.")
                 raise Exception("Error fetching bundle.")
 
-            tarname = Path(tempfile.mkdtemp()) / 'bundle.tar.gz'
-            with tarname.open('wb') as f:
+            with self.bundle_cache.open('wb') as f:
                 f.write(bundle.content)
 
-            self.bundle_dir.mkdir(parents=True, exist_ok=True)
+        tf = tarfile.open(self.bundle_cache)
+        self.resources = json.loads(tf.extractfile('resources.json').read().decode("utf-8"))
 
-            compressed = tarfile.open(tarname)
-            compressed.extractall(self.bundle_dir)
+        ## Need to add dataset name to resouces for folder name
+        self.dataset_dir = self.install_dir / self.resources['dataset_name']
+        self.bundle_dir = self.dataset_dir / 'derivatives' / 'neuroscout' / self.bundle_id
+
+        self.bundle_dir.mkdir(parents=True, exist_ok=True)
+        tf.extractall(self.bundle_dir)
 
         print("Bundle installed at {}".format(self.bundle_dir.absolute()))
 
         return self.bundle_dir.absolute()
 
     def download_data(self):
-        # Data addresses are stored in the resources file of the bundle
-        with (self.bundle_dir / 'resources.json').open() as f:
-            resources = json.load(f)
-
         logging.info("Installing dataset...")
         # Use datalad to install the raw BIDS dataset
-        bids_dir = install(source=resources['dataset_address'],
+        bids_dir = install(source=self.resources['dataset_address'],
                            path=(self.install_dir).as_posix()).path
 
         # Pre-fetch specific files from the original dataset?
@@ -59,8 +51,8 @@ class Install(Command):
         logging.info("Fetching remote resources...")
 
         # Fetch remote preprocessed files
-        remote_path = resources['preproc_address']
-        remote_files = resources['func_paths'] + resources['mask_paths']
+        remote_path = self.resources['preproc_address']
+        remote_files = self.resources['func_paths'] + self.resources['mask_paths']
 
         preproc_dir = Path(bids_dir) / 'derivatives' / 'fmriprep'
         preproc_dir.mkdir(exist_ok=True, parents=True)
@@ -77,8 +69,8 @@ class Install(Command):
 
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
+        self.bundle_cache = (self.home / self.bundle_id).with_suffix(".tar.gz")
         self.install_dir = Path(self.options.pop('-i') or '.')
-        self.bundle_dir = self.install_dir /  'derivatives' / 'neuroscout' / self.bundle_id
 
 
         if self.options.pop('bundle'):
