@@ -9,6 +9,7 @@ class Command(metaclass=ABCMeta):
 
     def __init__(self, options, *args, **kwargs):
         self.options = options
+        self.bundle_id = self.options['<bundle_id>']
         self.args = args
         self.kwargs = kwargs
         self.home = Path.home() / '.neuroscout'
@@ -16,4 +17,5 @@ class Command(metaclass=ABCMeta):
 
     @abstractmethod
     def run(self):
+
         pass

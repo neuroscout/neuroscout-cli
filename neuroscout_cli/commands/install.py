@@ -42,6 +42,7 @@ class Install(Command):
 
     def download_data(self):
         self.download_bundle()
+
         logging.info("Installing dataset...")
         # Use datalad to install the raw BIDS dataset
         install(source=self.resources['dataset_address'],
@@ -65,16 +66,13 @@ class Install(Command):
                 with filename.open() as f:
                     f.write(data)
 
-        return self.dataset_dir
+        return self.bundle_dir.absolute()
 
     def run(self):
-        self.bundle_id = self.options['<bundle_id>']
         self.bundle_cache = (self.home / self.bundle_id).with_suffix(".tar.gz")
         self.install_dir = Path(self.options.pop('-i'))
 
-        if self.options.pop('bundle'):
+        if self.options.pop('--no-download', False):
             return self.download_bundle()
-        elif self.options.pop('data'):
-            return self.download_data()
         else:
             return self.download_data()
