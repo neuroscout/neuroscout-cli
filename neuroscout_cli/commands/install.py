@@ -70,8 +70,7 @@ class Install(Command):
     def run(self):
         self.bundle_id = self.options['<bundle_id>']
         self.bundle_cache = (self.home / self.bundle_id).with_suffix(".tar.gz")
-        self.install_dir = Path(self.options.pop('-i') or '.')
-
+        self.install_dir = Path(self.options.pop('-i'))
 
         if self.options.pop('bundle'):
             return self.download_bundle()

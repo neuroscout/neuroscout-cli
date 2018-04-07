@@ -10,7 +10,7 @@ Usage:
 
 Options:
     -a <analysis_level>     Processing stage to be run [default: dataset]
-    -i <install_dir>        Directory to download dataset and bundle
+    -i <install_dir>        Directory to download dataset and bundle [default: .]
     -o <out_dir>            Output directory
     -w <work_dir>           Working directory
     --nthreads=<n>          Number of parallel jobs [default: 1]
