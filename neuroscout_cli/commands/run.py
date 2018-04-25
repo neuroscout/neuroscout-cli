@@ -48,5 +48,6 @@ class Run(Command):
                 if value is not None:
                     fitlins_args.append('{} {}'.format(name, value))
 
+        print(fitlins_args)
         # Call fitlins as if CLI
         runfitlns(fitlins_args)

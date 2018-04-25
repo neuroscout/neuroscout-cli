@@ -24,7 +24,7 @@ Commands:
     ls                      Lists the available files in a bundle's dataset.
 
 Examples:
-    neuroscout run dataset bundle.json .
+    neuroscout run 5xh -n
 
 Help:
     For help using this tool, please open an issue on the Github
