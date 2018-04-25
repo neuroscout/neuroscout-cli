@@ -1,72 +1,78 @@
 from neuroscout_cli.commands.base import Command
-
-from datalad import api as dl
-from datalad.auto import AutomagicIO
-from os.path import isdir, exists, join
+from neuroscout_cli import API_URL
+from datalad.api import install
+from pathlib import Path
 import requests
 import json
 import tarfile
-
+import logging
 
 class Install(Command):
 
     ''' Command for retrieving neuroscout bundles and their corresponding
     data. '''
-
-    def is_bundle_local(self):
-        local = isdir(self.bundle_name)
-        local &= exists(join(self.bundle_name, 'resources.json'))
-        local &= exists(join(self.bundle_name, 'events.tsv'))
-        local &= exists(join(self.bundle_name, 'analysis.json'))
-        return local
-
     def download_bundle(self):
-        if not self.is_bundle_local():
-            endpoint = 'http://146.6.123.97/api/analyses/%s/bundle' % self.bundle_id
+        if not self.bundle_cache.exists():
+            logging.info("Downloading bundle...")
+            endpoint = API_URL + 'analyses/{}/bundle'.format(self.bundle_id)
             bundle = requests.get(endpoint)
-            tarname = self.bundle_name + '.tar.gz'
-            with open(tarname, 'w') as f:
+
+            if bundle.status_code != 200:
+                if json.loads(bundle.content)['message'] == 'Resource not found':
+                    raise Exception("Bundle could not be found. Check your spelling and try again.")
+                raise Exception("Error fetching bundle.")
+
+            with self.bundle_cache.open('wb') as f:
                 f.write(bundle.content)
 
-            compressed = tarfile.open(tarname)
-            compressed.extractall(self.bundle_name)
+        tf = tarfile.open(self.bundle_cache)
+        self.resources = json.loads(tf.extractfile('resources.json').read().decode("utf-8"))
 
-    def download_data(self, install_dir):
-        # Data addresses are stored in the resources file of the bundle
-        with open(join(self.bundle_name, 'resources.json'), 'r') as f:
-            resources = json.load(f)
+        ## Need to add dataset name to resouces for folder name
+        self.dataset_dir = self.install_dir / self.resources['dataset_name']
+        self.bundle_dir = self.dataset_dir / 'derivatives' / 'neuroscout' / self.bundle_id
 
-        # Use datalad to get the raw BIDS dataset
-        bids_dir = resources['dataset_address']
-        bids_dir = dl.install(source=bids_dir,
-                              path=install_dir).path
-        automagic = AutomagicIO()
-        automagic.activate()
+        ## Probably need to add option to force-redownload
+        if not self.bundle_dir.exists():
+            self.bundle_dir.mkdir(parents=True, exist_ok=True)
+            tf.extractall(self.bundle_dir)
+            print("Bundle installed at {}".format(self.bundle_dir.absolute()))
+
+        return self.bundle_dir.absolute()
+
+    def download_data(self):
+        self.download_bundle()
+
+        logging.info("Installing dataset...")
+        # Use datalad to install the raw BIDS dataset
+        install(source=self.resources['dataset_address'],
+                path=(self.dataset_dir).as_posix()).path
+
+        # Pre-fetch specific files from the original dataset?
+        logging.info("Fetching remote resources...")
 
         # Fetch remote preprocessed files
-        remote_path = resources['preproc_address']
-        remote_files = resources['func_paths'] + resources['mask_paths']
+        remote_path = self.resources['preproc_address']
+        remote_files = self.resources['func_paths'] + self.resources['mask_paths']
+
+        preproc_dir = Path(self.dataet_dir) / 'derivatives' / 'fmriprep'
+        preproc_dir.mkdir(exist_ok=True, parents=True)
+
         for resource in remote_files:
-            filename = join(bids_dir, resource)
-            if not exists(filename):
+            filename = preproc_dir / resource
+            if not filename.exists():
                 url = remote_path + resource
                 data = requests.get(url).content
-                with open(filename, 'w') as f:
+                with filename.open() as f:
                     f.write(data)
 
-        return bids_dir
+        return self.bundle_dir.absolute()
 
     def run(self):
-        self.bundle_id = self.options['<bundle_id>']
-        self.bundle_name = self.bundle_id + '_bundle'
-        if self.options.pop('bundle'):
-            self.download_bundle()
-            return self.bundle_name
-        elif self.options.pop('data'):
-            if not self.is_bundle_local():
-                raise Exception("Cannot use [data] option of this command"
-                                "unless the bundle is available locally.")
-            return self.download_data(self.options['-i'])
+        self.bundle_cache = (self.home / self.bundle_id).with_suffix(".tar.gz")
+        self.install_dir = Path(self.options.pop('-i'))
+
+        if self.options.pop('--no-download', False):
+            return self.download_bundle()
         else:
-            self.download_bundle()
-            return self.bundle_name, self.download_data(self.options['-i'])
+            return self.download_data()

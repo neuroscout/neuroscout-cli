@@ -12,9 +12,8 @@ class Ls(Command):
 
     def run(self):
         # Install the needed bundle
-        install_command = Install({'bundle': False,
-                                   'data': False,
-                                   '-i': tempfile.mkdtemp(),
+        # This command should probably not download the files to list them
+        install_command = Install({'-i': tempfile.mkdtemp(),
                                    '<bundle_id>': self.options['<bundle_id>']})
         bundle_path, bids_dir = install_command.run()
 
