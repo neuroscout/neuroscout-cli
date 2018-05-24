@@ -1,7 +1,9 @@
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli.commands.install import Install
-from fitlins.cli.run import run as runfitlns
-import json
+from fitlins.cli.run import main
+from tempfile import mkdtemp
+import shutil
+from pathlib import Path
 
 class Run(Command):
 
@@ -12,26 +14,21 @@ class Run(Command):
         install_command = Install(self.options.copy())
         bundle_path = install_command.run()
 
-        ## Edit neuroscout layout
-        layout = {
-            "name": "neuroscout",
-            "include": [".*{}/.*".format(self.bundle_id)]
-        }
-        json.dump(layout, (bundle_path.parents[0] / 'layout.json').open('w'))
-
         out_dir = self.options.pop('-o')
         if out_dir == "bundle_dir":
-            out_dir = (install_command.bundle_dir).absolute().as_posix()
+            out_dir = (install_command.bundle_dir).absolute()
+
+        tmp_out = mkdtemp()
 
         dataset_dir = install_command.dataset_dir.absolute()
 
         ## Set up fitlins args
         fitlins_args = [
             dataset_dir.as_posix(),
-            out_dir,
+            tmp_out,
             'dataset',
             '--model={}'.format((bundle_path / 'model.json').absolute().as_posix()),
-            '--preproc-dir={}'.format((dataset_dir / 'derivatives' / 'fmriprep').as_posix())
+            '--exclude=.*neuroscout/(?!{}).*'.format(bundle_path.parts[-1])
         ]
 
         # Fitlins invalid keys
@@ -48,6 +45,7 @@ class Run(Command):
                 if value is not None:
                     fitlins_args.append('{} {}'.format(name, value))
 
-        print(fitlins_args)
         # Call fitlins as if CLI
-        runfitlns(fitlins_args)
+        main(fitlins_args)
+        # Copy to out_dir (doing this because of Windows volume)
+        shutil.copytree(Path(tmp_out) / 'fitlins', out_dir / 'fitlins')
