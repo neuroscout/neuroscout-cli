@@ -1,6 +1,6 @@
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli.commands.install import Install
-from fitlins.cli.run import main
+from fitlins.cli.run import run_fitlins
 from tempfile import mkdtemp
 import shutil
 from pathlib import Path
@@ -46,6 +46,6 @@ class Run(Command):
                     fitlins_args.append('{} {}'.format(name, value))
 
         # Call fitlins as if CLI
-        main(fitlins_args)
+        run_fitlins(fitlins_args)
         # Copy to out_dir (doing this because of Windows volume)
         shutil.copytree(Path(tmp_out) / 'fitlins', out_dir / 'fitlins')
