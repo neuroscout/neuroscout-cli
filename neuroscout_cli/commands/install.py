@@ -6,6 +6,25 @@ import requests
 import json
 import tarfile
 import logging
+from tqdm import tqdm
+import math
+
+logging.getLogger().setLevel(logging.INFO)
+
+def download_file(url, path):
+    # Streaming, so we can iterate over the response.
+    r = requests.get(url, stream=True)
+
+    # Total size in bytes.
+    total_size = int(r.headers.get('content-length', 0));
+    block_size = 1024
+    wrote = 0
+    with open(path, 'wb') as f:
+        for data in tqdm(r.iter_content(block_size), total=math.ceil(total_size//block_size) , unit='KB', unit_scale=True):
+            wrote = wrote  + len(data)
+            f.write(data)
+    if total_size != 0 and wrote != total_size:
+        print("ERROR, something went wrong")
 
 class Install(Command):
 
@@ -36,17 +55,17 @@ class Install(Command):
         if not self.bundle_dir.exists():
             self.bundle_dir.mkdir(parents=True, exist_ok=True)
             tf.extractall(self.bundle_dir)
-            print("Bundle installed at {}".format(self.bundle_dir.absolute()))
+            logging.info("Bundle installed at {}".format(self.bundle_dir.absolute()))
 
         return self.bundle_dir.absolute()
 
     def download_data(self):
         self.download_bundle()
 
-        logging.info("Installing dataset...")
+        # logging.info("Installing dataset...")
         # Use datalad to install the raw BIDS dataset
-        install(source=self.resources['dataset_address'],
-                path=(self.dataset_dir).as_posix()).path
+        # install(source=self.resources['dataset_address'],
+        #         path=(self.dataset_dir).as_posix()).path
 
         # Pre-fetch specific files from the original dataset?
         logging.info("Fetching remote resources...")
@@ -55,16 +74,16 @@ class Install(Command):
         remote_path = self.resources['preproc_address']
         remote_files = self.resources['func_paths'] + self.resources['mask_paths']
 
-        preproc_dir = Path(self.dataet_dir) / 'derivatives' / 'fmriprep'
+        preproc_dir = Path(self.dataset_dir) / 'derivatives' / 'fmriprep'
         preproc_dir.mkdir(exist_ok=True, parents=True)
 
-        for resource in remote_files:
+        for i, resource in enumerate(remote_files):
+            logging.info("Downloading resources {}/{}".format(i+1, len(remote_files)))
             filename = preproc_dir / resource
             if not filename.exists():
-                url = remote_path + resource
-                data = requests.get(url).content
-                with filename.open() as f:
-                    f.write(data)
+                filename.parents[0].mkdir(exist_ok=True, parents=True)
+                url = remote_path + '/' + resource
+                download_file(url, filename)
 
         return self.bundle_dir.absolute()
 
