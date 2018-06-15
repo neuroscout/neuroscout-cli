@@ -11,3 +11,6 @@ COPY [".", "/src/neuroscout"]
 RUN /bin/bash -c "source activate neuro \
       && pip install -q --no-cache-dir -r /src/neuroscout/requirements.txt" \
     && sync
+
+# Change entrypoint to neuroscout so it doesn't hangup on fitlins
+ENTRYPOINT ["/neurodocker/startup.sh", "fitlins", "neuroscout"]
