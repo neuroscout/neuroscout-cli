@@ -1,8 +1,8 @@
-#Use an poldracklab/fitlins as a parent image
+# Use an poldracklab/fitlins as a parent image
 FROM poldracklab/fitlins
 
 # Set the working directory to /work (should have been created by the fitlins paerent image)
-WORKDIR /work
+# WORKDIR /work
 
 # Copy the current directory contents into the container at /app (using COPY instead of ADD to keep it lighter)
 COPY [".", "/src/neuroscout"]
@@ -12,5 +12,9 @@ RUN /bin/bash -c "source activate neuro \
       && pip install -q --no-cache-dir -r /src/neuroscout/requirements.txt" \
     && sync
 
+RUN /bin/bash -c "source activate neuro \
+      && pip install -q --no-cache-dir -e /src/neuroscout[all]" \
+    && sync
+
 # Change entrypoint to neuroscout so it doesn't hangup on fitlins
-ENTRYPOINT ["setup.py", "neuroscout_cli"]
+ENTRYPOINT ["neuroscout"]
