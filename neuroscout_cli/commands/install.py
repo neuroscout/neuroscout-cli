@@ -7,7 +7,6 @@ import json
 import tarfile
 import logging
 from tqdm import tqdm
-import math
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -16,13 +15,14 @@ def download_file(url, path):
     r = requests.get(url, stream=True)
 
     # Total size in bytes.
-    total_size = int(r.headers.get('content-length', 0));
-    block_size = 1024
+    total_size = (int(r.headers.get('content-length', 0))/(32))
     wrote = 0
     with open(path, 'wb') as f:
-        for data in tqdm(r.iter_content(block_size), total=math.ceil(total_size//block_size) , unit='KB', unit_scale=True):
-            wrote = wrote  + len(data)
-            f.write(data)
+        with tqdm(total=total_size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+            for data in r.iter_content(32*1024):
+                f.write(data)
+                pbar.update(len(data))
+
     if total_size != 0 and wrote != total_size:
         print("ERROR, something went wrong")
 
@@ -78,7 +78,7 @@ class Install(Command):
         preproc_dir.mkdir(exist_ok=True, parents=True)
 
         for i, resource in enumerate(remote_files):
-            logging.info("Downloading resources {}/{}".format(i+1, len(remote_files)))
+            logging.info("{}/{}: {}".format(i+1, len(remote_files), resource))
             filename = preproc_dir / resource
             if not filename.exists():
                 filename.parents[0].mkdir(exist_ok=True, parents=True)
