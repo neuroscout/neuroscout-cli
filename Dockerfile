@@ -25,4 +25,4 @@ WORKDIR /work
 RUN /bin/bash -c "source activate neuro"
 
 # Change entrypoint to neuroscout so it doesn't hangup on fitlins
-ENTRYPOINT ["neuroscout"]
+ENTRYPOINT ["/neurodocker/startup.sh", "neuroscout"]
