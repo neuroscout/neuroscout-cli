@@ -15,16 +15,13 @@ def download_file(url, path):
     r = requests.get(url, stream=True)
 
     # Total size in bytes.
-    total_size = (int(r.headers.get('content-length', 0))/(32))
-    wrote = 0
+    total_size = int(r.headers.get('content-length', 0))
     with open(path, 'wb') as f:
         with tqdm(total=total_size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
             for data in r.iter_content(32*1024):
                 f.write(data)
                 pbar.update(len(data))
 
-    if total_size != 0 and wrote != total_size:
-        print("ERROR, something went wrong")
 
 class Install(Command):
 
