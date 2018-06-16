@@ -82,6 +82,12 @@ class Install(Command):
                 url = remote_path + '/' + resource
                 download_file(url, filename)
 
+        desc = {'Name': self.dataset_dir.parts[0],
+         'BIDSVersion': '1.0'}
+
+        with (self.dataset_dir / 'dataset_description.json').open('w') as f:
+            json.dump(desc, f)
+
         return self.bundle_dir.absolute()
 
     def run(self):
