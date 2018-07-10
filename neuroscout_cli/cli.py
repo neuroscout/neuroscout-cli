@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run <bundle_id> [-dn -w <work_dir> -o <out_dir> -i <install_dir> --nthreads=<n>]
+    neuroscout run <bundle_id> [-dn -w <work_dir> -o <out_dir> -i <install_dir> --n-cpus=<n>]
     neuroscout install <bundle_id> [-dn -i <install_dir>]
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -12,7 +12,7 @@ Options:
     -i <install_dir>        Directory to download dataset and bundle [default: .]
     -o <out_dir>            Output directory [default: bundle_dir]
     -w <work_dir>           Working directory
-    --nthreads=<n>          Number of parallel jobs [default: 1]
+    --n-cpus=<n>            Maximum number of threads across all processes [default: 1]
     -n, --no-download       Dont download dataset (if available locally)
     -h --help               Show this screen
     -v, --version           Show version
