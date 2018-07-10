@@ -1,4 +1,4 @@
 docopt
 datalad
 tqdm
--e git+https://github.com/adelavega/pybids.git@config#egg=pybids
+pybids
