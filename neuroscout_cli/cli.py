@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run <bundle_id> [-dn -w <work_dir> -o <out_dir> -i <install_dir> --nthreads=<n>]
+    neuroscout run <bundle_id> [-dn -w <work_dir> -o <out_dir> -i <install_dir> --n-cpus=<n>]
     neuroscout install <bundle_id> [-dn -i <install_dir>]
     neuroscout ls <bundle_id>
     neuroscout -h | --help
