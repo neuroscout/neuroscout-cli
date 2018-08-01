@@ -7,7 +7,7 @@ neuroscout-cli uses [FitLins](https://github.com/poldracklab/fitlins) to estimat
 #### Installation
 The easiest way to get Neuroscout running is using Docker. Just pull it from Docker hub!
 
-    docker pull neuroscout/neuroscout
+    docker pull neuroscout/neuroscout-cli
 
 #### Usage
 Neuroscout is easy to use. Assuming you've already created an analysis on neuroscout.org, and have its analysis id (e.g.: `5xH937f`) you can run it in one line:
