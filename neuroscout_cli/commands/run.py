@@ -18,6 +18,8 @@ class Run(Command):
         out_dir = self.options.pop('-o')
         if out_dir == "bundle_dir":
             out_dir = (install_command.bundle_dir).absolute()
+        else:
+            out_dir = Path(out_dir)
 
         tmp_out = mkdtemp()
 
