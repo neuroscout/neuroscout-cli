@@ -29,11 +29,11 @@ class Run(Command):
             tmp_out,
             'dataset',
             '--model={}'.format((bundle_path / 'model.json').absolute().as_posix()),
-            '--exclude=.*neuroscout/(?!{}).*'.format(bundle_path.parts[-1])
+            '--exclude=(neuroscout/(?!{})|fmriprep.*$(?<=tsv)|/.git)'.format(bundle_path.parts[-1])
         ]
 
         # Fitlins invalid keys
-        invalid = ['--no-download', '--version', '--help', '-i']
+        invalid = ['--no-download', '--version', '--help', '-i', 'run', '<bundle_id>']
         for k in invalid:
             self.options.pop(k, None)
 
@@ -42,8 +42,10 @@ class Run(Command):
             if name.startswith('--'):
                 if value is True:
                     fitlins_args.append('{}'.format(name))
-            elif name.startswith('-'):
-                if value is not None:
+                if value is not None and value is not False:
+                    fitlins_args.append('{}={}'.format(name, value))
+            else:
+                if value is not False and value is not None:
                     fitlins_args.append('{} {}'.format(name, value))
 
         bids.config.set_options(loop_preproc=True)

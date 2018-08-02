@@ -1,6 +1,6 @@
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli import API_URL
-from datalad.api import install
+from datalad.api import install, get
 from pathlib import Path
 import requests
 import json
@@ -59,31 +59,35 @@ class Install(Command):
     def download_data(self):
         self.download_bundle()
 
-        # logging.info("Installing dataset...")
-        # Use datalad to install the raw BIDS dataset
-        # install(source=self.resources['dataset_address'],
-        #         path=(self.dataset_dir).as_posix()).path
-
-        # Pre-fetch specific files from the original dataset?
-        logging.info("Fetching remote resources...")
-
-        # Fetch remote preprocessed files
-        remote_path = self.resources['preproc_address']
         remote_files = self.resources['func_paths'] + self.resources['mask_paths']
+        remote_path = self.resources['preproc_address']
 
-        preproc_dir = Path(self.dataset_dir) / 'derivatives' / 'fmriprep'
-        preproc_dir.mkdir(exist_ok=True, parents=True)
+        deriv_dir = Path(self.dataset_dir) / 'derivatives'
 
-        for i, resource in enumerate(remote_files):
-            logging.info("{}/{}: {}".format(i+1, len(remote_files), resource))
-            filename = preproc_dir / resource
-            if not filename.exists():
-                filename.parents[0].mkdir(exist_ok=True, parents=True)
-                url = remote_path + '/' + resource
-                download_file(url, filename)
+        try:
+            if not (deriv_dir / 'fmriprep').exists():
+                # Use datalad to install the raw BIDS dataset
+                install(source=remote_path,
+                        path=(deriv_dir / 'fmriprep').as_posix())
 
-        desc = {'Name': self.dataset_dir.parts[0],
-         'BIDSVersion': '1.0'}
+            preproc_dir = deriv_dir / 'fmriprep' / 'fmriprep'
+            get([(preproc_dir / f).as_posix() for f in remote_files])
+        except Exception as e:
+            message = e.failed[0]['message']
+            if 'Failed to clone data from any candidate source URL' not in message[0]:
+                raise ValueError("Datalad failed. Reason: {}".format(message))
+
+            logging.info("Attempting HTTP download...")
+            preproc_dir = deriv_dir / 'fmriprep'
+            for i, resource in enumerate(remote_files):
+                filename = preproc_dir / resource
+                logging.info("{}/{}: {}".format(i+1, len(remote_files), resource))
+
+                if not filename.exists():
+                    filename.parents[0].mkdir(exist_ok=True, parents=True)
+                    download_file(remote_path + '/' + resource, filename)
+
+        desc = {'Name': self.dataset_dir.parts[0], 'BIDSVersion': '1.0'}
 
         with (self.dataset_dir / 'dataset_description.json').open('w') as f:
             json.dump(desc, f)
