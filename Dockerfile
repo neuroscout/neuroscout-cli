@@ -4,6 +4,7 @@ FROM poldracklab/fitlins
 # Set user back to root
 USER root
 RUN chown -R root /src /work
+RUN mkdir /data
 
 # Install neurodebian/datalad
 ARG DEBIAN_FRONTEND=noninteractive
@@ -18,7 +19,7 @@ RUN /bin/bash -c "source activate neuro \
       && pip install -q --no-cache-dir -e /src/fitlins[all]" \
     && sync
 
-# Copy the current directory contents into the container at /app (using COPY instead of ADD to keep it lighter)
+# Copy the current directory contents into the container
 COPY [".", "/src/neuroscout"]
 
 RUN /bin/bash -c "source activate neuro \
@@ -29,8 +30,7 @@ RUN /bin/bash -c "source activate neuro \
       && pip install -q --no-cache-dir --upgrade -r /src/neuroscout/requirements.txt" \
     && sync
 
-
-WORKDIR /work
+WORKDIR /data
 
 # Change entrypoint to neuroscout
 ENTRYPOINT ["/neurodocker/startup.sh", "neuroscout"]

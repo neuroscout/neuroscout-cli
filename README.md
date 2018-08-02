@@ -13,15 +13,14 @@ The easiest way to get Neuroscout running is using Docker. Just pull it from Doc
 Neuroscout is easy to use. Assuming you've already created an analysis on neuroscout.org, and have its analysis id (e.g.: `5xH937f`) you can run it in one line:
 
     docker run -it neuroscout/neuroscout-cli run 5xH937f
-    
+
 Neuroscout will download the necessary images, analysis bundle, and fit your model.
 
-It's probably best to mount a local volume to the work dir, to access the outputs, and cache any downloaded MRI images:
+To cache the downloaded data, and output the results to a separate folder, mount the appropriate volumes:
 
-    docker run -it -v /local/dir:/work neuroscout/neuroscout-cli run 5xH937f
-    
+    docker run -it -v /local/datadir:/data -v /local/outdir:/out neuroscout/neuroscout-cli run 5xH937f -o /out
 
-See the output of `neuroscout --help` for more informations:
+See the output of `neuroscout --help` for more information:
 
 ```
 Usage:
