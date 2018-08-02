@@ -16,7 +16,7 @@ RUN git config --global  user.email "user@example.edu"
 
 # Install additional neuroscout + dependencies
 RUN /bin/bash -c "source activate neuro \
-      && pip install -q --no-cache-dir -e /src/fitlins[all]" \
+      && pip install -q --no-cache-dir -e git+https://github.com/poldracklab/fitlins.git@cceba1a46#egg=fitlins" \
     && sync
 
 # Copy the current directory contents into the container
