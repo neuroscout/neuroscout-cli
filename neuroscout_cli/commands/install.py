@@ -62,23 +62,21 @@ class Install(Command):
         remote_files = self.resources['func_paths'] + self.resources['mask_paths']
         remote_path = self.resources['preproc_address']
 
-        deriv_dir = Path(self.dataset_dir) / 'derivatives'
+        preproc_dir = Path(self.dataset_dir) / 'derivatives' / 'fmriprep'
 
         try:
-            if not (deriv_dir / 'fmriprep').exists():
+            if not preproc_dir.exists():
                 # Use datalad to install the raw BIDS dataset
                 install(source=remote_path,
-                        path=(deriv_dir / 'fmriprep').as_posix())
-
-            preproc_dir = deriv_dir / 'fmriprep' / 'fmriprep'
-            get([(preproc_dir / f).as_posix() for f in remote_files])
+                        path=str(preproc_dir))
+            if (preproc_dir / 'fmriprep').exists():
+                get([str(preproc_dir / 'fmriprep' / f) for f in remote_files])
         except Exception as e:
             message = e.failed[0]['message']
-            if 'Failed to clone data from any candidate source URL' not in message[0]:
+            if 'Failed to clone data from any candidate' not in message[0]:
                 raise ValueError("Datalad failed. Reason: {}".format(message))
 
             logging.info("Attempting HTTP download...")
-            preproc_dir = deriv_dir / 'fmriprep'
             for i, resource in enumerate(remote_files):
                 filename = preproc_dir / resource
                 logging.info("{}/{}: {}".format(i+1, len(remote_files), resource))
