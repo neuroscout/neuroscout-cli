@@ -1,4 +1,6 @@
 # neuroscout-cli ⚜️
+![Docker Build Status](https://img.shields.io/docker/build/neuroscout/neuroscout-cli.svg)
+
 
 The neuroscout command line interface allows you to easily execute analyses created on neuroscout.org. neuroscout-cli automatically fetches analysis dependencies (including data, and analysis specifications), fits a GLM model to the BIDS dataset, and produces shareable reports of the results.
 
