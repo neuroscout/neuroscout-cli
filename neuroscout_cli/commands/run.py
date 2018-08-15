@@ -4,10 +4,8 @@ from fitlins.cli.run import run_fitlins
 from tempfile import mkdtemp
 import shutil
 from pathlib import Path
-import bids
 
 class Run(Command):
-
     ''' Command for running neuroscout workflows. '''
 
     def run(self):
@@ -50,7 +48,6 @@ class Run(Command):
                 if value is not False and value is not None:
                     fitlins_args.append('{} {}'.format(name, value))
 
-        bids.config.set_options(loop_preproc=True)
         # Call fitlins as if CLI
         run_fitlins(fitlins_args)
         # Copy to out_dir (doing this because of Windows volume)

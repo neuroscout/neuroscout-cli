@@ -13,14 +13,13 @@ RUN apt-get update && apt-get install datalad -yq
 RUN git config --global user.name "Neuroscout"
 RUN git config --global  user.email "user@example.edu"
 
+# Copy the current directory contents into the container
+COPY [".", "/src/neuroscout"]
 
 # Install additional neuroscout + dependencies
 RUN /bin/bash -c "source activate neuro \
-      && pip install -q --no-cache-dir -e git+https://github.com/poldracklab/fitlins.git@cceba1a46#egg=fitlins" \
+      && pip install -q --no-cache-dir -e git+https://github.com/poldracklab/fitlins.git#egg=fitlins" \
     && sync
-
-# Copy the current directory contents into the container
-COPY [".", "/src/neuroscout"]
 
 RUN /bin/bash -c "source activate neuro \
       && pip install -q --no-cache-dir -e /src/neuroscout/" \
