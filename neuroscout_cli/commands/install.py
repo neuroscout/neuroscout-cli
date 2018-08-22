@@ -31,7 +31,11 @@ class Install(Command):
         if not self.bundle_cache.exists():
             logging.info("Downloading bundle...")
             endpoint = API_URL + 'analyses/{}/bundle'.format(self.bundle_id)
-            bundle = requests.get(endpoint)
+            try:
+                bundle = requests.get(endpoint)
+            except requests.exceptions.ConnectionError:
+                raise Exception("API can't be reached. Try again later, or specify"
+                                "dataset name manually if data locally available")
 
             if bundle.status_code != 200:
                 if json.loads(bundle.content)['message'] == 'Resource not found':
@@ -98,5 +102,14 @@ class Install(Command):
 
         if self.options.pop('--no-download', False):
             return self.download_bundle()
+        elif self.options.get('--dataset-name', False):
+            self.dataset_dir = self.install_dir / self.options.pop('--dataset-name')
+            self.bundle_dir = self.dataset_dir / 'derivatives' / 'neuroscout' / self.bundle_id
+            if self.bundle_dir.exists():
+                return self.bundle_dir.absolute()
+            else:
+                raise ValueError(
+                    "Manually specified dastaset directory does not contain",
+                    "analysis bundle. Try again, or re-download bundle.")
         else:
             return self.download_data()

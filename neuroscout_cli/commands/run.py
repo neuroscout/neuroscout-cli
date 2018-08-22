@@ -33,7 +33,7 @@ class Run(Command):
         ]
 
         # Fitlins invalid keys
-        invalid = ['--no-download', '--version', '--help', '-i', 'run', '<bundle_id>']
+        invalid = ['--no-download', '--version', '--help', '-i', 'run', '<bundle_id>', '--dataset-name']
         for k in invalid:
             self.options.pop(k, None)
 
