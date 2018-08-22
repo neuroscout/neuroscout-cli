@@ -1,4 +1,3 @@
 docopt
 datalad
 tqdm
-pybids

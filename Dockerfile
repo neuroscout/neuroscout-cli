@@ -1,9 +1,7 @@
-# Use an poldracklab/fitlins as a parent image
 FROM poldracklab/fitlins
 
 # Set user back to root
 USER root
-RUN chown -R root /src /work
 RUN mkdir /data
 
 # Install neurodebian/datalad
@@ -12,12 +10,6 @@ RUN apt-get update && apt-get install datalad -yq
 
 RUN git config --global user.name "Neuroscout"
 RUN git config --global  user.email "user@example.edu"
-
-
-# Install additional neuroscout + dependencies
-RUN /bin/bash -c "source activate neuro \
-      && pip install -q --no-cache-dir -e git+https://github.com/poldracklab/fitlins.git@cceba1a46#egg=fitlins" \
-    && sync
 
 # Copy the current directory contents into the container
 COPY [".", "/src/neuroscout"]
