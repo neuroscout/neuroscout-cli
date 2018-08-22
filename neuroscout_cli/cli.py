@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run <bundle_id> [-dn -o <out_dir> -i <install_dir> --n-cpus=<n> --work-dir=<dir>]
+    neuroscout run <bundle_id> [-dn -o <out_dir> -i <install_dir> --n-cpus=<n> --work-dir=<dir> --dataset-name=<name>]
     neuroscout install <bundle_id> [-dn -i <install_dir>]
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -14,6 +14,7 @@ Options:
     --work-dir=<dir>        Working directory
     --n-cpus=<n>            Maximum number of threads across all processes [default: 1]
     -n, --no-download       Dont download dataset (if available locally)
+    --dataset-name=<name>   Manually specify dataset name
     -h --help               Show this screen
     -v, --version           Show version
     -d, --debug             Debug mode
@@ -28,7 +29,7 @@ Examples:
 
 Help:
     For help using this tool, please open an issue on the Github
-    repository: https://github.com/PsychoinformaticsLab/neuroscout-cli.
+    repository: https://github.com/neuroscout/neuroscout-cli.
 
     For help using neuroscout and creating a bundle, visit www.neuroscout.org.
 """
@@ -50,6 +51,5 @@ def main():
         if hasattr(neuroscout_cli.commands, k) and v:
             k = k[0].upper() + k[1:]
             command = getattr(neuroscout_cli.commands, k)
-            command = command(args)
-            command.run()
+            command(args).run()
             sys.exit(0)
