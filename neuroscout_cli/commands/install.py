@@ -1,5 +1,4 @@
 from neuroscout_cli.commands.base import Command
-from neuroscout_cli import API_URL
 from datalad.api import install, get
 from pathlib import Path
 import requests
@@ -17,7 +16,8 @@ def download_file(url, path):
     # Total size in bytes.
     total_size = int(r.headers.get('content-length', 0))
     with open(path, 'wb') as f:
-        with tqdm(total=total_size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:
+        with tqdm(total=total_size, unit='B',
+                  unit_scale=True, unit_divisor=1024) as pbar:
             for data in r.iter_content(32*1024):
                 f.write(data)
                 pbar.update(len(data))
@@ -30,25 +30,12 @@ class Install(Command):
     def download_bundle(self):
         if not self.bundle_cache.exists():
             logging.info("Downloading bundle...")
-            endpoint = API_URL + 'analyses/{}/bundle'.format(self.bundle_id)
-            try:
-                bundle = requests.get(endpoint)
-            except requests.exceptions.ConnectionError:
-                raise Exception("API can't be reached. Try again later, or specify"
-                                "dataset name manually if data locally available")
-
-            if bundle.status_code != 200:
-                if json.loads(bundle.content)['message'] == 'Resource not found':
-                    raise Exception("Bundle could not be found. Check your spelling and try again.")
-                raise Exception("Error fetching bundle.")
-
-            with self.bundle_cache.open('wb') as f:
-                f.write(bundle.content)
+            self.api.analyses.bundle(self.bundle_id, self.bundle_cache)
 
         tf = tarfile.open(self.bundle_cache)
-        self.resources = json.loads(tf.extractfile('resources.json').read().decode("utf-8"))
+        self.resources = json.loads(
+            tf.extractfile('resources.json').read().decode("utf-8"))
 
-        ## Need to add dataset name to resouces for folder name
         self.dataset_dir = self.install_dir / self.resources['dataset_name']
         self.bundle_dir = self.dataset_dir / 'derivatives' / 'neuroscout' / self.bundle_id
 
@@ -56,7 +43,8 @@ class Install(Command):
         if not self.bundle_dir.exists():
             self.bundle_dir.mkdir(parents=True, exist_ok=True)
             tf.extractall(self.bundle_dir)
-            logging.info("Bundle installed at {}".format(self.bundle_dir.absolute()))
+            logging.info(
+                "Bundle installed at {}".format(self.bundle_dir.absolute()))
 
         return self.bundle_dir.absolute()
 

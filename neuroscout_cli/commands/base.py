@@ -2,6 +2,7 @@
 
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
+from pyns import Neuroscout
 
 class Command(metaclass=ABCMeta):
 
@@ -14,6 +15,7 @@ class Command(metaclass=ABCMeta):
         self.kwargs = kwargs
         self.home = Path.home() / '.neuroscout'
         self.home.mkdir(exist_ok=True)
+        self.api = Neuroscout()
 
     @abstractmethod
     def run(self):
