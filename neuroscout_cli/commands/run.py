@@ -5,6 +5,9 @@ from tempfile import mkdtemp
 import shutil
 from pathlib import Path
 
+# Options not to be passed onto fitlins
+INVALID = ['--no-download', '--version', '--help', '-i', 'run', '<bundle_id>', '--dataset-name']
+
 class Run(Command):
     ''' Command for running neuroscout workflows. '''
 
@@ -13,12 +16,7 @@ class Run(Command):
         install_command = Install(self.options.copy())
         bundle_path = install_command.run()
 
-        out_dir = self.options.pop('-o')
-        if out_dir == "bundle_dir":
-            out_dir = (install_command.bundle_dir).absolute()
-        else:
-            out_dir = Path(out_dir)
-
+        out_dir = Path(self.options.pop('<outdir>'))
         tmp_out = mkdtemp()
 
         dataset_dir = install_command.dataset_dir.absolute()
@@ -33,8 +31,7 @@ class Run(Command):
         ]
 
         # Fitlins invalid keys
-        invalid = ['--no-download', '--version', '--help', '-i', 'run', '<bundle_id>', '--dataset-name']
-        for k in invalid:
+        for k in INVALID:
             self.options.pop(k, None)
 
         # Add remaining optional arguments
@@ -51,4 +48,4 @@ class Run(Command):
         # Call fitlins as if CLI
         run_fitlins(fitlins_args)
         # Copy to out_dir (doing this because of Windows volume)
-        shutil.copytree(Path(tmp_out) / 'fitlins', out_dir / 'fitlins')
+        shutil.copytree(Path(tmp_out) / 'fitlins', out_dir / self.bundle_id)
