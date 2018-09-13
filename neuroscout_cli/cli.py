@@ -36,6 +36,7 @@ Help:
 from docopt import docopt
 from . import __version__ as VERSION
 import sys
+from copy import deepcopy
 
 def main():
     # CLI entry point
@@ -52,5 +53,5 @@ def main():
                 for b in bundles:
                     print("Running bundle {}".format(b))
                     args['<bundle_id>'] = b
-                    command(args).run()
+                    command(deepcopy(args)).run()
             sys.exit(0)
