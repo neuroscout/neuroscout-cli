@@ -97,7 +97,7 @@ class Install(Command):
                 return self.bundle_dir.absolute()
             else:
                 raise ValueError(
-                    "Manually specified dastaset directory does not contain",
+                    "Manually specified dataset directory does not contain",
                     "analysis bundle. Try again, or re-download bundle.")
         else:
             return self.download_data()
