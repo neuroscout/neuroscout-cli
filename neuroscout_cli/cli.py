@@ -2,20 +2,19 @@
 neuroscout
 
 Usage:
-    neuroscout run <outdir> <bundle_id>... [options]
-    neuroscout install <bundle_id>... [-n -i <install_dir>]
+    neuroscout run [-nu] [options] <outdir> <bundle_id>...
+    neuroscout install [-nu --install_dir=<dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
     neuroscout --version
 
 Options:
-    -i <install_dir>        Directory to download dataset and bundle [default: .]
+    --install_dir=<dir>     Directory to download dataset and bundle [default: .]
     --work-dir=<dir>        Working directory
     --n-cpus=<n>            Maximum number of threads across all processes [default: 1]
-    -n, --no-download       Dont download dataset (if available locally)
     --dataset-name=<name>   Manually specify dataset name
-    -h --help               Show this screen
-    -v, --version           Show version
+    -n --no-download        Dont download dataset
+    -u --unlock             Unlock datalad dataset
 
 Commands:
     run                     Runs a first level, group level, or full analysis.
@@ -23,7 +22,7 @@ Commands:
     ls                      Lists the available files in a bundle's dataset.
 
 Examples:
-    neuroscout run 5xhaS /out -n
+    neuroscout run -n 5xhaS /out
     neuroscout run 5xhaS 38fdx /out
 
 Help:

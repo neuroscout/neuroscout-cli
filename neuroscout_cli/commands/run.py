@@ -6,7 +6,7 @@ import shutil
 from pathlib import Path
 
 # Options not to be passed onto fitlins
-INVALID = ['--no-download', '--version', '--help', '-i', 'run', '<bundle_id>', '--dataset-name']
+INVALID = ['--unlock', '--no-download', '--version', '--help', '--install_dir', 'run', '<bundle_id>', '--dataset-name']
 
 class Run(Command):
     ''' Command for running neuroscout workflows. '''
