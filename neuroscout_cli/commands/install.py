@@ -1,5 +1,5 @@
 from neuroscout_cli.commands.base import Command
-from datalad.api import install, get
+from datalad.api import install, get, unlock
 from pathlib import Path
 import requests
 import json
@@ -62,7 +62,10 @@ class Install(Command):
                 install(source=remote_path,
                         path=str(preproc_dir))
             if (preproc_dir / 'fmriprep').exists():
-                get([str(preproc_dir / 'fmriprep' / f) for f in remote_files])
+                paths = [str(preproc_dir / 'fmriprep' / f) for f in remote_files]
+                get(paths)
+                if self.options.pop('--unlock', False):
+                    unlock(paths)
         except Exception as e:
             message = e.failed[0]['message']
             if 'Failed to clone data from any candidate' not in message[0]:
@@ -86,7 +89,7 @@ class Install(Command):
 
     def run(self):
         self.bundle_cache = (self.home / self.bundle_id).with_suffix(".tar.gz")
-        self.install_dir = Path(self.options.pop('-i'))
+        self.install_dir = Path(self.options.pop('--install-dir'))
 
         if self.options.pop('--no-download', False):
             return self.download_bundle()
