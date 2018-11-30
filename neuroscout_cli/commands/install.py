@@ -78,7 +78,7 @@ class Install(Command):
             message = e.failed[0]['message']
             raise ValueError("Datalad failed. Reason: {}".format(message))
 
-        desc = {'Name': self.dataset_dir.parts[0], 'BIDSVersion': '1.0'}
+        desc = {'Name': self.dataset_dir.parts[0], 'BIDSVersion': '1.1.1'}
 
         with (self.dataset_dir / 'dataset_description.json').open('w') as f:
             json.dump(desc, f)
