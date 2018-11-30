@@ -1,6 +1,7 @@
 from neuroscout_cli.commands.base import Command
 from datalad.api import install, get, unlock
 from pathlib import Path
+from shutil import copy
 import requests
 import json
 import tarfile
@@ -8,6 +9,7 @@ import logging
 from tqdm import tqdm
 
 logging.getLogger().setLevel(logging.INFO)
+
 
 def download_file(url, path):
     # Streaming, so we can iterate over the response.
@@ -39,12 +41,14 @@ class Install(Command):
         self.dataset_dir = self.install_dir / self.resources['dataset_name']
         self.bundle_dir = self.dataset_dir / 'derivatives' / 'neuroscout' / self.bundle_id
 
-        ## Probably need to add option to force-redownload
+        # Probably need to add option to force-redownload
         if not self.bundle_dir.exists():
             self.bundle_dir.mkdir(parents=True, exist_ok=True)
             tf.extractall(self.bundle_dir)
             logging.info(
                 "Bundle installed at {}".format(self.bundle_dir.absolute()))
+            # Copy meta-data to root of dataset_dir
+            copy(list(self.bundle_dir.glob('task-*json'))[0], self.dataset_dir)
 
         return self.bundle_dir.absolute()
 
@@ -64,6 +68,7 @@ class Install(Command):
             if (preproc_dir / 'fmriprep').exists():
                 paths = [str(preproc_dir / 'fmriprep' / f) for f in remote_files]
                 get(paths)
+                ### Also get dataset_description!
                 if self.options.pop('--unlock', False):
                     unlock(paths)
         except Exception as e:
