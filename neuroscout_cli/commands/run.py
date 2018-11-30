@@ -6,7 +6,9 @@ import shutil
 from pathlib import Path
 
 # Options not to be passed onto fitlins
-INVALID = ['--unlock', '--no-download', '--version', '--help', '--install-dir', 'run', '<bundle_id>', '--dataset-name']
+INVALID = ['--unlock', '--no-download', '--version', '--help', '--install-dir',
+           'run', '<bundle_id>', '--dataset-name']
+
 
 class Run(Command):
     ''' Command for running neuroscout workflows. '''
@@ -21,13 +23,12 @@ class Run(Command):
 
         dataset_dir = install_command.dataset_dir.absolute()
 
-        ## Set up fitlins args
         fitlins_args = [
             dataset_dir.as_posix(),
             tmp_out,
             'dataset',
-            '--model={}'.format((bundle_path / 'model.json').absolute().as_posix()),
-            '--exclude=(neuroscout/(?!{})|fmriprep.*$(?<=tsv)|/.git)'.format(bundle_path.parts[-1])
+            '--model={}'.format((bundle_path / 'model.json').absolute()),
+            '--exclude=(fmriprep.*$(?<=tsv))'.format(bundle_path.parts[-1])
         ]
 
         # Fitlins invalid keys
