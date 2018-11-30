@@ -31,26 +31,26 @@ Help:
 
     For help using neuroscout and creating a bundle, visit www.neuroscout.org.
 """
-
-from docopt import docopt
-from . import __version__ as VERSION
 import sys
 from copy import deepcopy
+from docopt import docopt
+from . import __version__ as VERSION
+
 
 def main():
     # CLI entry point
     import neuroscout_cli.commands
     args = docopt(__doc__, version=VERSION)
 
-    for (k, v) in args.items():
-        if hasattr(neuroscout_cli.commands, k) and v:
+    for (k, val) in args.items():
+        if hasattr(neuroscout_cli.commands, k) and val:
             k = k[0].upper() + k[1:]
             command = getattr(neuroscout_cli.commands, k)
             if k in ['Run', 'Install']:
                 bundles = args.pop('<bundle_id>')
                 # Loop over bundles
-                for b in bundles:
-                    print("Running bundle {}".format(b))
-                    args['<bundle_id>'] = b
+                for bundle in bundles:
+                    print("Running bundle {}".format(bundle))
+                    args['<bundle_id>'] = bundle
                     command(deepcopy(args)).run()
             sys.exit(0)
