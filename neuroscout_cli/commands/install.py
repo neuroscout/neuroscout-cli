@@ -76,18 +76,7 @@ class Install(Command):
                     unlock(paths)
         except Exception as e:
             message = e.failed[0]['message']
-            if 'Failed to clone data from any candidate' not in message[0]:
-                raise ValueError("Datalad failed. Reason: {}".format(message))
-
-            logging.info("Attempting HTTP download...")
-            for i, resource in enumerate(remote_files):
-                filename = preproc_dir / resource
-                logging.info("{}/{}: {}".format(
-                    i+1, len(remote_files), resource))
-
-                if not filename.exists():
-                    filename.parents[0].mkdir(exist_ok=True, parents=True)
-                    download_file(remote_path + '/' + resource, filename)
+            raise ValueError("Datalad failed. Reason: {}".format(message))
 
         desc = {'Name': self.dataset_dir.parts[0], 'BIDSVersion': '1.0'}
 
