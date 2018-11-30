@@ -68,7 +68,7 @@ class Install(Command):
             if (preproc_dir / 'fmriprep').exists():
                 paths = [str(preproc_dir / 'fmriprep' / f) for f in remote_files]
                 get(paths)
-                ### Also get dataset_description!
+                get(str(preproc_dir / 'dataset_description.json'))
                 if self.options.pop('--unlock', False):
                     unlock(paths)
         except Exception as e:
