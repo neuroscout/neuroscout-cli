@@ -39,7 +39,8 @@ class Install(Command):
             tf.extractfile('resources.json').read().decode("utf-8"))
 
         self.dataset_dir = self.install_dir / self.resources['dataset_name']
-        self.bundle_dir = self.dataset_dir / 'derivatives' / 'neuroscout' / self.bundle_id
+        self.bundle_dir = self.dataset_dir \
+            / 'derivatives' / 'neuroscout' / self.bundle_id
 
         # Probably need to add option to force-redownload
         if not self.bundle_dir.exists():
@@ -55,7 +56,8 @@ class Install(Command):
     def download_data(self):
         self.download_bundle()
 
-        remote_files = self.resources['func_paths'] + self.resources['mask_paths']
+        remote_files = self.resources['func_paths'] + \
+            self.resources['mask_paths']
         remote_path = self.resources['preproc_address']
 
         preproc_dir = Path(self.dataset_dir) / 'derivatives' / 'fmriprep'
@@ -66,7 +68,8 @@ class Install(Command):
                 install(source=remote_path,
                         path=str(preproc_dir))
             if (preproc_dir / 'fmriprep').exists():
-                paths = [str(preproc_dir / 'fmriprep' / f) for f in remote_files]
+                paths = [str(preproc_dir / 'fmriprep' / f)
+                         for f in remote_files]
                 get(paths)
                 get(str(preproc_dir / 'dataset_description.json'))
                 if self.options.pop('--unlock', False):
@@ -79,7 +82,8 @@ class Install(Command):
             logging.info("Attempting HTTP download...")
             for i, resource in enumerate(remote_files):
                 filename = preproc_dir / resource
-                logging.info("{}/{}: {}".format(i+1, len(remote_files), resource))
+                logging.info("{}/{}: {}".format(
+                    i+1, len(remote_files), resource))
 
                 if not filename.exists():
                     filename.parents[0].mkdir(exist_ok=True, parents=True)
@@ -99,8 +103,10 @@ class Install(Command):
         if self.options.pop('--no-download', False):
             return self.download_bundle()
         elif self.options.get('--dataset-name', False):
-            self.dataset_dir = self.install_dir / self.options.pop('--dataset-name')
-            self.bundle_dir = self.dataset_dir / 'derivatives' / 'neuroscout' / self.bundle_id
+            self.dataset_dir = self.install_dir \
+                / self.options.pop('--dataset-name')
+            self.bundle_dir = self.dataset_dir \
+                / 'derivatives' / 'neuroscout' / self.bundle_id
             if self.bundle_dir.exists():
                 return self.bundle_dir.absolute()
             else:
