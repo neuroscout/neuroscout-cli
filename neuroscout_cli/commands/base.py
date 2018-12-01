@@ -4,6 +4,7 @@ from abc import ABCMeta, abstractmethod
 from pathlib import Path
 from pyns import Neuroscout
 
+
 class Command(metaclass=ABCMeta):
 
     ''' A base command'''

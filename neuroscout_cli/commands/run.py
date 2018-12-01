@@ -28,7 +28,10 @@ class Run(Command):
             tmp_out,
             'dataset',
             '--model={}'.format((bundle_path / 'model.json').absolute()),
-            '--exclude=(fmriprep.*$(?<=tsv))'.format(bundle_path.parts[-1])
+            '--exclude=(fmriprep.*$(?<=tsv))'.format(bundle_path.parts[-1]),
+            '--derivatives={}'.format(bundle_path),
+            '--derivatives={}'.format(
+                install_command.preproc_dir / 'fmriprep')
         ]
 
         # Fitlins invalid keys
