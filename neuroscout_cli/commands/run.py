@@ -31,7 +31,7 @@ class Run(Command):
             '--exclude=(fmriprep.*$(?<=tsv))'.format(bundle_path.parts[-1]),
             '--derivatives={}'.format(bundle_path),
             '--derivatives={}'.format(
-                install_command.preproc_dir / 'fmriprep')
+                install_command.preproc_dir.absolute() / 'fmriprep')
         ]
 
         # Fitlins invalid keys
