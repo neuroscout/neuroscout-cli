@@ -1,8 +1,6 @@
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
-from tempfile import mkdtemp
-import shutil
 from pathlib import Path
 
 # Options not to be passed onto fitlins
@@ -19,13 +17,12 @@ class Run(Command):
         bundle_path = install_command.run()
 
         out_dir = Path(self.options.pop('<outdir>'))
-        tmp_out = mkdtemp()
 
         dataset_dir = install_command.dataset_dir.absolute()
 
         fitlins_args = [
-            dataset_dir.as_posix(),
-            tmp_out,
+            str(dataset_dir),
+            str(out_dir),
             'dataset',
             '--model={}'.format((bundle_path / 'model.json').absolute()),
             '--exclude=(fmriprep.*$(?<=tsv))'.format(bundle_path.parts[-1]),
@@ -51,5 +48,3 @@ class Run(Command):
 
         # Call fitlins as if CLI
         run_fitlins(fitlins_args)
-        # Copy to out_dir (doing this because of Windows volume)
-        shutil.copytree(Path(tmp_out) / 'fitlins', out_dir / self.bundle_id)
