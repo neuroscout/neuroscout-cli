@@ -13,12 +13,12 @@ class Run(Command):
 
     def run(self):
         # Download bundle and install dataset if necessary
-        install_command = Install(self.options.copy())
-        bundle_path = install_command.run()
+        install = Install(self.options.copy())
+        bundle_path = install.run()
 
         out_dir = Path(self.options.pop('<outdir>'))
 
-        dataset_dir = install_command.dataset_dir.absolute()
+        dataset_dir = install.dataset_dir.absolute()
 
         fitlins_args = [
             str(dataset_dir),
@@ -26,9 +26,8 @@ class Run(Command):
             'dataset',
             '--model={}'.format((bundle_path / 'model.json').absolute()),
             '--exclude=(fmriprep.*$(?<=tsv))'.format(bundle_path.parts[-1]),
-            '--derivatives={}'.format(bundle_path),
-            '--derivatives={}'.format(
-                install_command.preproc_dir.absolute() / 'fmriprep')
+            '--derivatives={} {}'.format(
+                bundle_path, install.preproc_dir.absolute() / 'fmriprep'),
         ]
 
         # Fitlins invalid keys
