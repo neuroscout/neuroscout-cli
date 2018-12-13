@@ -16,7 +16,7 @@ class Run(Command):
         install = Install(self.options.copy())
         bundle_path = install.run()
 
-        out_dir = Path(self.options.pop('<outdir>'))
+        out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
 
         dataset_dir = install.dataset_dir.absolute()
 
