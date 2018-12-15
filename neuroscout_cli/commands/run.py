@@ -1,33 +1,33 @@
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
-from tempfile import mkdtemp
-import shutil
 from pathlib import Path
 
 # Options not to be passed onto fitlins
-INVALID = ['--unlock', '--no-download', '--version', '--help', '--install-dir', 'run', '<bundle_id>', '--dataset-name']
+INVALID = ['--unlock', '--no-download', '--version', '--help', '--install-dir',
+           'run', '<bundle_id>', '--dataset-name']
+
 
 class Run(Command):
     ''' Command for running neuroscout workflows. '''
 
     def run(self):
         # Download bundle and install dataset if necessary
-        install_command = Install(self.options.copy())
-        bundle_path = install_command.run()
+        install = Install(self.options.copy())
+        bundle_path = install.run()
 
-        out_dir = Path(self.options.pop('<outdir>'))
-        tmp_out = mkdtemp()
+        out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
 
-        dataset_dir = install_command.dataset_dir.absolute()
+        dataset_dir = install.dataset_dir.absolute()
 
-        ## Set up fitlins args
         fitlins_args = [
-            dataset_dir.as_posix(),
-            tmp_out,
+            str(dataset_dir),
+            str(out_dir),
             'dataset',
-            '--model={}'.format((bundle_path / 'model.json').absolute().as_posix()),
-            '--exclude=(neuroscout/(?!{})|fmriprep.*$(?<=tsv)|/.git)'.format(bundle_path.parts[-1])
+            '--model={}'.format((bundle_path / 'model.json').absolute()),
+            '--exclude=(fmriprep.*$(?<=tsv))'.format(bundle_path.parts[-1]),
+            '--derivatives={} {}'.format(
+                bundle_path, install.preproc_dir.absolute() / 'fmriprep'),
         ]
 
         # Fitlins invalid keys
@@ -47,5 +47,3 @@ class Run(Command):
 
         # Call fitlins as if CLI
         run_fitlins(fitlins_args)
-        # Copy to out_dir (doing this because of Windows volume)
-        shutil.copytree(Path(tmp_out) / 'fitlins', out_dir / self.bundle_id)
