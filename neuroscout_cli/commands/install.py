@@ -51,6 +51,14 @@ class Install(Command):
             # Copy meta-data to root of dataset_dir
             copy(list(self.bundle_dir.glob('task-*json'))[0], self.dataset_dir)
 
+        # HACK: Add subject levl
+        model_path = self.bundle_dir / 'model.json'
+        model = json.load(model_path.open())
+        if len(model['Steps']) == 2:
+            model['Steps'].insert(
+                1, {'Level': 'Subject', 'AutoContrasts': True})
+        json.dump(model, model_path.open('w'))
+
         return self.bundle_dir.absolute()
 
     def download_data(self):
