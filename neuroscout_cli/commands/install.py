@@ -69,7 +69,8 @@ class Install(Command):
                 install(source=remote_path,
                         path=str(self.preproc_dir))
 
-            layout = BIDSLayout(self.preproc_dir, derivatives=self.preproc_dir)
+            layout = BIDSLayout(str(self.preproc_dir),
+                                derivatives=str(self.preproc_dir))
             paths = layout.get(
                 **model['input'], desc='preproc', return_type='file')
             paths += layout.get(
