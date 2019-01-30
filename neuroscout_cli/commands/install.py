@@ -7,6 +7,8 @@ import json
 import tarfile
 import logging
 from tqdm import tqdm
+from bids.utils import convert_JSON
+from bids import BIDSLayout
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -54,10 +56,9 @@ class Install(Command):
         return self.bundle_dir.absolute()
 
     def download_data(self):
-        self.download_bundle()
+        bundle_dir = self.download_bundle()
+        model = convert_JSON(json.load((bundle_dir / 'model.json').open()))
 
-        remote_files = self.resources['func_paths'] + \
-            self.resources['mask_paths']
         remote_path = self.resources['preproc_address']
 
         self.preproc_dir = Path(self.dataset_dir) / 'derivatives' / 'fmriprep'
@@ -67,13 +68,20 @@ class Install(Command):
                 # Use datalad to install the raw BIDS dataset
                 install(source=remote_path,
                         path=str(self.preproc_dir))
-            paths = [str(self.preproc_dir / 'fmriprep' / f)
-                     for f in remote_files]
+
+            layout = BIDSLayout(self.preproc_dir, derivatives=self.preproc_dir)
+            paths = layout.get(
+                **model['input'], desc='preproc', return_type='file')
+            paths += layout.get(
+                **model['input'],
+                desc='brain', suffix='mask', return_type='file')
+
             get(paths)
             get(str(
                 self.preproc_dir / 'fmriprep' / 'dataset_description.json'))
             if self.options.pop('--unlock', False):
                 unlock(paths)
+
         except Exception as e:
             message = e.failed[0]['message']
             raise ValueError("Datalad failed. Reason: {}".format(message))
