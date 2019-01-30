@@ -61,7 +61,8 @@ class Install(Command):
 
         remote_path = self.resources['preproc_address']
 
-        self.preproc_dir = Path(self.dataset_dir) / 'derivatives' / 'fmriprep'
+        self.preproc_dir = Path(
+            self.dataset_dir) / 'derivatives' / 'fmriprep'
 
         try:
             if not self.preproc_dir.exists():
@@ -69,8 +70,9 @@ class Install(Command):
                 install(source=remote_path,
                         path=str(self.preproc_dir))
 
-            layout = BIDSLayout(str(self.preproc_dir),
-                                derivatives=str(self.preproc_dir))
+            layout = BIDSLayout(
+                str(self.preproc_dir / 'fmriprep'),
+                derivatives=str(self.preproc_dir / 'fmriprep'))
             paths = layout.get(
                 **model['input'], desc='preproc', return_type='file')
             paths += layout.get(
