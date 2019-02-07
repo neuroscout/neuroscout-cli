@@ -34,7 +34,7 @@ Help:
 import sys
 from copy import deepcopy
 from docopt import docopt
-from . import __version__ as VERSION
+from neuroscout_cli import __version__ as VERSION
 
 
 def main():
