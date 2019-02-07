@@ -50,8 +50,8 @@ class Install(Command):
             tf.extractall(self.bundle_dir)
             logging.info(
                 "Bundle installed at {}".format(self.bundle_dir.absolute()))
-            # Copy meta-data to root of dataset_dir
-            copy(list(self.bundle_dir.glob('task-*json'))[0], self.dataset_dir)
+        # Copy meta-data to root of dataset_dir
+        copy(list(self.bundle_dir.glob('task-*json'))[0], self.dataset_dir)
 
         return self.bundle_dir.absolute()
 
