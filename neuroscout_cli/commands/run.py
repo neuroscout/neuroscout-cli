@@ -25,7 +25,7 @@ class Run(Command):
             str(out_dir),
             'dataset',
             '--model={}'.format((bundle_path / 'model.json').absolute()),
-            '--exclude=(fmriprep.*$(?<=tsv))'.format(bundle_path.parts[-1]),
+            '--ignore=/(fmriprep.*$(?<=tsv))/'.format(bundle_path.parts[-1]),
             '--derivatives={} {}'.format(
                 bundle_path, install.preproc_dir.absolute() / 'fmriprep'),
         ]
