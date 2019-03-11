@@ -2,26 +2,11 @@ from neuroscout_cli.commands.base import Command
 from datalad.api import install, get, unlock
 from pathlib import Path
 from shutil import copy
-import requests
 import json
 import tarfile
 import logging
-from tqdm import tqdm
 from bids.utils import convert_JSON
 from bids import BIDSLayout
-
-def download_file(url, path):
-    # Streaming, so we can iterate over the response.
-    r = requests.get(url, stream=True)
-
-    # Total size in bytes.
-    total_size = int(r.headers.get('content-length', 0))
-    with open(path, 'wb') as f:
-        with tqdm(total=total_size, unit='B',
-                  unit_scale=True, unit_divisor=1024) as pbar:
-            for data in r.iter_content(32*1024):
-                f.write(data)
-                pbar.update(len(data))
 
 
 class Install(Command):
