@@ -29,6 +29,11 @@ class Install(Command):
             self.resources = json.loads(
                 tf.extractfile('resources.json').read().decode("utf-8"))
 
+            self.dataset_dir = self.install_dir / \
+                self.resources['dataset_name']
+            self.bundle_dir = self.dataset_dir \
+                / 'neuroscout-bundles' / self.bundle_id
+
             #  Extract to bundle_dir
             if not self.bundle_dir.exists():
                 self.bundle_dir.mkdir(parents=True, exist_ok=True)
@@ -36,10 +41,6 @@ class Install(Command):
                 logging.info(
                     "Bundle installed at {}".format(
                         self.bundle_dir.absolute()))
-
-        self.dataset_dir = self.install_dir / self.resources['dataset_name']
-        self.bundle_dir = self.dataset_dir \
-            / 'neuroscout-bundles' / self.bundle_id
 
         return self.bundle_dir.absolute()
 
