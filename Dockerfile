@@ -22,7 +22,7 @@ RUN /bin/bash -c "source activate neuro \
       && pip install -q --no-cache-dir --upgrade -r /src/neuroscout/requirements.txt" \
     && sync
 
-WORKDIR /data
+WORKDIR /work
 
 # Change entrypoint to neuroscout
 ENTRYPOINT ["/neurodocker/startup.sh", "neuroscout"]
