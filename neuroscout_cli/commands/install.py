@@ -25,20 +25,21 @@ class Install(Command):
             self.api.analyses.bundle(self.bundle_id, self.bundle_cache)
 
         # Un-tarzip, and read in JSON files
-        tf = tarfile.open(self.bundle_cache)
-        self.resources = json.loads(
-            tf.extractfile('resources.json').read().decode("utf-8"))
+        with tarfile.open(self.bundle_cache) as tf:
+            self.resources = json.loads(
+                tf.extractfile('resources.json').read().decode("utf-8"))
+
+            #  Extract to bundle_dir
+            if not self.bundle_dir.exists():
+                self.bundle_dir.mkdir(parents=True, exist_ok=True)
+                tf.extractall(self.bundle_dir)
+                logging.info(
+                    "Bundle installed at {}".format(
+                        self.bundle_dir.absolute()))
 
         self.dataset_dir = self.install_dir / self.resources['dataset_name']
         self.bundle_dir = self.dataset_dir \
             / 'neuroscout-bundles' / self.bundle_id
-
-        #  Extract to bundle_dir
-        if not self.bundle_dir.exists():
-            self.bundle_dir.mkdir(parents=True, exist_ok=True)
-            tf.extractall(self.bundle_dir)
-            logging.info(
-                "Bundle installed at {}".format(self.bundle_dir.absolute()))
 
         return self.bundle_dir.absolute()
 
