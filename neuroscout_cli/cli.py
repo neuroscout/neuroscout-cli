@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [-nui <dir> -w <dir> -c <n> -d <n>] <outdir> <bundle_id>...
+    neuroscout run [-nui <dir> -w <dir> -c <n>] <outdir> <bundle_id>...
     neuroscout install [-nui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -11,9 +11,9 @@ Usage:
 Options:
     -i, --install-dir <dir>  Directory to download data [default: .]
     -w, --work-dir <dir>     Working directory
-    -c, --n-cpus <n>         Maximum number of threads across all processes [default: 1]
-    -d, --dataset-name <n>   Manually specify dataset name
-    -n, --no-download        Dont download dataset
+    -c, --n-cpus <n>         Maximum number of threads across all processes
+                             [default: 1]
+    -n, --no-download        Don't attempt to download dataset
     -u, --unlock             Unlock datalad dataset
 
 Commands:
@@ -35,22 +35,24 @@ import sys
 from copy import deepcopy
 from docopt import docopt
 from neuroscout_cli import __version__ as VERSION
+import neuroscout_cli.commands as ncl
+import logging
+logging.getLogger().setLevel(logging.INFO)
 
 
 def main():
     # CLI entry point
-    import neuroscout_cli.commands
     args = docopt(__doc__, version=VERSION)
 
     for (k, val) in args.items():
-        if hasattr(neuroscout_cli.commands, k) and val:
+        if hasattr(ncl, k) and val:
             k = k[0].upper() + k[1:]
-            command = getattr(neuroscout_cli.commands, k)
+            command = getattr(ncl, k)
             if k in ['Run', 'Install']:
                 bundles = args.pop('<bundle_id>')
                 # Loop over bundles
                 for bundle in bundles:
-                    print("Running bundle {}".format(bundle))
+                    logging.info("Running analysis : {}".format(bundle))
                     args['<bundle_id>'] = bundle
                     command(deepcopy(args)).run()
             sys.exit(0)
