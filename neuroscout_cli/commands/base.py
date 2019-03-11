@@ -16,6 +16,7 @@ class Command(metaclass=ABCMeta):
         self.kwargs = kwargs
         self.home = Path.home() / '.neuroscout'
         self.home.mkdir(exist_ok=True)
+        self.bundle_cache = (self.home / self.bundle_id).with_suffix(".tar.gz")
         self.api = Neuroscout()
 
     @abstractmethod
