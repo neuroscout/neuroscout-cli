@@ -2,6 +2,7 @@ from neuroscout_cli.commands.base import Command
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
 from pathlib import Path
+import logging
 
 # Options not to be passed onto fitlins
 INVALID = ['--unlock', '--no-download', '--version', '--help', '--install-dir',
@@ -16,17 +17,19 @@ class Run(Command):
         install = Install(self.options.copy())
         bundle_path = install.run()
         preproc_path = str(install.preproc_dir.absolute())
-        out_dir = str(Path(self.options.pop('<outdir>')) / install.bundle_id)
+        out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
 
         fitlins_args = [
             preproc_path,
-            out_dir,
+            str(out_dir),
             'dataset',
             '--model={}'.format((bundle_path / 'model.json').absolute()),
             '--ignore=/(fmriprep.*$(?<=tsv))/',
             '--derivatives={} {}'.format(
                 bundle_path, preproc_path),
         ]
+
+        force_neurovault = self.options.pop('--force-neurovault', False)
 
         # Fitlins invalid keys
         for k in INVALID:
@@ -45,3 +48,11 @@ class Run(Command):
 
         # Call fitlins as if CLI
         run_fitlins(fitlins_args)
+
+        logging.info("Uploading results to NeuroVault...")
+        # Find files and make into tarball`
+        # images = out_dir / 'fitlins' /
+        # Upload results NeuroVault
+        self.api.analyses.upload_results(
+            self.bundle_id, tarball,
+            self.resources['validation_hash'], force=force_neurovault)
