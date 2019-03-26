@@ -2,6 +2,9 @@ from neuroscout_cli.commands.base import Command
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
 from pathlib import Path
+import logging
+import tarfile
+import tempfile
 
 # Options not to be passed onto fitlins
 INVALID = ['--unlock', '--no-download', '--version', '--help', '--install-dir',
@@ -16,17 +19,19 @@ class Run(Command):
         install = Install(self.options.copy())
         bundle_path = install.run()
         preproc_path = str(install.preproc_dir.absolute())
-        out_dir = str(Path(self.options.pop('<outdir>')) / install.bundle_id)
+        out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
 
         fitlins_args = [
             preproc_path,
-            out_dir,
+            str(out_dir),
             'dataset',
             '--model={}'.format((bundle_path / 'model.json').absolute()),
             '--ignore=/(fmriprep.*$(?<=tsv))/',
             '--derivatives={} {}'.format(
                 bundle_path, preproc_path),
         ]
+
+        force_neurovault = self.options.pop('--force-neurovault', False)
 
         # Fitlins invalid keys
         for k in INVALID:
@@ -45,3 +50,25 @@ class Run(Command):
 
         # Call fitlins as if CLI
         run_fitlins(fitlins_args)
+
+        logging.info("Uploading results to NeuroVault...")
+
+        # Find files
+        images = out_dir / 'fitlins'
+
+        ses_dirs = [a for a in images.glob('ses*') if a.is_dir()]
+        if ses_dirs:  # If session, look for stat files in session folder
+            images = images / ses_dirs[0]
+
+        images = images.glob('*stat*.nii.gz')
+
+        # Make tarball
+        with tempfile.NamedTemporaryFile() as tf:
+            with tarfile.open(fileobj=tf.file, mode="w:gz") as tar:
+                for path in images:
+                    tar.add(path.absolute(), arcname=path.parts[-1])
+
+            # Upload results NeuroVault
+            self.api.analyses.upload_neurovault(
+                self.bundle_id, tf.name,
+                install.resources['validation_hash'], force=force_neurovault)

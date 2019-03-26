@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [-nui <dir> -w <dir> -c <n>] <outdir> <bundle_id>...
+    neuroscout run [-nfui <dir> -w <dir> -c <n>] <outdir> <bundle_id>...
     neuroscout install [-nui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -15,6 +15,7 @@ Options:
                              [default: 1]
     -n, --no-download        Don't attempt to download dataset
     -u, --unlock             Unlock datalad dataset
+    -f, --force-neurovault   Force NeuroVault upload (unique name)
 
 Commands:
     run                      Runs a first level, group level, or full analysis.
