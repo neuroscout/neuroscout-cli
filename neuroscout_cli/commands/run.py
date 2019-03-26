@@ -3,6 +3,8 @@ from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
 from pathlib import Path
 import logging
+import tarfile
+import tempfile
 
 # Options not to be passed onto fitlins
 INVALID = ['--unlock', '--no-download', '--version', '--help', '--install-dir',
@@ -50,9 +52,23 @@ class Run(Command):
         run_fitlins(fitlins_args)
 
         logging.info("Uploading results to NeuroVault...")
-        # Find files and make into tarball`
-        # images = out_dir / 'fitlins' /
-        # Upload results NeuroVault
-        self.api.analyses.upload_results(
-            self.bundle_id, tarball,
-            self.resources['validation_hash'], force=force_neurovault)
+
+        # Find files
+        images = out_dir / 'fitlins'
+
+        ses_dirs = [a for a in images.glob('ses*') if a.is_dir()]
+        if ses_dirs:  # If session, look for stat files in session folder
+            images = images / ses_dirs[0]
+
+        images = images.glob('*stat*.nii.gz')
+
+        # Make tarball
+        with tempfile.NamedTemporaryFile() as tf:
+            with tarfile.open(fileobj=tf.file, mode="w:gz") as tar:
+                for path in images:
+                    tar.add(path.absolute(), arcname=path.parts[-1])
+
+            # Upload results NeuroVault
+            self.api.analyses.upload_neurovault(
+                self.bundle_id, tf.name,
+                install.resources['validation_hash'], force=force_neurovault)
