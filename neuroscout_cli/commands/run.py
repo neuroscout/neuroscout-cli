@@ -7,7 +7,7 @@ import tarfile
 import tempfile
 
 # Options not to be passed onto fitlins
-INVALID = ['--unlock', '--no-download', '--version', '--help', '--install-dir',
+INVALID = ['--unlock', '--neurovault', '--version', '--help', '--install-dir',
            'run', '<bundle_id>', '--dataset-name']
 
 
@@ -31,7 +31,8 @@ class Run(Command):
                 bundle_path, preproc_path),
         ]
 
-        force_neurovault = self.options.pop('--force-neurovault', False)
+        neurovault = self.options.pop('--neurovault', 'enable')
+        assert neurovault in ['enable', 'disable', 'force']
 
         # Fitlins invalid keys
         for k in INVALID:
@@ -51,24 +52,27 @@ class Run(Command):
         # Call fitlins as if CLI
         run_fitlins(fitlins_args)
 
-        logging.info("Uploading results to NeuroVault...")
+        if neurovault != 'disable':
 
-        # Find files
-        images = out_dir / 'fitlins'
+            logging.info("Uploading results to NeuroVault...")
 
-        ses_dirs = [a for a in images.glob('ses*') if a.is_dir()]
-        if ses_dirs:  # If session, look for stat files in session folder
-            images = images / ses_dirs[0]
+            # Find files
+            images = out_dir / 'fitlins'
 
-        images = images.glob('*stat*.nii.gz')
+            ses_dirs = [a for a in images.glob('ses*') if a.is_dir()]
+            if ses_dirs:  # If session, look for stat files in session folder
+                images = images / ses_dirs[0]
 
-        # Make tarball
-        with tempfile.NamedTemporaryFile() as tf:
-            with tarfile.open(fileobj=tf.file, mode="w:gz") as tar:
-                for path in images:
-                    tar.add(path.absolute(), arcname=path.parts[-1])
+            images = images.glob('*stat*.nii.gz')
 
-            # Upload results NeuroVault
-            self.api.analyses.upload_neurovault(
-                self.bundle_id, tf.name,
-                install.resources['validation_hash'], force=force_neurovault)
+            # Make tarball
+            with tempfile.NamedTemporaryFile() as tf:
+                with tarfile.open(fileobj=tf.file, mode="w:gz") as tar:
+                    for path in images:
+                        tar.add(path.absolute(), arcname=path.parts[-1])
+
+                # Upload results NeuroVault
+                self.api.analyses.upload_neurovault(
+                    self.bundle_id, tf.name,
+                    install.resources['validation_hash'],
+                    force=neurovault == 'force')

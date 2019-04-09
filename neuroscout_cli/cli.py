@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [-nfui <dir> -w <dir> -c <n>] <outdir> <bundle_id>...
+    neuroscout run [-nui <dir> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
     neuroscout install [-nui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -13,9 +13,9 @@ Options:
     -w, --work-dir <dir>     Working directory
     -c, --n-cpus <n>         Maximum number of threads across all processes
                              [default: 1]
-    -n, --no-download        Don't attempt to download dataset
     -u, --unlock             Unlock datalad dataset
-    -f, --force-neurovault   Force NeuroVault upload (unique name)
+    -n, --neurovault         Upload mode (disable, force, or enable)
+                             [default: enable]
 
 Commands:
     run                      Runs a first level, group level, or full analysis.
@@ -23,7 +23,7 @@ Commands:
     ls                       Lists the available files in a bundle's dataset.
 
 Examples:
-    neuroscout run -n 5xhaS /out
+    neuroscout run 5xhaS /out --n-cpus=10
     neuroscout run 5xhaS 38fdx /out
 
 Help:
