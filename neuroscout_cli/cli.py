@@ -2,8 +2,8 @@
 neuroscout
 
 Usage:
-    neuroscout run [-nui <dir> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
-    neuroscout install [-nui <dir>] <bundle_id>...
+    neuroscout run [-ui <dir> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
+    neuroscout install [-ui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
     neuroscout --version
@@ -14,7 +14,7 @@ Options:
     -c, --n-cpus <n>         Maximum number of threads across all processes
                              [default: 1]
     -u, --unlock             Unlock datalad dataset
-    -n, --neurovault         Upload mode (disable, force, or enable)
+    -n, --neurovault <nv>    Upload mode (disable, force, or enable)
                              [default: enable]
 
 Commands:
