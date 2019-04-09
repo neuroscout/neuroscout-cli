@@ -5,6 +5,7 @@ from pathlib import Path
 import logging
 import tarfile
 import tempfile
+import json
 
 # Options not to be passed onto fitlins
 INVALID = ['--unlock', '--neurovault', '--version', '--help', '--install-dir',
@@ -21,11 +22,13 @@ class Run(Command):
         preproc_path = str(install.preproc_dir.absolute())
         out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
 
+        model_path = (bundle_path / 'model.json').absolute()
+
         fitlins_args = [
             preproc_path,
             str(out_dir),
             'dataset',
-            '--model={}'.format((bundle_path / 'model.json').absolute()),
+            '--model={}'.format(model_path),
             '--ignore=/(fmriprep.*$(?<=tsv))/',
             '--derivatives={} {}'.format(
                 bundle_path, preproc_path),
@@ -54,6 +57,9 @@ class Run(Command):
 
         if neurovault != 'disable':
 
+            model = json.load(open(model_path, 'r'))
+            n_subjects = len(model['Input']['Subject'])
+
             logging.info("Uploading results to NeuroVault...")
 
             # Find files
@@ -75,4 +81,5 @@ class Run(Command):
                 self.api.analyses.upload_neurovault(
                     self.bundle_id, tf.name,
                     install.resources['validation_hash'],
-                    force=neurovault == 'force')
+                    force=neurovault == 'force',
+                    n_subjects=n_subjects)
