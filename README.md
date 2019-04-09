@@ -25,7 +25,7 @@ See the output of `neuroscout --help` for more information:
 
 ```
 Usage:
-    neuroscout run [-nui <dir> -c <n> -w <dir> -d <n>] <outdir> <bundle_id>...
+    neuroscout run [-nui <dir> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
     neuroscout install [-nui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -34,10 +34,11 @@ Usage:
 Options:
     -i, --install-dir <dir>  Directory to download data [default: .]
     -w, --work-dir <dir>     Working directory
-    -c, --n-cpus <n>         Maximum number of threads across all processes [default: 1]
-    -d, --dataset-name <n>   Manually specify dataset name
-    -n, --no-download        Dont download dataset
+    -c, --n-cpus <n>         Maximum number of threads across all processes
+                             [default: 1]
     -u, --unlock             Unlock datalad dataset
+    -n, --neurovault         Upload mode (disable, force, or enable)
+                             [default: enable]
 
 Commands:
     run                      Runs a first level, group level, or full analysis.

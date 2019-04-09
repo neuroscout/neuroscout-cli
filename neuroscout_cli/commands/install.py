@@ -82,7 +82,4 @@ class Install(Command):
         return self.bundle_dir.absolute()
 
     def run(self):
-        if self.options.pop('--no-download', False):
-            return self.download_bundle()
-        else:
-            return self.download_data()
+        return self.download_data()
