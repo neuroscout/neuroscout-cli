@@ -14,7 +14,7 @@ Options:
     -c, --n-cpus <n>         Maximum number of threads across all processes
                              [default: 1]
     -s, --smoothing <k>      Smoothing kernel FWHM at group level
-                             [default: 5]
+                             [default: 4]
     -u, --unlock             Unlock datalad dataset
     -n, --neurovault <nv>    Upload mode (disable, force, or enable)
                              [default: enable]

@@ -2,7 +2,6 @@ FROM poldracklab/fitlins:master
 
 # Set user back to root
 USER root
-RUN mkdir /data
 
 # Install neurodebian/datalad
 ARG DEBIAN_FRONTEND=noninteractive
