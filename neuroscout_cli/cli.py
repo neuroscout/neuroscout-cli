@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [-ui <dir> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
+    neuroscout run [-ui <dir> -s <k> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
     neuroscout install [-ui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -13,6 +13,8 @@ Options:
     -w, --work-dir <dir>     Working directory
     -c, --n-cpus <n>         Maximum number of threads across all processes
                              [default: 1]
+    -s, --smoothing <k>      Smoothing kernel FWHM at group level
+                             [default: 4]
     -u, --unlock             Unlock datalad dataset
     -n, --neurovault <nv>    Upload mode (disable, force, or enable)
                              [default: enable]
