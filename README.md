@@ -24,9 +24,11 @@ To cache the downloaded data, and output the results to a separate folder, mount
 See the output of `neuroscout --help` for more information:
 
 ```
+neuroscout
+
 Usage:
-    neuroscout run [-nui <dir> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
-    neuroscout install [-nui <dir>] <bundle_id>...
+    neuroscout run [-ui <dir> -s <k> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
+    neuroscout install [-ui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
     neuroscout --version
@@ -36,12 +38,15 @@ Options:
     -w, --work-dir <dir>     Working directory
     -c, --n-cpus <n>         Maximum number of threads across all processes
                              [default: 1]
+    -s, --smoothing <k>      Smoothing kernel FWHM at group level
+                             [default: 4]
     -u, --unlock             Unlock datalad dataset
-    -n, --neurovault         Upload mode (disable, force, or enable)
+    -n, --neurovault <nv>    Upload mode (disable, force, or enable)
                              [default: enable]
 
 Commands:
     run                      Runs a first level, group level, or full analysis.
     install                  Installs a bundle and/or dataset.
     ls                       Lists the available files in a bundle's dataset.
+
 ```
