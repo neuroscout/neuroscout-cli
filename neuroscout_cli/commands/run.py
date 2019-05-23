@@ -73,14 +73,14 @@ class Run(Command):
             images = images.glob('*stat*.nii.gz')
 
             # Make tarball
-            with tempfile.NamedTemporaryFile() as tf:
+            with tempfile.NamedTemporaryFile(delete=False) as tf:
                 with tarfile.open(fileobj=tf.file, mode="w:gz") as tar:
                     for path in images:
                         tar.add(path.absolute(), arcname=path.parts[-1])
 
-                # Upload results NeuroVault
-                self.api.analyses.upload_neurovault(
-                    self.bundle_id, tf.name,
-                    install.resources['validation_hash'],
-                    force=neurovault == 'force',
-                    n_subjects=n_subjects)
+            # Upload results NeuroVault
+            self.api.analyses.upload_neurovault(
+                self.bundle_id, tf.name,
+                install.resources['validation_hash'],
+                force=neurovault == 'force',
+                n_subjects=n_subjects)
