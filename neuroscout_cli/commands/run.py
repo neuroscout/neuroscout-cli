@@ -32,7 +32,7 @@ class Run(Command):
             '--ignore=/(fmriprep.*$(?<=tsv))/',
             '--derivatives={} {}'.format(
                 bundle_path, preproc_path),
-            '--smoothing={}:dataset'.format(smoothing)
+            '--smoothing={}:Dataset'.format(smoothing)
         ]
 
         neurovault = self.options.pop('--neurovault', 'enable')
