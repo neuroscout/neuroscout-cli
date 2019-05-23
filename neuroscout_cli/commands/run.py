@@ -1,4 +1,5 @@
 from neuroscout_cli.commands.base import Command
+from neuroscout_cli import __version__ as VERSION
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
 from pathlib import Path
@@ -54,33 +55,45 @@ class Run(Command):
                     fitlins_args.append('{} {}'.format(name, value))
 
         # Call fitlins as if CLI
-        run_fitlins(fitlins_args)
+        retcode = run_fitlins(fitlins_args)
 
-        if neurovault != 'disable':
+        if retcode == 0:
+            if neurovault != 'disable':
 
-            model = json.load(open(model_path, 'r'))
-            n_subjects = len(model['Input']['Subject'])
+                model = json.load(open(model_path, 'r'))
+                n_subjects = len(model['Input']['Subject'])
 
-            logging.info("Uploading results to NeuroVault...")
+                logging.info("Uploading results to NeuroVault...")
 
-            # Find files
-            images = out_dir / 'fitlins'
+                # Find files
+                images = out_dir / 'fitlins'
 
-            ses_dirs = [a for a in images.glob('ses*') if a.is_dir()]
-            if ses_dirs:  # If session, look for stat files in session folder
-                images = images / ses_dirs[0]
+                ses_dirs = [a for a in images.glob('ses*') if a.is_dir()]
+                if ses_dirs:  # If session, look for stat files in session fld
+                    images = images / ses_dirs[0]
 
-            images = images.glob('*stat*.nii.gz')
+                images = images.glob('*stat*.nii.gz')
 
-            # Make tarball
-            with tempfile.NamedTemporaryFile(delete=False) as tf:
-                with tarfile.open(fileobj=tf.file, mode="w:gz") as tar:
-                    for path in images:
-                        tar.add(path.absolute(), arcname=path.parts[-1])
+                # Make tarball
+                with tempfile.NamedTemporaryFile(delete=False) as tf:
+                    with tarfile.open(fileobj=tf.file, mode="w:gz") as tar:
+                        for path in images:
+                            tar.add(path.absolute(), arcname=path.parts[-1])
 
-            # Upload results NeuroVault
-            self.api.analyses.upload_neurovault(
-                self.bundle_id, tf.name,
-                install.resources['validation_hash'],
-                force=neurovault == 'force',
-                n_subjects=n_subjects)
+                # Upload results NeuroVault
+                self.api.analyses.upload_neurovault(
+                    self.bundle_id, tf.name,
+                    install.resources['validation_hash'],
+                    force=neurovault == 'force',
+                    n_subjects=n_subjects)
+        else:
+            logging.error(
+                "\n"
+                "-----------------------------------------------------------\n"
+                "Model execution failed! \n"
+                f"neuroscout-cli version: {VERSION}\n"
+                "Try updating or revising your model, and try again.\n"
+                "If you believe there is a bug, please report it:\n"
+                "https://github.com/neuroscout/neuroscout-cli/issues\n"
+                "-----------------------------------------------------------\n"
+                )
