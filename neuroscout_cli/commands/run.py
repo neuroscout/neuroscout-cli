@@ -72,7 +72,7 @@ class Run(Command):
                 if ses_dirs:  # If session, look for stat files in session fld
                     images = images / ses_dirs[0]
 
-                images = images.glob('*stat*.nii.gz')
+                images = images.glob('*stat-t_statmap.nii.gz')
 
                 # Make tarball
                 with tempfile.NamedTemporaryFile(delete=False) as tf:
