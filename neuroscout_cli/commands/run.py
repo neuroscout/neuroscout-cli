@@ -4,8 +4,7 @@ from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
 from pathlib import Path
 import logging
-import tarfile
-import tempfile
+import re
 import json
 
 # Options not to be passed onto fitlins
@@ -72,18 +71,17 @@ class Run(Command):
                 if ses_dirs:  # If session, look for stat files in session fld
                     images = images / ses_dirs[0]
 
-                images = images.glob('*stat-t_statmap.nii.gz')
+                group = [i for i in images.glob('task*statmap.nii.gz')
+                         if re.match('.*stat-[t|variance|effect]+.*', i.name)]
 
-                # Make tarball
-                with tempfile.NamedTemporaryFile(delete=False) as tf:
-                    with tarfile.open(fileobj=tf.file, mode="w:gz") as tar:
-                        for path in images:
-                            tar.add(path.absolute(), arcname=path.parts[-1])
+                sub = [i for i in images.glob('sub*/*statmap.nii.gz')
+                       if re.match('.*stat-[variance|effect]+.*', i.name)]
 
                 # Upload results NeuroVault
                 self.api.analyses.upload_neurovault(
-                    self.bundle_id, tf.name,
-                    install.resources['validation_hash'],
+                    id=self.bundle_id,
+                    validation_hash=install.resources['validation_hash'],
+                    group_paths=group, subject_paths=sub,
                     force=neurovault == 'force',
                     n_subjects=n_subjects)
         else:
