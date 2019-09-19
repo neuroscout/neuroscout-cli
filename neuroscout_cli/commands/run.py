@@ -20,13 +20,12 @@ class Run(Command):
         install = Install(self.options.copy())
         bundle_path = install.run()
         preproc_path = str(install.preproc_dir.absolute())
-        dataset_path = str(install.dataset_dir.absolute())
         out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
         smoothing = self.options.pop('--smoothing')
         model_path = (bundle_path / 'model.json').absolute()
 
         fitlins_args = [
-            dataset_path,
+            preproc_path,
             str(out_dir),
             'dataset',
             '--model={}'.format(model_path),
