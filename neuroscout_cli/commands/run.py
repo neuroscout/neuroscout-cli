@@ -1,4 +1,4 @@
-alfrom neuroscout_cli.commands.base import Command
+from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
