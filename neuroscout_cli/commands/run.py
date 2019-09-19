@@ -1,4 +1,4 @@
-from neuroscout_cli.commands.base import Command
+alfrom neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
@@ -29,7 +29,7 @@ class Run(Command):
             str(out_dir),
             'dataset',
             '--model={}'.format(model_path),
-            '--ignore=/(fmriprep.*$(?<=tsv))/',
+            '--ignore=/(.*desc-confounds_regressors.tsv)/',
             '--derivatives={} {}'.format(
                 bundle_path, preproc_path),
             '--smoothing={}:Dataset'.format(smoothing)
