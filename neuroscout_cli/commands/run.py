@@ -29,7 +29,7 @@ class Run(Command):
             str(out_dir),
             'dataset',
             '--model={}'.format(model_path),
-            '--ignore=/(fmriprep.*$(?<=tsv))/',
+            '--ignore=/(.*desc-confounds_regressors.tsv)/',
             '--derivatives={} {}'.format(
                 bundle_path, preproc_path),
             '--smoothing={}:Dataset'.format(smoothing)
