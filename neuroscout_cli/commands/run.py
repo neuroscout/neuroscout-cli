@@ -47,7 +47,7 @@ class Run(Command):
             if name.startswith('--'):
                 if value is True:
                     fitlins_args.append('{}'.format(name))
-                if value is not None and value is not False:
+                elif value is not None and value is not False:
                     fitlins_args.append('{}={}'.format(name, value))
             else:
                 if value is not False and value is not None:
