@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
+from neuroscout_cli import VERSION as __version__
 PACKAGES = find_packages()
 
 setup(
     name='neuroscout-cli',
-    version='0.3.1',
+    version=__version__,
     description='Neuroscout command line interface and neuroimaging workflows.',
     url='https://github.com/PsychoinformaticsLab/neuroscout-cli',
     author='UT Psychoinformatics Lab',

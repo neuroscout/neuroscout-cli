@@ -27,7 +27,7 @@ See the output of `neuroscout --help` for more information:
 neuroscout
 
 Usage:
-    neuroscout run [-ui <dir> -s <k> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
+    neuroscout run [-ui <dir> -s <k> -w <dir> -c <n> -n <nv> -d] <outdir> <bundle_id>...
     neuroscout install [-ui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -43,10 +43,10 @@ Options:
     -u, --unlock             Unlock datalad dataset
     -n, --neurovault <nv>    Upload mode (disable, force, or enable)
                              [default: enable]
+    -d, --drop-missing       Drop missing contrast
 
 Commands:
-    run                      Runs a first level, group level, or full analysis.
+    run                      Runs analysis.
     install                  Installs a bundle and/or dataset.
     ls                       Lists the available files in a bundle's dataset.
-
 ```
