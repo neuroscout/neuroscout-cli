@@ -90,7 +90,7 @@ class Install(Command):
     def _check_version(self):
 
         # Check version
-        req = str(self.resources['version_required'])
+        req = self.resources.get('version_required', 0.3)
         if version.parse(VERSION) < version.parse(req):
             logging.error(
                 "\n"
