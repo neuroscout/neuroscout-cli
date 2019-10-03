@@ -21,7 +21,7 @@ Options:
     -d, --drop-missing       Drop missing contrast
 
 Commands:
-    run                      Runs a first level, group level, or full analysis.
+    run                      Runs analysis.
     install                  Installs a bundle and/or dataset.
     ls                       Lists the available files in a bundle's dataset.
 

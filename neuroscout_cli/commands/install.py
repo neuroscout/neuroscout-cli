@@ -1,4 +1,5 @@
 from neuroscout_cli.commands.base import Command
+from neuroscout_cli import __version__ as VERSION
 from datalad.api import install, get, unlock
 from pathlib import Path
 from shutil import copy
@@ -7,6 +8,8 @@ import tarfile
 import logging
 from bids.utils import convert_JSON
 from bids import BIDSLayout
+from packaging import version
+import sys
 
 
 class Install(Command):
@@ -41,6 +44,9 @@ class Install(Command):
                 logging.info(
                     "Bundle installed at {}".format(
                         self.bundle_dir.absolute()))
+
+        # Check version
+        self._check_version()
 
         return self.bundle_dir.absolute()
 
@@ -80,6 +86,22 @@ class Install(Command):
         copy(list(self.bundle_dir.glob('task-*json'))[0], self.preproc_dir)
 
         return self.bundle_dir.absolute()
+
+    def _check_version(self):
+
+        # Check version
+        req = self.resources.get('version_required', 0.3)
+        if version.parse(VERSION) < version.parse(req):
+            logging.error(
+                "\n"
+                "-----------------------------------------------------------\n"
+                "Insufficient version of neurosout-cli! \n"
+                f"This bundle requires v{str(req)} or greater, and you current have v{VERSION} \n"
+                "Please upgrade neuroscout-cli by running: \n"
+                "'docker pull neuroscout/neuroscout-cli' to continue. \n"
+                "-----------------------------------------------------------\n"
+                )
+            sys.exit(1)
 
     def run(self):
         return self.download_data()
