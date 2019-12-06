@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from neuroscout_cli import VERSION as __version__
+from neuroscout_cli import  __version__
 PACKAGES = find_packages()
 
 setup(
