@@ -28,9 +28,9 @@ class Run(Command):
             preproc_path,
             str(out_dir),
             'dataset',
-            f'--model={model_path}'
+            f'--model={model_path}',
             '--ignore=/(.*desc-confounds_regressors.tsv)/',
-            f'--derivatives={bundle_path}'
+            f'--derivatives={bundle_path}',
             f'--smoothing={smoothing}:Dataset'
         ]
 
