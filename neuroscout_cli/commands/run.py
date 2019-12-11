@@ -28,11 +28,10 @@ class Run(Command):
             preproc_path,
             str(out_dir),
             'dataset',
-            '--model={}'.format(model_path),
+            f'--model={model_path}'
             '--ignore=/(.*desc-confounds_regressors.tsv)/',
-            '--derivatives={} {}'.format(
-                bundle_path, preproc_path),
-            '--smoothing={}:Dataset'.format(smoothing)
+            f'--derivatives={bundle_path}'
+            f'--smoothing={smoothing}:Dataset'
         ]
 
         neurovault = self.options.pop('--neurovault', 'enable')
@@ -46,12 +45,12 @@ class Run(Command):
         for name, value in self.options.items():
             if name.startswith('--'):
                 if value is True:
-                    fitlins_args.append('{}'.format(name))
+                    fitlins_args.append(f'{name}')
                 elif value is not None and value is not False:
-                    fitlins_args.append('{}={}'.format(name, value))
+                    fitlins_args.append(f'{name}={value}')
             else:
                 if value is not False and value is not None:
-                    fitlins_args.append('{} {}'.format(name, value))
+                    fitlins_args.append(f'{name} {value}')
 
         # Call fitlins as if CLI
         retcode = run_fitlins(fitlins_args)
