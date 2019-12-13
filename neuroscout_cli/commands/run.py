@@ -30,7 +30,7 @@ class Run(Command):
             'dataset',
             f'--model={model_path}',
             '--ignore=/(.*desc-confounds_regressors.tsv)/',
-            f'--derivatives={bundle_path}',
+            f'--derivatives={bundle_path} {preproc_path}',
             f'--smoothing={smoothing}:Dataset'
         ]
 
