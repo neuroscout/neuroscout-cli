@@ -35,8 +35,10 @@ class Run(Command):
             '--smoothing={}:Dataset'.format(smoothing)
         ]
 
-        neurovault = self.options.pop('--neurovault', 'enable')
-        assert neurovault in ['enable', 'disable', 'force']
+        neurovault = self.options.pop('--neurovault', 'group')
+        nv_force = self.options.pop('--force-neurovault', False)
+        if neurovault not in ['disable', 'group', 'all']:
+            raise ValueError("Invalid neurovault option.")
 
         # Fitlins invalid keys
         for k in INVALID:
@@ -74,15 +76,18 @@ class Run(Command):
                 group = [i for i in images.glob('task*statmap.nii.gz')
                          if re.match('.*stat-[t|variance|effect]+.*', i.name)]
 
-                sub = [i for i in images.glob('sub*/*statmap.nii.gz')
-                       if re.match('.*stat-[variance|effect]+.*', i.name)]
+                if neurovault == 'all':
+                    sub = [i for i in images.glob('sub*/*statmap.nii.gz')
+                           if re.match('.*stat-[variance|effect]+.*', i.name)]
+                else:
+                    sub = None
 
                 # Upload results NeuroVault
                 self.api.analyses.upload_neurovault(
                     id=self.bundle_id,
                     validation_hash=install.resources['validation_hash'],
                     group_paths=group, subject_paths=sub,
-                    force=neurovault == 'force',
+                    force=nv_force,
                     n_subjects=n_subjects)
         else:
             logging.error(
@@ -90,7 +95,7 @@ class Run(Command):
                 "-----------------------------------------------------------\n"
                 "Model execution failed! \n"
                 f"neuroscout-cli version: {VERSION}\n"
-                "Try updating or revising your model, and try again.\n"
+                "Update this program or revise your model, and try again.\n"
                 "If you believe there is a bug, please report it:\n"
                 "https://github.com/neuroscout/neuroscout-cli/issues\n"
                 "-----------------------------------------------------------\n"
