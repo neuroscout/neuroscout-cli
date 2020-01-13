@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [-ui <dir> -s <k> -w <dir> -c <n> -n <nv> -d] <outdir> <bundle_id>...
+    neuroscout run [-dfu -i <dir> -s <k> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
     neuroscout install [-ui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -16,8 +16,9 @@ Options:
     -s, --smoothing <k>      Smoothing kernel FWHM at group level
                              [default: 4]
     -u, --unlock             Unlock datalad dataset
-    -n, --neurovault <nv>    Upload mode (disable, force, or enable)
-                             [default: enable]
+    -n, --neurovault <nv>    Upload mode (disable, all, or group)
+                             [default: group]
+    -f, --force-neurovault   Force upload, if a NV collection already exists
     -d, --drop-missing       Drop missing contrast
 
 Commands:
