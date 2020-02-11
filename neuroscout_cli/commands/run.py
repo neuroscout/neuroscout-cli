@@ -73,7 +73,8 @@ class Run(Command):
                     images = images / ses_dirs[0]
 
                 group = [i for i in images.glob('task*statmap.nii.gz')
-                         if re.match('.*stat-[t|variance|effect]+.*', i.name)]
+                         if re.match(
+                             '.*stat-[t|F|variance|effect]+.*', i.name)]
 
                 if neurovault == 'all':
                     sub = [i for i in images.glob('sub*/*statmap.nii.gz')
