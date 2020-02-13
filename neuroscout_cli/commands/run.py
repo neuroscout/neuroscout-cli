@@ -23,7 +23,6 @@ class Run(Command):
         out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
         smoothing = self.options.pop('--smoothing')
         model_path = (bundle_path / 'model.json').absolute()
-
         fitlins_args = [
             preproc_path,
             str(out_dir),
@@ -33,6 +32,11 @@ class Run(Command):
             f'--derivatives={bundle_path} {preproc_path}',
             f'--smoothing={smoothing}:Dataset'
         ]
+
+        work_dir = self.options.pop('--work-dir', None)
+        if work_dir:
+            work_dir = str(Path(work_dir).absolute() / self.bundle_id)
+            fitlins_args.append(f"--work-dir={work_dir}")
 
         neurovault = self.options.pop('--neurovault', 'group')
         nv_force = self.options.pop('--force-neurovault', False)
