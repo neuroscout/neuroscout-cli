@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [-dfu -i <dir> -s <k> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
+    neuroscout run [-dfuv -i <dir> -s <k> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
     neuroscout install [-ui <dir>] <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
@@ -20,6 +20,7 @@ Options:
                              [default: group]
     -f, --force-neurovault   Force upload, if a NV collection already exists
     -d, --drop-missing       Drop missing contrast
+    -v, --verbose	     Verbose mode
 
 Commands:
     run                      Runs analysis.
