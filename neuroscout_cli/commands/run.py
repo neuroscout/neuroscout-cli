@@ -33,6 +33,9 @@ class Run(Command):
             f'--smoothing={smoothing}:Dataset'
         ]
 
+        verbose = self.options.pop('--verbose')
+        if verbose:
+            fitlins_args.append('-vvv')
         work_dir = self.options.pop('--work-dir', None)
         if work_dir:
             work_dir = str(Path(work_dir).absolute() / self.bundle_id)
