@@ -79,8 +79,10 @@ class Install(Command):
                 unlock(paths)
 
         except Exception as e:
-            message = e.failed[0]['message']
-            raise ValueError("Datalad failed. Reason: {}".format(message))
+            if hasattr(e, 'failed'):
+                message = e.failed[0]['message']
+                raise ValueError("Datalad failed. Reason: {}".format(message))
+            else: raise(e)
 
         # Copy meta-data to root of dataset_dir
         copy(list(self.bundle_dir.glob('task-*json'))[0], self.preproc_dir)
