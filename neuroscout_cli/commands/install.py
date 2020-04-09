@@ -63,9 +63,12 @@ class Install(Command):
                 install(source=self.resources['preproc_address'],
                         path=str(self.preproc_dir.parents[0]))
 
-            get(str(self.preproc_dir / 'dataset_description.json'))
+            # Get all JSON files
+            get([str(p) for p in self.preproc_dir.rglob('*.json')])
 
-            layout = BIDSLayout(self.preproc_dir, derivatives=self.preproc_dir)
+            layout = BIDSLayout(
+                self.preproc_dir,
+                derivatives=self.preproc_dir, index_metadata=False)
 
             paths = layout.get(
                 **model['input'], desc='preproc', return_type='file')
@@ -79,8 +82,11 @@ class Install(Command):
                 unlock(paths)
 
         except Exception as e:
-            message = e.failed[0]['message']
-            raise ValueError("Datalad failed. Reason: {}".format(message))
+            if hasattr(e, 'failed'):
+                message = e.failed[0]['message']
+                raise ValueError("Datalad failed. Reason: {}".format(message))
+            else:
+                raise(e)
 
         # Copy meta-data to root of dataset_dir
         copy(list(self.bundle_dir.glob('task-*json'))[0], self.preproc_dir)
