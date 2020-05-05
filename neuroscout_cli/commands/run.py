@@ -15,95 +15,98 @@ INVALID = ['--unlock', '--version', '--help', '--install-dir',
 class Run(Command):
     ''' Command for running neuroscout workflows. '''
 
-    def run(self):
+    def run(self, upload_only=False):
         # Download bundle and install dataset if necessary
         install = Install(self.options.copy())
-        bundle_path = install.run()
-        preproc_path = str(install.preproc_dir.absolute())
+        bundle_path = install.run(download_data=(not upload_only))
+
         out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
-        smoothing = self.options.pop('--smoothing')
         model_path = (bundle_path / 'model.json').absolute()
-        fitlins_args = [
-            preproc_path,
-            str(out_dir),
-            'dataset',
-            f'--model={model_path}',
-            '--ignore=/(.*desc-confounds_regressors.tsv)/',
-            f'--derivatives={bundle_path} {preproc_path}',
-            f'--smoothing={smoothing}:Dataset'
-        ]
-
-        verbose = self.options.pop('--verbose')
-        if verbose:
-            fitlins_args.append('-vvv')
-        work_dir = self.options.pop('--work-dir', None)
-        if work_dir:
-            work_dir = str(Path(work_dir).absolute() / self.bundle_id)
-            fitlins_args.append(f"--work-dir={work_dir}")
-
         neurovault = self.options.pop('--neurovault', 'group')
         nv_force = self.options.pop('--force-neurovault', False)
         if neurovault not in ['disable', 'group', 'all']:
             raise ValueError("Invalid neurovault option.")
 
-        # Fitlins invalid keys
-        for k in INVALID:
-            self.options.pop(k, None)
+        if not upload_only:
+            preproc_path = str(install.preproc_dir.absolute())
+            smoothing = self.options.pop('--smoothing')
 
-        # Add remaining optional arguments
-        for name, value in self.options.items():
-            if name.startswith('--'):
-                if value is True:
-                    fitlins_args.append(f'{name}')
-                elif value is not None and value is not False:
-                    fitlins_args.append(f'{name}={value}')
-            else:
-                if value is not False and value is not None:
-                    fitlins_args.append(f'{name} {value}')
+            fitlins_args = [
+                preproc_path,
+                str(out_dir),
+                'dataset',
+                f'--model={model_path}',
+                '--ignore=/(.*desc-confounds_regressors.tsv)/',
+                f'--derivatives={bundle_path} {preproc_path}',
+                f'--smoothing={smoothing}:Dataset'
+            ]
 
-        # Call fitlins as if CLI
-        retcode = run_fitlins(fitlins_args)
+            verbose = self.options.pop('--verbose')
+            if verbose:
+                fitlins_args.append('-vvv')
+            work_dir = self.options.pop('--work-dir', None)
+            if work_dir:
+                work_dir = str(Path(work_dir).absolute() / self.bundle_id)
+                fitlins_args.append(f"--work-dir={work_dir}")
 
-        if retcode == 0:
-            if neurovault != 'disable':
+            # Fitlins invalid keys
+            for k in INVALID:
+                self.options.pop(k, None)
 
-                model = json.load(open(model_path, 'r'))
-                n_subjects = len(model['Input']['Subject'])
-
-                logging.info("Uploading results to NeuroVault...")
-
-                # Find files
-                images = out_dir / 'fitlins'
-
-                ses_dirs = [a for a in images.glob('ses*') if a.is_dir()]
-                if ses_dirs:  # If session, look for stat files in session fld
-                    images = images / ses_dirs[0]
-
-                group = [i for i in images.glob('task*statmap.nii.gz')
-                         if re.match(
-                             '.*stat-[t|F|variance|effect]+.*', i.name)]
-
-                if neurovault == 'all':
-                    sub = [i for i in images.glob('sub*/*statmap.nii.gz')
-                           if re.match('.*stat-[variance|effect]+.*', i.name)]
+            # Add remaining optional arguments
+            for name, value in self.options.items():
+                if name.startswith('--'):
+                    if value is True:
+                        fitlins_args.append(f'{name}')
+                    elif value is not None and value is not False:
+                        fitlins_args.append(f'{name}={value}')
                 else:
-                    sub = None
+                    if value is not False and value is not None:
+                        fitlins_args.append(f'{name} {value}')
 
-                # Upload results NeuroVault
-                self.api.analyses.upload_neurovault(
-                    id=self.bundle_id,
-                    validation_hash=install.resources['validation_hash'],
-                    group_paths=group, subject_paths=sub,
-                    force=nv_force,
-                    n_subjects=n_subjects)
-        else:
-            logging.error(
-                "\n"
-                "-----------------------------------------------------------\n"
-                "Model execution failed! \n"
-                f"neuroscout-cli version: {VERSION}\n"
-                "Update this program or revise your model, and try again.\n"
-                "If you believe there is a bug, please report it:\n"
-                "https://github.com/neuroscout/neuroscout-cli/issues\n"
-                "-----------------------------------------------------------\n"
-                )
+            # Call fitlins as if CLI
+            retcode = run_fitlins(fitlins_args)
+
+            if retcode != 0:
+                logging.error(
+                    "\n"
+                    "-------------------------------------------------------\n"
+                    "Model execution failed! \n"
+                    f"neuroscout-cli version: {VERSION}\n"
+                    "Update neuroscout-cli or revise your model, "
+                    "and try again \n"
+                    "If you believe there is a bug, please report it:\n"
+                    "https://github.com/neuroscout/neuroscout-cli/issues\n"
+                    "-------------------------------------------------------\n"
+                    )
+
+        if neurovault != 'disable':
+            model = json.load(open(model_path, 'r'))
+            n_subjects = len(model['Input']['Subject'])
+
+            logging.info("Uploading results to NeuroVault...")
+
+            # Find files
+            images = out_dir / 'fitlins'
+
+            ses_dirs = [a for a in images.glob('ses*') if a.is_dir()]
+            if ses_dirs:  # If session, look for stat files in session fld
+                images = images / ses_dirs[0]
+
+            group = [i for i in images.glob('task*statmap.nii.gz')
+                     if re.match(
+                         '.*stat-[t|F|variance|effect]+.*', i.name)]
+
+            if neurovault == 'all':
+                sub = [i for i in images.glob('sub*/*statmap.nii.gz')
+                       if re.match('.*stat-[variance|effect]+.*', i.name)]
+            else:
+                sub = None
+
+            # Upload results NeuroVault
+            self.api.analyses.upload_neurovault(
+                id=self.bundle_id,
+                validation_hash=install.resources['validation_hash'],
+                group_paths=group, subject_paths=sub,
+                force=nv_force,
+                n_subjects=n_subjects)

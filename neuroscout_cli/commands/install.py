@@ -109,5 +109,8 @@ class Install(Command):
                 )
             sys.exit(1)
 
-    def run(self):
-        return self.download_data()
+    def run(self, download_data=True):
+        if download_data:
+            return self.download_data()
+        else:
+            return self.download_bundle()
