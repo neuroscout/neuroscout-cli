@@ -4,6 +4,7 @@ neuroscout
 Usage:
     neuroscout run [-dfuv -i <dir> -s <k> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
     neuroscout install [-ui <dir>] <bundle_id>...
+    neuroscout upload [-f -n <nv>] <outdir> <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
     neuroscout --version
@@ -25,6 +26,7 @@ Options:
 Commands:
     run                      Runs analysis.
     install                  Installs a bundle and/or dataset.
+    upload                   Upload existing analysis results to Neurovault.
     ls                       Lists the available files in a bundle's dataset.
 
 Examples:
@@ -54,11 +56,11 @@ def main():
         if hasattr(ncl, k) and val:
             k = k[0].upper() + k[1:]
             command = getattr(ncl, k)
-            if k in ['Run', 'Install']:
+            if k in ['Run', 'Install', 'Upload']:
                 bundles = args.pop('<bundle_id>')
                 # Loop over bundles
                 for bundle in bundles:
-                    logging.info("Running analysis : {}".format(bundle))
+                    logging.info("Analysis ID : {}".format(bundle))
                     args['<bundle_id>'] = bundle
                     command(deepcopy(args)).run()
             sys.exit(0)
