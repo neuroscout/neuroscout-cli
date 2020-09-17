@@ -64,7 +64,10 @@ class Install(Command):
                         path=str(self.preproc_dir.parents[0]))
 
             # Get all JSON files
-            get([str(p) for p in self.preproc_dir.rglob('*.json')])
+            jsons = list(self.preproc_dir.rglob('*.json'))
+            print(jsons)
+            if jsons:
+                get([str(p) for p in self.preproc_dir.rglob('*.json')])
 
             layout = BIDSLayout(
                 self.preproc_dir,
