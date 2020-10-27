@@ -2,6 +2,7 @@ from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
+from bids.layout import BIDSLayout
 from pathlib import Path
 import logging
 import re
@@ -84,6 +85,12 @@ class Run(Command):
             model = json.load(open(model_path, 'r'))
             n_subjects = len(model['Input']['Subject'])
 
+            try:
+                fmriprep_version = BIDSLayout(
+                    preproc_path).description['PipelineDescription']['Version']
+            except Exception:
+                fmriprep_version = None
+
             logging.info("Uploading results to NeuroVault...")
 
             # Find files
@@ -109,4 +116,6 @@ class Run(Command):
                 validation_hash=install.resources['validation_hash'],
                 group_paths=group, subject_paths=sub,
                 force=nv_force,
+                fmriprep_version=fmriprep_version,
+                cli_version=VERSION,
                 n_subjects=n_subjects)
