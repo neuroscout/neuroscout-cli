@@ -100,12 +100,12 @@ class Run(Command):
             if ses_dirs:  # If session, look for stat files in session fld
                 images = images / ses_dirs[0]
 
-            group = [i for i in images.glob('task*statmap.nii.gz')
+            group = [str(i) for i in images.glob('task*statmap.nii.gz')
                      if re.match(
                          '.*stat-[t|F|variance|effect]+.*', i.name)]
 
             if neurovault == 'all':
-                sub = [i for i in images.glob('sub*/*statmap.nii.gz')
+                sub = [str(i) for i in images.glob('sub*/*statmap.nii.gz')
                        if re.match('.*stat-[variance|effect]+.*', i.name)]
             else:
                 sub = None
