@@ -2,6 +2,7 @@ from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
+from bids.layout import BIDSLayout
 from pathlib import Path
 import logging
 import re
@@ -24,11 +25,12 @@ class Run(Command):
         model_path = (bundle_path / 'model.json').absolute()
         neurovault = self.options.pop('--neurovault', 'group')
         nv_force = self.options.pop('--force-neurovault', False)
+        preproc_path = str(install.preproc_dir.absolute())
+
         if neurovault not in ['disable', 'group', 'all']:
             raise ValueError("Invalid neurovault option.")
 
         if not upload_only:
-            preproc_path = str(install.preproc_dir.absolute())
             smoothing = self.options.pop('--smoothing')
 
             fitlins_args = [
@@ -84,6 +86,12 @@ class Run(Command):
             model = json.load(open(model_path, 'r'))
             n_subjects = len(model['Input']['Subject'])
 
+            try:
+                fmriprep_version = BIDSLayout(
+                    preproc_path).description['PipelineDescription']['Version']
+            except Exception:
+                fmriprep_version = None
+
             logging.info("Uploading results to NeuroVault...")
 
             # Find files
@@ -93,12 +101,12 @@ class Run(Command):
             if ses_dirs:  # If session, look for stat files in session fld
                 images = images / ses_dirs[0]
 
-            group = [i for i in images.glob('task*statmap.nii.gz')
+            group = [str(i) for i in images.glob('task*statmap.nii.gz')
                      if re.match(
                          '.*stat-[t|F|variance|effect]+.*', i.name)]
 
             if neurovault == 'all':
-                sub = [i for i in images.glob('sub*/*statmap.nii.gz')
+                sub = [str(i) for i in images.glob('sub*/*statmap.nii.gz')
                        if re.match('.*stat-[variance|effect]+.*', i.name)]
             else:
                 sub = None
@@ -109,4 +117,6 @@ class Run(Command):
                 validation_hash=install.resources['validation_hash'],
                 group_paths=group, subject_paths=sub,
                 force=nv_force,
+                fmriprep_version=fmriprep_version,
+                cli_version=VERSION,
                 n_subjects=n_subjects)

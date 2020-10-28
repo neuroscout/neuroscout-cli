@@ -25,7 +25,7 @@ class Install(Command):
         # Download bundle
         if not self.bundle_cache.exists():
             logging.info("Downloading bundle...")
-            self.api.analyses.bundle(self.bundle_id, self.bundle_cache)
+            self.api.analyses.get_bundle(self.bundle_id, self.bundle_cache)
 
         # Un-tarzip, and read in JSON files
         with tarfile.open(self.bundle_cache) as tf:
@@ -34,6 +34,7 @@ class Install(Command):
 
             self.dataset_dir = self.install_dir / \
                 self.resources['dataset_name']
+            self.preproc_dir = Path(self.dataset_dir) / 'preproc' / 'fmriprep'
             self.bundle_dir = self.dataset_dir \
                 / 'neuroscout-bundles' / self.bundle_id
 
@@ -54,8 +55,6 @@ class Install(Command):
         bundle_dir = self.download_bundle()
         with (bundle_dir / 'model.json').open() as f:
             model = convert_JSON(json.load(f))
-
-        self.preproc_dir = Path(self.dataset_dir) / 'preproc' / 'fmriprep'
 
         try:
             if not self.preproc_dir.parents[0].exists():
