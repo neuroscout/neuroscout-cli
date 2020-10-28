@@ -1,4 +1,4 @@
 docopt==0.6.2
 datalad==0.10.2
 tqdm==4.25.0
-pyns==0.3.2
+pyns==0.4.3
