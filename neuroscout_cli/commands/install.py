@@ -20,6 +20,7 @@ class Install(Command):
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
         self.install_dir = Path(self.options.pop('--install-dir'))
+        self.preproc_dir = Path(self.dataset_dir) / 'preproc' / 'fmriprep'
 
     def download_bundle(self):
         # Download bundle
@@ -54,8 +55,6 @@ class Install(Command):
         bundle_dir = self.download_bundle()
         with (bundle_dir / 'model.json').open() as f:
             model = convert_JSON(json.load(f))
-
-        self.preproc_dir = Path(self.dataset_dir) / 'preproc' / 'fmriprep'
 
         try:
             if not self.preproc_dir.parents[0].exists():
