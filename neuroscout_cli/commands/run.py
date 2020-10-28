@@ -25,11 +25,12 @@ class Run(Command):
         model_path = (bundle_path / 'model.json').absolute()
         neurovault = self.options.pop('--neurovault', 'group')
         nv_force = self.options.pop('--force-neurovault', False)
+        preproc_path = str(install.preproc_dir.absolute())
+
         if neurovault not in ['disable', 'group', 'all']:
             raise ValueError("Invalid neurovault option.")
 
         if not upload_only:
-            preproc_path = str(install.preproc_dir.absolute())
             smoothing = self.options.pop('--smoothing')
 
             fitlins_args = [
