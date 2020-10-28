@@ -25,7 +25,7 @@ class Install(Command):
         # Download bundle
         if not self.bundle_cache.exists():
             logging.info("Downloading bundle...")
-            self.api.analyses.bundle(self.bundle_id, self.bundle_cache)
+            self.api.analyses.get_bundle(self.bundle_id, self.bundle_cache)
 
         # Un-tarzip, and read in JSON files
         with tarfile.open(self.bundle_cache) as tf:
