@@ -85,11 +85,8 @@ class Run(Command):
             model = json.load(open(model_path, 'r'))
             n_subjects = len(model['Input']['Subject'])
 
-            try:
-                fmriprep_version = BIDSLayout(
-                    preproc_path).description['PipelineDescription']['Version']
-            except Exception:
-                fmriprep_version = None
+            fmriprep_version = BIDSLayout(
+                preproc_path).description['PipelineDescription']['Version']
 
             logging.info("Uploading results to NeuroVault...")
 
