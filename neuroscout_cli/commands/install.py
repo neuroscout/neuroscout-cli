@@ -20,7 +20,6 @@ class Install(Command):
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
         self.install_dir = Path(self.options.pop('--install-dir'))
-        self.preproc_dir = Path(self.dataset_dir) / 'preproc' / 'fmriprep'
 
     def download_bundle(self):
         # Download bundle
@@ -35,6 +34,7 @@ class Install(Command):
 
             self.dataset_dir = self.install_dir / \
                 self.resources['dataset_name']
+            self.preproc_dir = Path(self.dataset_dir) / 'preproc' / 'fmriprep'
             self.bundle_dir = self.dataset_dir \
                 / 'neuroscout-bundles' / self.bundle_id
 
