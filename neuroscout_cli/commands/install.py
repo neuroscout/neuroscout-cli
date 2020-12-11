@@ -34,7 +34,6 @@ class Install(Command):
 
             self.dataset_dir = self.install_dir / \
                 self.resources['dataset_name']
-            self.preproc_dir = Path(self.dataset_dir) / 'preproc' / 'fmriprep'
             self.bundle_dir = self.dataset_dir \
                 / 'neuroscout-bundles' / self.bundle_id
 
@@ -52,15 +51,21 @@ class Install(Command):
         return self.bundle_dir.absolute()
 
     def download_data(self):
+        self.preproc_dir = Path(self.dataset_dir) / 'derivatives'
         bundle_dir = self.download_bundle()
         with (bundle_dir / 'model.json').open() as f:
             model = convert_JSON(json.load(f))
 
         try:
-            if not self.preproc_dir.parents[0].exists():
+            if not self.preproc_dir.exists():
                 # Use datalad to install the preproc dataset
                 install(source=self.resources['preproc_address'],
-                        path=str(self.preproc_dir.parents[0]))
+                        path=str(self.preproc_dir))
+
+            for option in ['preproc', 'fmriprep']:
+                if (self.preproc_dir / option).exists():
+                    self.preproc_dir = self.preproc_dir / option
+                    break
 
             # Get all JSON files
             jsons = list(self.preproc_dir.rglob('*.json'))
