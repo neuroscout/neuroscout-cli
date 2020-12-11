@@ -51,8 +51,8 @@ class Install(Command):
         return self.bundle_dir.absolute()
 
     def download_data(self):
-        self.preproc_dir = Path(self.dataset_dir) / 'derivatives'
         bundle_dir = self.download_bundle()
+        self.preproc_dir = Path(self.dataset_dir) / 'derivatives'
         with (bundle_dir / 'model.json').open() as f:
             model = convert_JSON(json.load(f))
 
