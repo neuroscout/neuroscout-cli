@@ -32,6 +32,7 @@ class Run(Command):
 
         if not upload_only:
             smoothing = self.options.pop('--smoothing')
+            estimator = self.options.pop('--estimator')
 
             fitlins_args = [
                 preproc_path,
@@ -40,7 +41,8 @@ class Run(Command):
                 f'--model={model_path}',
                 '--ignore=/(.*desc-confounds_regressors.tsv)/',
                 f'--derivatives={bundle_path} {preproc_path}',
-                f'--smoothing={smoothing}:Dataset'
+                f'--smoothing={smoothing}:Dataset',
+                f'--estimator={estimator}'
             ]
 
             verbose = self.options.pop('--verbose')
