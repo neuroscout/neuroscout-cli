@@ -120,5 +120,6 @@ class Run(Command):
                 group_paths=group, subject_paths=sub,
                 force=nv_force,
                 fmriprep_version=fmriprep_version,
+                estimator=estimator,
                 cli_version=VERSION,
                 n_subjects=n_subjects)
