@@ -30,6 +30,8 @@ class Run(Command):
         if neurovault not in ['disable', 'group', 'all']:
             raise ValueError("Invalid neurovault option.")
 
+        # Need to retrieve this from fitlins output once it's available
+        estimator = None
         if not upload_only:
             smoothing = self.options.pop('--smoothing')
             estimator = self.options.pop('--estimator')
