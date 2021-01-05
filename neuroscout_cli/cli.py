@@ -20,7 +20,7 @@ Options:
     -n, --neurovault <nv>    Upload mode (disable, all, or group)
                              [default: group]
     -e, --estimator <es>     Estimator to use for first-level model
-                             [default: afni]
+                             [default: nistats]
     -f, --force-neurovault   Force upload, if a NV collection already exists
     -d, --drop-missing       Drop missing contrast
     -v, --verbose	     Verbose mode
