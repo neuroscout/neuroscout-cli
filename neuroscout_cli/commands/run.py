@@ -101,7 +101,7 @@ class Run(Command):
             if ses_dirs:  # If session, look for stat files in session fld
                 images = images / ses_dirs[0]
 
-            group = [str(i) for i in images.glob('task*statmap.nii.gz')
+            group = [str(i) for i in images.glob('*statmap.nii.gz')
                      if re.match(
                          '.*stat-[t|F|variance|effect]+.*', i.name)]
 
