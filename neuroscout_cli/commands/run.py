@@ -30,8 +30,11 @@ class Run(Command):
         if neurovault not in ['disable', 'group', 'all']:
             raise ValueError("Invalid neurovault option.")
 
+        # Need to retrieve this from fitlins output once it's available
+        estimator = None
         if not upload_only:
             smoothing = self.options.pop('--smoothing')
+            estimator = self.options.pop('--estimator')
 
             fitlins_args = [
                 preproc_path,
@@ -40,7 +43,8 @@ class Run(Command):
                 f'--model={model_path}',
                 '--ignore=/(.*desc-confounds_regressors.tsv)/',
                 f'--derivatives={bundle_path} {preproc_path}',
-                f'--smoothing={smoothing}:Dataset'
+                f'--smoothing={smoothing}:Dataset',
+                f'--estimator={estimator}'
             ]
 
             verbose = self.options.pop('--verbose')
@@ -118,5 +122,6 @@ class Run(Command):
                 group_paths=group, subject_paths=sub,
                 force=nv_force,
                 fmriprep_version=fmriprep_version,
+                estimator=estimator,
                 cli_version=VERSION,
                 n_subjects=n_subjects)

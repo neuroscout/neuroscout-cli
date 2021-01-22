@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [-dfuv -i <dir> -s <k> -w <dir> -c <n> -n <nv>] <outdir> <bundle_id>...
+    neuroscout run [-dfuv -i <dir> -s <k> -w <dir> -c <n> -n <nv> -e <es>] <outdir> <bundle_id>...
     neuroscout install [-ui <dir>] <bundle_id>...
     neuroscout upload [-f -n <nv>] <outdir> <bundle_id>...
     neuroscout ls <bundle_id>
@@ -19,6 +19,8 @@ Options:
     -u, --unlock             Unlock datalad dataset
     -n, --neurovault <nv>    Upload mode (disable, all, or group)
                              [default: group]
+    -e, --estimator <es>     Estimator to use for first-level model
+                             [default: nistats]
     -f, --force-neurovault   Force upload, if a NV collection already exists
     -d, --drop-missing       Drop missing contrast
     -v, --verbose	     Verbose mode
