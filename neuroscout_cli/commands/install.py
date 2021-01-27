@@ -45,6 +45,19 @@ class Install(Command):
                     "Bundle installed at {}".format(
                         self.bundle_dir.absolute()))
 
+        # Set up preproc dir w/ DataLad (but don't download)
+        self.preproc_dir = Path(self.dataset_dir) / 'derivatives'
+
+        if not self.preproc_dir.exists():
+            # Use datalad to install the preproc dataset
+            install(source=self.resources['preproc_address'],
+                    path=str(self.preproc_dir))
+
+        for option in ['preproc', 'fmriprep']:
+            if (self.preproc_dir / option).exists():
+                self.preproc_dir = self.preproc_dir / option
+                break
+
         # Check version
         self._check_version()
 
@@ -52,21 +65,10 @@ class Install(Command):
 
     def download_data(self):
         bundle_dir = self.download_bundle()
-        self.preproc_dir = Path(self.dataset_dir) / 'derivatives'
         with (bundle_dir / 'model.json').open() as f:
             model = convert_JSON(json.load(f))
 
         try:
-            if not self.preproc_dir.exists():
-                # Use datalad to install the preproc dataset
-                install(source=self.resources['preproc_address'],
-                        path=str(self.preproc_dir))
-
-            for option in ['preproc', 'fmriprep']:
-                if (self.preproc_dir / option).exists():
-                    self.preproc_dir = self.preproc_dir / option
-                    break
-
             # Get all JSON files
             jsons = list(self.preproc_dir.rglob('*.json'))
             if jsons:
