@@ -1,15 +1,16 @@
-from neuroscout_cli.commands.base import Command
-from neuroscout_cli import __version__ as VERSION
-from datalad.api import install, get, unlock
-from pathlib import Path
-from shutil import copy
 import json
 import tarfile
 import logging
+import sys
+
+from pathlib import Path
+from shutil import copy
+from packaging import version
+from neuroscout_cli.commands.base import Command
+from neuroscout_cli import __version__ as VERSION
+from datalad.api import install, get, unlock
 from bids.utils import convert_JSON
 from bids import BIDSLayout
-from packaging import version
-import sys
 
 
 class Install(Command):
@@ -28,9 +29,9 @@ class Install(Command):
             self.api.analyses.get_bundle(self.bundle_id, self.bundle_cache)
 
         # Un-tarzip, and read in JSON files
-        with tarfile.open(self.bundle_cache) as tf:
+        with tarfile.open(self.bundle_cache) as tF:
             self.resources = json.loads(
-                tf.extractfile('resources.json').read().decode("utf-8"))
+                tF.extractfile('resources.json').read().decode("utf-8"))
 
             self.dataset_dir = self.install_dir / \
                 self.resources['dataset_name']
@@ -89,12 +90,12 @@ class Install(Command):
             if self.options.pop('--unlock', False):
                 unlock(paths)
 
-        except Exception as e:
-            if hasattr(e, 'failed'):
-                message = e.failed[0]['message']
+        except Exception as exp:
+            if hasattr(exp, 'failed'):
+                message = exp.failed[0]['message']
                 raise ValueError("Datalad failed. Reason: {}".format(message))
             else:
-                raise(e)
+                raise(exp)
 
         # Copy meta-data to root of dataset_dir
         copy(list(self.bundle_dir.glob('task-*json'))[0], self.preproc_dir)
