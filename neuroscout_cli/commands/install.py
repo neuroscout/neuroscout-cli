@@ -21,8 +21,13 @@ class Install(Command):
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
         self.install_dir = Path(self.options.pop('--install-dir'))
+        self.resources = None
+        self.dataset_dir = None
+        self.bundle_dir = None
+        self.preproc_dir = None
 
     def download_bundle(self):
+        """ Download analysis bundle and setup preproc dir """
         # Download bundle
         if not self.bundle_cache.exists():
             logging.info("Downloading bundle...")
@@ -41,10 +46,10 @@ class Install(Command):
             #  Extract to bundle_dir
             if not self.bundle_dir.exists():
                 self.bundle_dir.mkdir(parents=True, exist_ok=True)
-                tf.extractall(self.bundle_dir)
+                tF.extractall(self.bundle_dir)
                 logging.info(
-                    "Bundle installed at {}".format(
-                        self.bundle_dir.absolute()))
+                    "Bundle installed at %s", self.bundle_dir.absolute()
+                )
 
         # Set up preproc dir w/ DataLad (but don't download)
         self.preproc_dir = Path(self.dataset_dir) / 'derivatives'
@@ -65,6 +70,7 @@ class Install(Command):
         return self.bundle_dir.absolute()
 
     def download_data(self):
+        """ Use DataLad to download necessary data to disk """
         bundle_dir = self.download_bundle()
         with (bundle_dir / 'model.json').open() as f:
             model = convert_JSON(json.load(f))
@@ -95,7 +101,7 @@ class Install(Command):
                 message = exp.failed[0]['message']
                 raise ValueError("Datalad failed. Reason: {}".format(message))
             else:
-                raise(exp)
+                raise exp
 
         # Copy meta-data to root of dataset_dir
         copy(list(self.bundle_dir.glob('task-*json'))[0], self.preproc_dir)
@@ -111,7 +117,7 @@ class Install(Command):
                 "\n"
                 "-----------------------------------------------------------\n"
                 "Insufficient version of neurosout-cli! \n"
-                f"This bundle requires v{str(req)} or greater, and you current have v{VERSION} \n"
+                f"This bundle requires v{str(req)}+, and you have v{VERSION}\n"
                 "Please upgrade neuroscout-cli by running: \n"
                 "'docker pull neuroscout/neuroscout-cli' to continue. \n"
                 "-----------------------------------------------------------\n"
