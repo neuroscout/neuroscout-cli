@@ -1,4 +1,4 @@
-FROM poldracklab/fitlins:master
+FROM poldracklab/fitlins:0.9.0
 
 # Set user back to root
 USER root
