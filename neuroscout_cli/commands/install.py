@@ -1,15 +1,16 @@
-from neuroscout_cli.commands.base import Command
-from neuroscout_cli import __version__ as VERSION
-from datalad.api import install, get, unlock
-from pathlib import Path
-from shutil import copy
 import json
 import tarfile
 import logging
+import sys
+
+from pathlib import Path
+from shutil import copy
+from packaging import version
+from neuroscout_cli.commands.base import Command
+from neuroscout_cli import __version__ as VERSION
+from datalad.api import install, get, unlock
 from bids.utils import convert_JSON
 from bids import BIDSLayout
-from packaging import version
-import sys
 
 
 class Install(Command):
@@ -20,17 +21,22 @@ class Install(Command):
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
         self.install_dir = Path(self.options.pop('--install-dir'))
+        self.resources = None
+        self.dataset_dir = None
+        self.bundle_dir = None
+        self.preproc_dir = None
 
     def download_bundle(self):
+        """ Download analysis bundle and setup preproc dir """
         # Download bundle
         if not self.bundle_cache.exists():
             logging.info("Downloading bundle...")
             self.api.analyses.get_bundle(self.bundle_id, self.bundle_cache)
 
         # Un-tarzip, and read in JSON files
-        with tarfile.open(self.bundle_cache) as tf:
+        with tarfile.open(self.bundle_cache) as tF:
             self.resources = json.loads(
-                tf.extractfile('resources.json').read().decode("utf-8"))
+                tF.extractfile('resources.json').read().decode("utf-8"))
 
             self.dataset_dir = self.install_dir / \
                 self.resources['dataset_name']
@@ -40,10 +46,23 @@ class Install(Command):
             #  Extract to bundle_dir
             if not self.bundle_dir.exists():
                 self.bundle_dir.mkdir(parents=True, exist_ok=True)
-                tf.extractall(self.bundle_dir)
+                tF.extractall(self.bundle_dir)
                 logging.info(
-                    "Bundle installed at {}".format(
-                        self.bundle_dir.absolute()))
+                    "Bundle installed at %s", self.bundle_dir.absolute()
+                )
+
+        # Set up preproc dir w/ DataLad (but don't download)
+        self.preproc_dir = Path(self.dataset_dir) / 'derivatives'
+
+        if not self.preproc_dir.exists():
+            # Use datalad to install the preproc dataset
+            install(source=self.resources['preproc_address'],
+                    path=str(self.preproc_dir))
+
+        for option in ['preproc', 'fmriprep']:
+            if (self.preproc_dir / option).exists():
+                self.preproc_dir = self.preproc_dir / option
+                break
 
         # Check version
         self._check_version()
@@ -51,22 +70,12 @@ class Install(Command):
         return self.bundle_dir.absolute()
 
     def download_data(self):
+        """ Use DataLad to download necessary data to disk """
         bundle_dir = self.download_bundle()
-        self.preproc_dir = Path(self.dataset_dir) / 'derivatives'
         with (bundle_dir / 'model.json').open() as f:
             model = convert_JSON(json.load(f))
 
         try:
-            if not self.preproc_dir.exists():
-                # Use datalad to install the preproc dataset
-                install(source=self.resources['preproc_address'],
-                        path=str(self.preproc_dir))
-
-            for option in ['preproc', 'fmriprep']:
-                if (self.preproc_dir / option).exists():
-                    self.preproc_dir = self.preproc_dir / option
-                    break
-
             # Get all JSON files
             jsons = list(self.preproc_dir.rglob('*.json'))
             if jsons:
@@ -87,12 +96,12 @@ class Install(Command):
             if self.options.pop('--unlock', False):
                 unlock(paths)
 
-        except Exception as e:
-            if hasattr(e, 'failed'):
-                message = e.failed[0]['message']
+        except Exception as exp:
+            if hasattr(exp, 'failed'):
+                message = exp.failed[0]['message']
                 raise ValueError("Datalad failed. Reason: {}".format(message))
             else:
-                raise(e)
+                raise exp
 
         # Copy meta-data to root of dataset_dir
         copy(list(self.bundle_dir.glob('task-*json'))[0], self.preproc_dir)
@@ -108,7 +117,7 @@ class Install(Command):
                 "\n"
                 "-----------------------------------------------------------\n"
                 "Insufficient version of neurosout-cli! \n"
-                f"This bundle requires v{str(req)} or greater, and you current have v{VERSION} \n"
+                f"This bundle requires v{str(req)}+, and you have v{VERSION}\n"
                 "Please upgrade neuroscout-cli by running: \n"
                 "'docker pull neuroscout/neuroscout-cli' to continue. \n"
                 "-----------------------------------------------------------\n"

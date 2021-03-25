@@ -1,12 +1,12 @@
+import logging
+import re
+import json
+from pathlib import Path
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
 from bids.layout import BIDSLayout
-from pathlib import Path
-import logging
-import re
-import json
 
 # Options not to be passed onto fitlins
 INVALID = ['--unlock', '--version', '--help', '--install-dir',
@@ -105,7 +105,7 @@ class Run(Command):
             if ses_dirs:  # If session, look for stat files in session fld
                 images = images / ses_dirs[0]
 
-            group = [str(i) for i in images.glob('task*statmap.nii.gz')
+            group = [str(i) for i in images.glob('*statmap.nii.gz')
                      if re.match(
                          '.*stat-[t|F|variance|effect]+.*', i.name)]
 
