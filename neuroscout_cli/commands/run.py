@@ -23,6 +23,9 @@ class Run(Install):
         model_path = (self.bundle_dir / 'model.json').absolute()
         neurovault = self.options.pop('--neurovault', 'group')
         nv_force = self.options.pop('--force-neurovault', False)
+        
+        out_dir = self.main_dir / 'out'
+        out_dir.mkdirs(exist_ok=True)
 
         if neurovault not in ['disable', 'group', 'all']:
             raise ValueError("Invalid neurovault option.")
@@ -35,7 +38,7 @@ class Run(Install):
 
             fitlins_args = [
                 str(self.preproc_path.absolute()),
-                str(self.out_dir),
+                str(out_dir),
                 'dataset',
                 f'--model={model_path}',
                 '--ignore=/(.*desc-confounds_regressors.tsv)/',
