@@ -38,7 +38,7 @@ class Install(Command):
         bundle_tarball = self.bundle_dir / f'{self.bundle_id}.tar.gz'
         if not bundle_tarball.exists():
             logging.info("Downloading bundle...")
-            self.api.analyses.get_bundle(self.bundle_id, self.bundle_dir)
+            self.api.analyses.get_bundle(self.bundle_id, bundle_tarball)
 
         # Un-tarzip, and read in JSON files, and extract if needed
         with tarfile.open(bundle_tarball) as tF:
