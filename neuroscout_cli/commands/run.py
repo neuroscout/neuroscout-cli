@@ -25,7 +25,7 @@ class Run(Install):
         nv_force = self.options.pop('--force-neurovault', False)
         
         out_dir = self.main_dir / 'out'
-        out_dir.mkdirs(exist_ok=True)
+        out_dir.mkdir(exist_ok=True)
 
         if neurovault not in ['disable', 'group', 'all']:
             raise ValueError("Invalid neurovault option.")
