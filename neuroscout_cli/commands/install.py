@@ -57,7 +57,7 @@ class Install(Command):
                 
         # If cache dir is defind, download there
         if self.cache_dir:
-            download_dir = self.cache_dir
+            download_dir = self.cache_dir /
         else:
             download_dir = self.main_dir / 'inputs'
             
@@ -67,7 +67,7 @@ class Install(Command):
         if not self.preproc_dir.exists():
             # Use datalad to install the preproc dataset
             install(source=self.resources['preproc_address'],
-                    path=str(download_dir))
+                    path=str(self.preproc_dir))
 
         # Set preproc dir to specific directory, depending on contents
         for option in ['preproc', 'fmriprep']:
