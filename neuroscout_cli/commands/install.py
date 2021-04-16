@@ -26,7 +26,7 @@ class Install(Command):
         self.cache_dir = self.options.pop('--cache-dir')
         if self.cache_dir is not None:
             self.cache_dir = Path(self.cache_dir)
-        self.main_dir = self.options.pop('<outdir>') / f'neuroscout-{self.bundle_id}'
+        self.main_dir = Path(self.options.pop('<outdir>')) / f'neuroscout-{self.bundle_id}'
         self.main_dir.mkdir(parents=True, exist_ok=True)
         
         self.bundle_dir = self.main_dir / 'inputs' / 'bundle'
