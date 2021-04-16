@@ -13,19 +13,16 @@ INVALID = ['--unlock', '--version', '--help', '--install-dir',
            'run', '<bundle_id>', '--dataset-name']
 
 
-class Run(Command):
+class Run(Install):
     ''' Command for running neuroscout workflows. '''
 
     def run(self, upload_only=False):
         # Download bundle and install dataset if necessary
-        install = Install(self.options.copy())
-        bundle_path = install.run(download_data=(not upload_only))
-
-        out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
-        model_path = (bundle_path / 'model.json').absolute()
+        super().run(download_data=(not upload_only))
+        
+        model_path = (self.bundle_dir / 'model.json').absolute()
         neurovault = self.options.pop('--neurovault', 'group')
         nv_force = self.options.pop('--force-neurovault', False)
-        preproc_path = str(install.preproc_dir.absolute())
 
         if neurovault not in ['disable', 'group', 'all']:
             raise ValueError("Invalid neurovault option.")
@@ -37,12 +34,12 @@ class Run(Command):
             estimator = self.options.pop('--estimator')
 
             fitlins_args = [
-                preproc_path,
-                str(out_dir),
+                str(self.preproc_path.absolute()),
+                str(self.out_dir),
                 'dataset',
                 f'--model={model_path}',
                 '--ignore=/(.*desc-confounds_regressors.tsv)/',
-                f'--derivatives={bundle_path} {preproc_path}',
+                f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_path.absolute())}',
                 f'--smoothing={smoothing}:Dataset',
                 f'--estimator={estimator}'
             ]
@@ -118,7 +115,7 @@ class Run(Command):
             # Upload results NeuroVault
             self.api.analyses.upload_neurovault(
                 id=self.bundle_id,
-                validation_hash=install.resources['validation_hash'],
+                validation_hash=self.resources['validation_hash'],
                 group_paths=group, subject_paths=sub,
                 force=nv_force,
                 fmriprep_version=fmriprep_version,
