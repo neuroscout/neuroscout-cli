@@ -37,12 +37,12 @@ class Run(Install):
             estimator = self.options.pop('--estimator')
 
             fitlins_args = [
-                str(self.preproc_path.absolute()),
+                str(self.preproc_dir.absolute()),
                 str(out_dir),
                 'dataset',
                 f'--model={model_path}',
                 '--ignore=/(.*desc-confounds_regressors.tsv)/',
-                f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_path.absolute())}',
+                f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_dir.absolute())}',
                 f'--smoothing={smoothing}:Dataset',
                 f'--estimator={estimator}'
             ]
@@ -92,7 +92,7 @@ class Run(Install):
 
             try:
                 fmriprep_version = BIDSLayout(
-                    preproc_path).description['PipelineDescription']['Version']
+                    self.preproc_dir).description['PipelineDescription']['Version']
             except Exception:
                 fmriprep_version = None
 
