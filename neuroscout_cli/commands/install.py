@@ -57,7 +57,7 @@ class Install(Command):
                 
         # If cache dir is defind, download there
         if self.cache_dir:
-            download_dir = self.cache_dir /
+            download_dir = self.cache_dir
         else:
             download_dir = self.main_dir / 'inputs'
             
