@@ -22,7 +22,7 @@ Options:
     -e, --estimator <es>     Estimator to use for first-level model
                              [default: nistats]
     -f, --force-neurovault   Force upload, if a NV collection already exists
-    -d, --drop-missing       Drop missing contrast
+    -d, --drop-missing       Drop missing contrasts
     -v, --verbose	         Verbose mode
 
 Commands:
