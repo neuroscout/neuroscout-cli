@@ -55,7 +55,7 @@ class Install(Command):
                     "Bundle installed at %s", self.bundle_dir.absolute()
                 )
                 
-        # If cache dir is defind, download there
+        # If install dir is defind, download there
         if self.install_dir:
             download_dir = self.install_dir
         else:
