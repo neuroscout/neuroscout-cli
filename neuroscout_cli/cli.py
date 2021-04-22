@@ -10,7 +10,7 @@ Usage:
     neuroscout --version
 
 Options:
-    -i, --cache-dir <dir>    Optional directory to cache input images
+    -i, --install-dir <dir>    Optional directory to cache input images
     -w, --work-dir <dir>     Optional Fitlins working directory 
     -c, --n-cpus <n>         Maximum number of threads across all processes
                              [default: 1]

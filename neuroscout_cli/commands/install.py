@@ -23,9 +23,9 @@ class Install(Command):
         super().__init__(options, *args, **kwargs)
         self.resources = None
         self.preproc_dir = None
-        self.cache_dir = self.options.pop('--cache-dir')
-        if self.cache_dir is not None:
-            self.cache_dir = Path(self.cache_dir)
+        self.install_dir = self.options.pop('--install-dir')
+        if self.install_dir is not None:
+            self.install_dir = Path(self.install_dir)
         self.main_dir = Path(self.options.pop('<outdir>')) / f'neuroscout-{self.bundle_id}'
         self.main_dir.mkdir(parents=True, exist_ok=True)
         
@@ -56,8 +56,8 @@ class Install(Command):
                 )
                 
         # If cache dir is defind, download there
-        if self.cache_dir:
-            download_dir = self.cache_dir
+        if self.install_dir:
+            download_dir = self.install_dir
         else:
             download_dir = self.main_dir / 'inputs'
             
