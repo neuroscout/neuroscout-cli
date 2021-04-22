@@ -23,7 +23,7 @@ class Install(Command):
         super().__init__(options, *args, **kwargs)
         self.resources = None
         self.preproc_dir = None
-        self.install_dir = self.options.pop('--install-dir')
+        self.install_dir = self.options.get('--install-dir', None)
         if self.install_dir is not None:
             self.install_dir = Path(self.install_dir)
         self.main_dir = Path(self.options.pop('<outdir>')) / f'neuroscout-{self.bundle_id}'
@@ -55,7 +55,7 @@ class Install(Command):
                     "Bundle installed at %s", self.bundle_dir.absolute()
                 )
                 
-        # If install dir is defind, download there
+        # If install dir is defined, download there
         if self.install_dir:
             download_dir = self.install_dir
         else:
