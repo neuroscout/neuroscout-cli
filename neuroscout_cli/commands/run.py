@@ -128,5 +128,6 @@ class Run(Install):
                 cli_version=VERSION,
                 n_subjects=n_subjects)
 
-        if not no_drop:
+        # Drop files if no separate install dir, and the user has not said otherwise.
+        if not self.install_dir and not no_drop:
             drop(str(self.preproc_dir.absolute()))
