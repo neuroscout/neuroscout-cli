@@ -129,4 +129,4 @@ class Run(Install):
                 n_subjects=n_subjects)
 
         if not no_drop:
-            drop(self.preproc_dir)
+            drop(str(self.preproc_dir.absolute()))
