@@ -7,25 +7,27 @@ from neuroscout_cli import __version__ as VERSION
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
 from bids.layout import BIDSLayout
+from datalad.api import drop
 
 # Options not to be passed onto fitlins
 INVALID = ['--unlock', '--version', '--help', '--install-dir',
            'run', '<bundle_id>', '--dataset-name']
 
 
-class Run(Command):
+class Run(Install):
     ''' Command for running neuroscout workflows. '''
 
     def run(self, upload_only=False):
         # Download bundle and install dataset if necessary
-        install = Install(self.options.copy())
-        bundle_path = install.run(download_data=(not upload_only))
-
-        out_dir = Path(self.options.pop('<outdir>')) / install.bundle_id
-        model_path = (bundle_path / 'model.json').absolute()
+        super().run(download_data=(not upload_only))
+        
+        model_path = (self.bundle_dir / 'model.json').absolute()
         neurovault = self.options.pop('--neurovault', 'group')
         nv_force = self.options.pop('--force-neurovault', False)
-        preproc_path = str(install.preproc_dir.absolute())
+        no_drop = self.options.pop('--no-datalad-drop', False)
+        
+        out_dir = self.main_dir
+        out_dir.mkdir(exist_ok=True)
 
         if neurovault not in ['disable', 'group', 'all']:
             raise ValueError("Invalid neurovault option.")
@@ -37,12 +39,12 @@ class Run(Command):
             estimator = self.options.pop('--estimator')
 
             fitlins_args = [
-                preproc_path,
+                str(self.preproc_dir.absolute()),
                 str(out_dir),
                 'dataset',
                 f'--model={model_path}',
                 '--ignore=/(.*desc-confounds_regressors.tsv)/',
-                f'--derivatives={bundle_path} {preproc_path}',
+                f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_dir.absolute())}',
                 f'--smoothing={smoothing}:Dataset',
                 f'--estimator={estimator}'
             ]
@@ -92,7 +94,7 @@ class Run(Command):
 
             try:
                 fmriprep_version = BIDSLayout(
-                    preproc_path).description['PipelineDescription']['Version']
+                    self.preproc_dir).description['PipelineDescription']['Version']
             except Exception:
                 fmriprep_version = None
 
@@ -118,10 +120,13 @@ class Run(Command):
             # Upload results NeuroVault
             self.api.analyses.upload_neurovault(
                 id=self.bundle_id,
-                validation_hash=install.resources['validation_hash'],
+                validation_hash=self.resources['validation_hash'],
                 group_paths=group, subject_paths=sub,
                 force=nv_force,
                 fmriprep_version=fmriprep_version,
                 estimator=estimator,
                 cli_version=VERSION,
                 n_subjects=n_subjects)
+
+        if not no_drop:
+            drop(str(self.preproc_dir.absolute()))

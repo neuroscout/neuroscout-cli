@@ -2,16 +2,16 @@
 neuroscout
 
 Usage:
-    neuroscout run [-dfuv -i <dir> -s <k> -w <dir> -c <n> -n <nv> -e <es>] <outdir> <bundle_id>...
-    neuroscout install [-ui <dir>] <bundle_id>...
+    neuroscout run [-mfuvd -i <dir> -w <dir> -s <k> -c <n> -n <nv> -e <es>] <outdir> <bundle_id>...
+    neuroscout install [-ui <dir>] <outdir> <bundle_id>...
     neuroscout upload [-f -n <nv>] <outdir> <bundle_id>...
     neuroscout ls <bundle_id>
     neuroscout -h | --help
     neuroscout --version
 
 Options:
-    -i, --install-dir <dir>  Directory to download data [default: .]
-    -w, --work-dir <dir>     Working directory
+    -i, --install-dir <dir>  Optional directory to cache input images
+    -w, --work-dir <dir>     Optional Fitlins working directory 
     -c, --n-cpus <n>         Maximum number of threads across all processes
                              [default: 1]
     -s, --smoothing <k>      Smoothing kernel FWHM at group level
@@ -22,8 +22,11 @@ Options:
     -e, --estimator <es>     Estimator to use for first-level model
                              [default: nistats]
     -f, --force-neurovault   Force upload, if a NV collection already exists
-    -d, --drop-missing       Drop missing contrast
-    -v, --verbose	     Verbose mode
+    -m, --drop-missing       If contrast is missing in a run, skip.
+    -d, --no-datalad-drop    Don't drop DataLad sourcedata. True by default
+                             if install-dir is specified.
+    -v, --verbose	         Verbose mode
+    
 
 Commands:
     run                      Runs analysis.

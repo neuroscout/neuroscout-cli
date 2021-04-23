@@ -2,6 +2,7 @@ import json
 import tarfile
 import logging
 import sys
+import tempfile
 
 from pathlib import Path
 from shutil import copy
@@ -20,52 +21,59 @@ class Install(Command):
 
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
-        self.install_dir = Path(self.options.pop('--install-dir'))
         self.resources = None
-        self.dataset_dir = None
-        self.bundle_dir = None
         self.preproc_dir = None
+        self.install_dir = self.options.get('--install-dir', None)
+        if self.install_dir is not None:
+            self.install_dir = Path(self.install_dir)
+        self.main_dir = Path(self.options.pop('<outdir>')) / f'neuroscout-{self.bundle_id}'
+        self.main_dir.mkdir(parents=True, exist_ok=True)
+        
+        self.bundle_dir = self.main_dir / 'sourcedata' / 'bundle'
+        self.bundle_dir.mkdir(parents=True, exist_ok=True)
 
     def download_bundle(self):
         """ Download analysis bundle and setup preproc dir """
-        # Download bundle
-        if not self.bundle_cache.exists():
+        # If tarball doesn't exist, download it
+        bundle_tarball = self.bundle_dir / f'{self.bundle_id}.tar.gz'
+        if not bundle_tarball.exists():
             logging.info("Downloading bundle...")
-            self.api.analyses.get_bundle(self.bundle_id, self.bundle_cache)
+            self.api.analyses.get_bundle(self.bundle_id, bundle_tarball)
 
-        # Un-tarzip, and read in JSON files
-        with tarfile.open(self.bundle_cache) as tF:
+        # Un-tarzip, and read in JSON files, and extract if needed
+        with tarfile.open(bundle_tarball) as tF:
             self.resources = json.loads(
                 tF.extractfile('resources.json').read().decode("utf-8"))
 
-            self.dataset_dir = self.install_dir / \
-                self.resources['dataset_name']
-            self.bundle_dir = self.dataset_dir \
-                / 'neuroscout-bundles' / self.bundle_id
+            # Check version
+            self._check_version()
 
             #  Extract to bundle_dir
-            if not self.bundle_dir.exists():
-                self.bundle_dir.mkdir(parents=True, exist_ok=True)
+            if not (self.bundle_dir / 'model.json').exists():
                 tF.extractall(self.bundle_dir)
                 logging.info(
                     "Bundle installed at %s", self.bundle_dir.absolute()
                 )
+                
+        # If install dir is defined, download there
+        if self.install_dir:
+            download_dir = self.install_dir
+        else:
+            download_dir = self.main_dir / 'sourcedata'
+            
+        self.preproc_dir = download_dir / self.resources['dataset_name']
 
-        # Set up preproc dir w/ DataLad (but don't download)
-        self.preproc_dir = Path(self.dataset_dir) / 'derivatives'
-
+        # Install DataLad dataset if dataset_dir does not exist
         if not self.preproc_dir.exists():
             # Use datalad to install the preproc dataset
             install(source=self.resources['preproc_address'],
                     path=str(self.preproc_dir))
 
+        # Set preproc dir to specific directory, depending on contents
         for option in ['preproc', 'fmriprep']:
             if (self.preproc_dir / option).exists():
                 self.preproc_dir = self.preproc_dir / option
                 break
-
-        # Check version
-        self._check_version()
 
         return self.bundle_dir.absolute()
 
