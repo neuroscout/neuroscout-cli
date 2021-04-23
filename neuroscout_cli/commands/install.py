@@ -29,7 +29,7 @@ class Install(Command):
         self.main_dir = Path(self.options.pop('<outdir>')) / f'neuroscout-{self.bundle_id}'
         self.main_dir.mkdir(parents=True, exist_ok=True)
         
-        self.bundle_dir = self.main_dir / 'inputs' / 'bundle'
+        self.bundle_dir = self.main_dir / 'sourcedata' / 'bundle'
         self.bundle_dir.mkdir(parents=True, exist_ok=True)
 
     def download_bundle(self):
@@ -59,7 +59,7 @@ class Install(Command):
         if self.install_dir:
             download_dir = self.install_dir
         else:
-            download_dir = self.main_dir / 'inputs'
+            download_dir = self.main_dir / 'sourcedata'
             
         self.preproc_dir = download_dir / self.resources['dataset_name']
 
