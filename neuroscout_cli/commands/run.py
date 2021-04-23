@@ -7,6 +7,7 @@ from neuroscout_cli import __version__ as VERSION
 from neuroscout_cli.commands.install import Install
 from fitlins.cli.run import run_fitlins
 from bids.layout import BIDSLayout
+from datalad.api import drop
 
 # Options not to be passed onto fitlins
 INVALID = ['--unlock', '--version', '--help', '--install-dir',
@@ -23,8 +24,9 @@ class Run(Install):
         model_path = (self.bundle_dir / 'model.json').absolute()
         neurovault = self.options.pop('--neurovault', 'group')
         nv_force = self.options.pop('--force-neurovault', False)
+        no_drop = self.options.pop('--no-datalad-drop', False)
         
-        out_dir = self.main_dir / 'out'
+        out_dir = self.main_dir
         out_dir.mkdir(exist_ok=True)
 
         if neurovault not in ['disable', 'group', 'all']:
@@ -125,3 +127,6 @@ class Run(Install):
                 estimator=estimator,
                 cli_version=VERSION,
                 n_subjects=n_subjects)
+
+        if not no_drop:
+            drop(self.preproc_dir)

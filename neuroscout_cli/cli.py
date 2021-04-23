@@ -2,7 +2,7 @@
 neuroscout
 
 Usage:
-    neuroscout run [-dfuv -i <dir> -w <dir> -s <k> -c <n> -n <nv> -e <es>] <outdir> <bundle_id>...
+    neuroscout run [-mfuvd -i <dir> -w <dir> -s <k> -c <n> -n <nv> -e <es>] <outdir> <bundle_id>...
     neuroscout install [-ui <dir>] <outdir> <bundle_id>...
     neuroscout upload [-f -n <nv>] <outdir> <bundle_id>...
     neuroscout ls <bundle_id>
@@ -22,8 +22,11 @@ Options:
     -e, --estimator <es>     Estimator to use for first-level model
                              [default: nistats]
     -f, --force-neurovault   Force upload, if a NV collection already exists
-    -d, --drop-missing       Drop missing contrasts
-    -v, --verbose            Verbose mode
+    -m, --drop-missing       If contrast is missing in a run, skip.
+    -d, --no-datalad-drop    Don't drop DataLad sourcedata. True by default
+                             if install-dir is specified.
+    -v, --verbose	         Verbose mode
+    
 
 Commands:
     run                      Runs analysis.
