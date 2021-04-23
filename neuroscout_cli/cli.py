@@ -23,7 +23,7 @@ Options:
                              [default: nistats]
     -f, --force-neurovault   Force upload, if a NV collection already exists
     -d, --drop-missing       Drop missing contrasts
-    -v, --verbose	         Verbose mode
+    -v, --verbose            Verbose mode
 
 Commands:
     run                      Runs analysis.
