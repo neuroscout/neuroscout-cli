@@ -43,7 +43,7 @@ class Run(Install):
                 str(out_dir),
                 'dataset',
                 f'--model={model_path}',
-                '--ignore=/(.*desc-confounds_regressors.tsv)/',
+                '--ignore=/(.*desc-confounds_regressors.*)/',
                 f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_dir.absolute())}',
                 f'--smoothing={smoothing}:Dataset',
                 f'--estimator={estimator}'
