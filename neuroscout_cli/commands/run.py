@@ -109,11 +109,11 @@ class Run(Install):
 
             group = [str(i) for i in images.glob('*statmap.nii.gz')
                      if re.match(
-                         '.*stat-[t|F|variance|effect]+.*', i.name)]
+                         '.*stat-(t|F|variance|effect)+.*', i.name)]
 
             if neurovault == 'all':
                 sub = [str(i) for i in images.glob('sub*/*statmap.nii.gz')
-                       if re.match('.*stat-[variance|effect]+.*', i.name)]
+                       if re.match('.*stat-(variance|effect)+.*', i.name)]
             else:
                 sub = None
 
