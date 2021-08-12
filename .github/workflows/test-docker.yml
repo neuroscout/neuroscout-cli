@@ -4,7 +4,6 @@ on: [push, pull_request]
 jobs:
   tests:
     name: Test Docker build
-      name: Test docker build
-      runs-on: ubuntu-latest
-      steps:
-        - run: docker build .
+    runs-on: ubuntu-latest
+    steps:
+      - run: docker build .
