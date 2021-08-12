@@ -80,7 +80,7 @@ jobs:
           images: neuroscout/neuroscout-cli
       - name: Build Container
         run: |
-          singularity build container.sif docker://neuroscout/neuroscout-cli:${tags%,*}
+          singularity pull container.sif docker://neuroscout/neuroscout-cli:${tags%,*}
       - name: Login and Deploy Container
         if: (github.event_name != 'pull_request')
         run: |
