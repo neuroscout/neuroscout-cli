@@ -39,8 +39,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   push_singularity_to_registry:
-    needs:
-      - push_docker_to_registry
     runs-on: ubuntu-latest
     steps: 
       - name: Set up Go 1.13
@@ -60,7 +58,7 @@ jobs:
             pkg-config
       - name: Install Singularity
         env:
-          SINGULARITY_VERSION: 3.7.2
+          SINGULARITY_VERSION: 3.8.0
           GOPATH: /tmp/go
         run: |
           mkdir -p $GOPATH
