@@ -28,7 +28,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3.4.1
         with:
-          images:neuroscout/neuroscout-cli
+          images: neuroscout/neuroscout-cli
 
       - name: Build and push versioned Docker image
 
