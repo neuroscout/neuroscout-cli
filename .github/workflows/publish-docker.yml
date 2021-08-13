@@ -80,6 +80,7 @@ jobs:
           images: neuroscout/neuroscout-cli
       - name: Build Container
         run: |
+          tags=${{ steps.meta.outputs.tags }}
           echo $tags
           singularity pull container.sif docker://neuroscout/neuroscout-cli:${tags%,*}
       - name: Login and Deploy Container
