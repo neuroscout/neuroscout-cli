@@ -88,4 +88,4 @@ jobs:
           tags=${{ steps.meta.outputs.tags }}
           echo ${{ secrets.GITHUB_TOKEN }} |  singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
           for tag in $(echo $tags | sed "s/,/ /g"); 
-            do singularity push container.sif oras://ghcr.io/${tag}; done
+            do echo $tag; singularity push container.sif oras://ghcr.io/$tag; done
