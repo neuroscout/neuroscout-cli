@@ -39,9 +39,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   push_singularity_to_registry:
-    needs:
-      - push_docker_to_registry
     runs-on: ubuntu-latest
+    needs:
+      -push_docker_to_registry
     steps: 
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
@@ -88,6 +88,7 @@ jobs:
       - name: Login and Deploy Container
         if: (github.event_name != 'pull_request')
         run: |
-         for tag in $(echo $tags | sed "s/,/ /g"); 
-             do echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
-              singularity push container.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}; done
+          tags=${{ steps.meta.outputs.tags }}
+          echo ${{ secrets.GHCR_TOKEN }} |  singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oras://ghcr.io
+          for tag in $(echo $tags | sed "s/,/ /g"); 
+            do echo $tag; singularity push container.sif oras://ghcr.io/$tag; done
