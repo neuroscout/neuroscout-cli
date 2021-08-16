@@ -41,7 +41,7 @@ jobs:
   push_singularity_to_registry:
     runs-on: ubuntu-latest
     needs:
-      -push_docker_to_registry
+      - push_docker_to_registry
     steps: 
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
