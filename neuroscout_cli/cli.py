@@ -20,7 +20,7 @@ Options:
     -n, --neurovault <nv>    Upload mode (disable, all, or group)
                              [default: group]
     -e, --estimator <es>     Estimator to use for first-level model
-                             [default: nistats]
+                             [default: afni]
     -f, --force-neurovault   Force upload, if a NV collection already exists
     -m, --drop-missing       If contrast is missing in a run, skip.
     -d, --no-datalad-drop    Don't drop DataLad sourcedata. True by default
