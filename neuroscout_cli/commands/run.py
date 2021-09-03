@@ -39,8 +39,7 @@ class Run(Install):
                 '--ignore=/(.*desc-confounds_regressors.*)/',
                 f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_dir.absolute())}',
                 f'--smoothing={self.options["--smoothing"]}:Dataset',
-                f'--estimator={self.options["--estimator"]}',
-                f'--drop-missing={self.options["--drop-missing"]}'
+                f'--estimator={self.options["--estimator"]}'
             ]
 
             verbose = self.options.pop('--verbose')
@@ -50,6 +49,9 @@ class Run(Install):
             if work_dir:
                 work_dir = str(Path(work_dir).absolute() / self.bundle_id)
                 fitlins_args.append(f"--work-dir={work_dir}")
+                
+            if self.options["--drop-missing"]:
+                fitlins_args.append(f"--drop-missing")
                 
             # Save options used in execution
             json.dump(self.options, (out_dir / 'options.json').open('w'))
