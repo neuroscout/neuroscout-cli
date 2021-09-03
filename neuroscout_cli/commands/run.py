@@ -77,8 +77,11 @@ class Run(Install):
             n_subjects = len(model['Input']['Subject'])
             
             # Load esimator from file in case of upload only
-            options = json.load((out_dir / 'options.json').open('r'))
-            estimator = options.get('--estimator')
+            try:
+                options = json.load((out_dir / 'options.json').open('r'))
+                estimator = options.get('--estimator')
+            except:
+                print("No saved options found skipping...")
 
             try:
                 fmriprep_version = BIDSLayout(
