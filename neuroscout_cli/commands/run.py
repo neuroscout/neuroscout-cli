@@ -75,6 +75,10 @@ class Run(Install):
         if neurovault != 'disable':
             model = json.load(open(model_path, 'r'))
             n_subjects = len(model['Input']['Subject'])
+            
+            # Load esimator from file in case of upload only
+            options = json.load((out_dir / 'options.json').open('r'))
+            estimator = options.get('--estimator')
 
             try:
                 fmriprep_version = BIDSLayout(
