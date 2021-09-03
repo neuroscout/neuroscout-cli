@@ -52,7 +52,7 @@ class Run(Install):
                 fitlins_args.append(f"--work-dir={work_dir}")
                 
             # Save options used in execution
-            json.dump(self.options, open(out_dir / 'options.json' 'w'))
+            json.dump(self.options, (out_dir / 'options.json').open('w'))
                         
             # Call fitlins as if CLI
             retcode = run_fitlins(fitlins_args)
