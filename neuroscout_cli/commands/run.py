@@ -9,10 +9,6 @@ from fitlins.cli.run import run_fitlins
 from bids.layout import BIDSLayout
 from datalad.api import drop
 
-# Options not to be passed onto fitlins
-INVALID = ['--unlock', '--version', '--help', '--install-dir',
-           'run', '<bundle_id>', '--dataset-name']
-
 
 class Run(Install):
     ''' Command for running neuroscout workflows. '''
@@ -35,9 +31,6 @@ class Run(Install):
         # Need to retrieve this from fitlins output once it's available
         estimator = None
         if not upload_only:
-            smoothing = self.options.pop('--smoothing')
-            estimator = self.options.pop('--estimator')
-
             fitlins_args = [
                 str(self.preproc_dir.absolute()),
                 str(out_dir),
@@ -45,8 +38,8 @@ class Run(Install):
                 f'--model={model_path}',
                 '--ignore=/(.*desc-confounds_regressors.*)/',
                 f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_dir.absolute())}',
-                f'--smoothing={smoothing}:Dataset',
-                f'--estimator={estimator}'
+                f'--smoothing={self.options["--smoothing"]}:Dataset',
+                f'--estimator={self.options["--estimator"]}'
             ]
 
             verbose = self.options.pop('--verbose')
@@ -56,22 +49,13 @@ class Run(Install):
             if work_dir:
                 work_dir = str(Path(work_dir).absolute() / self.bundle_id)
                 fitlins_args.append(f"--work-dir={work_dir}")
-
-            # Fitlins invalid keys
-            for k in INVALID:
-                self.options.pop(k, None)
-
-            # Add remaining optional arguments
-            for name, value in self.options.items():
-                if name.startswith('--'):
-                    if value is True:
-                        fitlins_args.append(f'{name}')
-                    elif value is not None and value is not False:
-                        fitlins_args.append(f'{name}={value}')
-                else:
-                    if value is not False and value is not None:
-                        fitlins_args.append(f'{name} {value}')
-
+                
+            if self.options["--drop-missing"]:
+                fitlins_args.append(f"--drop-missing")
+                
+            # Save options used in execution
+            json.dump(self.options, (out_dir / 'options.json').open('w'))
+                        
             # Call fitlins as if CLI
             retcode = run_fitlins(fitlins_args)
 
@@ -91,6 +75,13 @@ class Run(Install):
         if neurovault != 'disable':
             model = json.load(open(model_path, 'r'))
             n_subjects = len(model['Input']['Subject'])
+            
+            # Load esimator from file in case of upload only
+            try:
+                options = json.load((out_dir / 'options.json').open('r'))
+                estimator = options.get('--estimator')
+            except:
+                print("No saved options found skipping...")
 
             try:
                 fmriprep_version = BIDSLayout(
