@@ -13,7 +13,7 @@ The easiest way to get Neuroscout running is using Docker. Just pull it from Doc
 You can also pull a pre-built singularity image from Github Packages as well:
 
 
-    singularity pull ghcr.io/neuroscout/neuroscout-cli:master
+    singularity pull oras://ghcr.io/neuroscout/neuroscout-cli:master
 
 #### Usage
 Neuroscout is easy to use. Assuming you've already created an analysis on neuroscout.org, and have its analysis id (e.g.: `5xH93`) you can run it in one line:
