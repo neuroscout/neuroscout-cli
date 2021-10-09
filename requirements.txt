@@ -3,3 +3,4 @@ datalad==0.10.2
 tqdm
 pyns==0.4.7
 git+https://github.com/bids-standard/pybids.git@maint/0.13.x 
+git+httts://github.com/poldracklab/fitlins.git@fix/smoothing_level
