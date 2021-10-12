@@ -67,5 +67,9 @@ def main():
                 for bundle in bundles:
                     logging.info("Analysis ID : {}".format(bundle))
                     args['<bundle_id>'] = bundle
-                    command(deepcopy(args)).run()
+                    retcode = command(deepcopy(args)).run()
+                    
+                    # If any execution fails, then exit
+                    if retcode != 0:
+                        sys.exit(retcode)
             sys.exit(0)

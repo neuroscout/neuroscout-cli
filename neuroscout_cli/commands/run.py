@@ -72,6 +72,7 @@ class Run(Install):
                     "https://github.com/neuroscout/neuroscout-cli/issues\n"
                     "-------------------------------------------------------\n"
                     )
+                return retcode
 
         if neurovault != 'disable':
             model = json.load(open(model_path, 'r'))
@@ -123,3 +124,5 @@ class Run(Install):
         # Drop files if no separate install dir, and the user has not said otherwise.
         if not self.install_dir and not no_drop:
             drop(str(self.preproc_dir.absolute()))
+        
+        return retcode
