@@ -14,8 +14,9 @@ Options:
     -w, --work-dir <dir>     Optional Fitlins working directory 
     -c, --n-cpus <n>         Maximum number of threads across all processes
                              [default: 1]
-    -s, --smoothing <k>      Smoothing kernel FWHM at group level
-                             [default: 4]
+    -s, --smoothing <k>      Smoothing to apply in format: FWHM:level:type.
+                             See fitlins documentation for more information.
+                             [default: 4:Dataset:iso]
     -u, --unlock             Unlock datalad dataset
     -n, --neurovault <nv>    Upload mode (disable, all, or group)
                              [default: group]

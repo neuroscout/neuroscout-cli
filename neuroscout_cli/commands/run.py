@@ -38,7 +38,7 @@ class Run(Install):
                 f'--model={model_path}',
                 '--ignore=/(.*desc-confounds_regressors.*)/',
                 f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_dir.absolute())}',
-                f'--smoothing={self.options["--smoothing"]}:Dataset',
+                f'--smoothing={self.options["--smoothing"]}',
                 f'--estimator={self.options["--estimator"]}',
                 f'--n-cpus={self.options["--n-cpus"]}'
             ]
