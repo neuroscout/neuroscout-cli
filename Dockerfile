@@ -18,7 +18,7 @@ RUN /bin/bash -c "source activate neuro \
     && sync
 
 RUN /bin/bash -c "source activate neuro \
-      && pip install -q --no-cache-dir --upgrade git+https://github.com/poldracklab/fitlins.git@fix/smoothing_level" \
+      && pip install -q --no-cache-dir --upgrade git+https://github.com/poldracklab/fitlins.git@maint/0.9.x" \
     && sync
 
 RUN /bin/bash -c "source activate neuro \
