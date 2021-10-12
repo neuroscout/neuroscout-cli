@@ -119,6 +119,7 @@ class Run(Install):
                 fmriprep_version=fmriprep_version,
                 estimator=estimator,
                 cli_version=VERSION,
+                cli_args=self.options,
                 n_subjects=n_subjects)
 
         # Drop files if no separate install dir, and the user has not said otherwise.
