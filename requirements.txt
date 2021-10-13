@@ -2,5 +2,5 @@ docopt==0.6.2
 datalad==0.10.2
 tqdm
 pyns==0.4.8
-git+https://github.com/neuroscout/pyNS.gitpybids.git@fix_smoothing 
+git+https://github.com/neuroscout/pyNS.git@fix_smoothing 
 git+https://github.com/bids-standard/pybids.git@maint/0.13.x 
