@@ -83,6 +83,7 @@ class Run(Install):
                 options = json.load((out_dir / 'options.json').open('r'))
                 estimator = options.get('--estimator')
             except:
+                options = None
                 print("No saved options found skipping...")
 
             try:
@@ -119,7 +120,7 @@ class Run(Install):
                 fmriprep_version=fmriprep_version,
                 estimator=estimator,
                 cli_version=VERSION,
-                cli_args=self.options,
+                cli_args=options,
                 n_subjects=n_subjects)
 
         # Drop files if no separate install dir, and the user has not said otherwise.
