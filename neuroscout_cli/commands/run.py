@@ -38,7 +38,7 @@ class Run(Install):
                 f'--model={model_path}',
                 '--ignore=/(.*desc-confounds_regressors.*)/',
                 f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_dir.absolute())}',
-                f'--smoothing={self.options["--smoothing"]}:Dataset',
+                f'--smoothing={self.options["--smoothing"]}',
                 f'--estimator={self.options["--estimator"]}',
                 f'--n-cpus={self.options["--n-cpus"]}'
             ]
@@ -72,6 +72,7 @@ class Run(Install):
                     "https://github.com/neuroscout/neuroscout-cli/issues\n"
                     "-------------------------------------------------------\n"
                     )
+                return retcode
 
         if neurovault != 'disable':
             model = json.load(open(model_path, 'r'))
@@ -82,6 +83,7 @@ class Run(Install):
                 options = json.load((out_dir / 'options.json').open('r'))
                 estimator = options.get('--estimator')
             except:
+                options = None
                 print("No saved options found skipping...")
 
             try:
@@ -118,8 +120,11 @@ class Run(Install):
                 fmriprep_version=fmriprep_version,
                 estimator=estimator,
                 cli_version=VERSION,
+                cli_args=options,
                 n_subjects=n_subjects)
 
         # Drop files if no separate install dir, and the user has not said otherwise.
         if not self.install_dir and not no_drop:
             drop(str(self.preproc_dir.absolute()))
+        
+        return retcode
