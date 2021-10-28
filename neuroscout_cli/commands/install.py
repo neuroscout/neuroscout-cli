@@ -106,9 +106,10 @@ class Install(Command):
 
             for sub in subjects:
                 for run in runs:
-                    pre =  f'sub-{sub}/**/func/*{task}{run}space-MNI152NLin2009cAsym*'
-                    paths += list(preproc_dir.glob(pre + 'preproc*.nii.gz'))
-                    paths += list(preproc_dir.glob(pre + 'brain_mask.nii.gz'))
+                    for task in tasks:
+                        pre =  f'sub-{sub}/**/func/*{task}{run}space-MNI152NLin2009cAsym*'
+                        paths += list(preproc_dir.glob(pre + 'preproc*.nii.gz'))
+                        paths += list(preproc_dir.glob(pre + 'brain_mask.nii.gz'))
 
             if not paths:
                 raise Exception("No images suitable for download.")
