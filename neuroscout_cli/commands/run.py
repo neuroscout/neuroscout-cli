@@ -30,6 +30,7 @@ class Run(Install):
 
         # Need to retrieve this from fitlins output once it's available
         estimator = None
+        retcode = 0
         if not upload_only:
             fitlins_args = [
                 str(self.preproc_dir.absolute()),
