@@ -99,10 +99,12 @@ class Install(Command):
             if not isinstance(subjects, list):
                 subjects = [subjects]
                 
-            runs = model['input'].get('run', [''])
-            if not isinstance(runs, list):
-                runs = [runs]
-            runs = [f'run-{r}*'  if r else r for r in runs]
+            run_ids = model['input'].get('run', [''])
+            if not isinstance(run_ids, list):
+                runs = [run_ids]
+            runs = [f'run-{r}*'  if r else r for r in run_ids]
+            runs += [f'run-{str(r).zfill(2)}*'  if r else r for r in run_ids]
+            runs = list(set(runs))
 
             for sub in subjects:
                 for run in runs:
