@@ -84,22 +84,43 @@ class Install(Command):
             model = convert_JSON(json.load(f))
 
         try:
+            # Custom logic to fetch and avoid indexing dataset
+            preproc_dir = self.preproc_dir
+            paths = []
+            
+            # Custom logic to fetch relevant files
+            # Avoiding PyBIDS for peformance gains in indexing
+            tasks = model['input'].get('task', '')
+            if not isinstance(tasks, list):
+                subjects = [tasks]
+            tasks = [ f'task-{t}*' for t in tasks]
+
+            subjects = model['input'].get('subject', ['*'])
+            if not isinstance(subjects, list):
+                subjects = [subjects]
+                
+            run_ids = model['input'].get('run', [''])
+            if not isinstance(run_ids, list):
+                runs = [run_ids]
+            runs = [f'run-{r}*'  if r else r for r in run_ids]
+            runs += [f'run-{str(r).zfill(2)}*'  if r else r for r in run_ids]
+            runs = list(set(runs))
+
+            for sub in subjects:
+                for run in runs:
+                    for task in tasks:
+                        pre =  f'sub-{sub}/**/func/*{task}{run}space-MNI152NLin2009cAsym*'
+                        paths += list(preproc_dir.glob(pre + 'preproc*.nii.gz'))
+                        paths += list(preproc_dir.glob(pre + 'brain_mask.nii.gz'))
+
+            if not paths:
+                raise Exception("No images suitable for download.")
+            
             # Get all JSON files
-            jsons = list(self.preproc_dir.rglob('*.json'))
-            if jsons:
-                get([str(p) for p in self.preproc_dir.rglob('*.json')])
+            paths += list(preproc_dir.rglob('*.json'))
 
-            layout = BIDSLayout(
-                self.preproc_dir,
-                derivatives=self.preproc_dir, index_metadata=False)
-
-            paths = layout.get(
-                **model['input'], desc='preproc', return_type='file')
-            paths += layout.get(
-                **model['input'],
-                desc='brain', suffix='mask', return_type='file')
-
-            get(paths)
+            # Get with DataLad
+            get([str(p) for p in paths])
 
             if self.options.pop('--unlock', False):
                 unlock(paths)
