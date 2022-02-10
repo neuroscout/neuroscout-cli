@@ -17,6 +17,10 @@ RUN /bin/bash -c "source activate neuro \
       && pip install -q --no-cache-dir -e /src/neuroscout/" \
     && sync
 
+RUN /bin/bash -c "source activate neuro \
+      && pip install -q --no-cache-dir --upgrade -r /src/neuroscout/requirements.txt" \
+    && sync
+
 WORKDIR /work
 
 # Change entrypoint to neuroscout
