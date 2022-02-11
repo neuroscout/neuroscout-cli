@@ -14,6 +14,7 @@ def convert_to_v1(model):
     
     for node in model["Nodes"]:
         # Level == Name
+        node["Level"] = node["Level"].lower()
         node["Name"] = node["Level"]
         
         # Set GroupBy for each group correctly
