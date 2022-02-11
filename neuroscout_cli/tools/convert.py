@@ -16,6 +16,14 @@ def convert_to_v1(model):
         # Level == Name
         node["Name"] = node["Level"]
         
+        # Set GroupBy for each group correctly
+        if node["Level"] == "run":
+            node["GroupBy"] = ["run", "subject"]
+        elif node["Level"] == "subject":
+            node["GroupBy"] = ["subject", "contrast"]
+        elif node["Level"] == "dataset":
+            node["GroupBy"] = ["contrast", "group"]
+        
         # Model is mandatory, add constant
         if "Model" not in node:
             node['Model'] = {}
