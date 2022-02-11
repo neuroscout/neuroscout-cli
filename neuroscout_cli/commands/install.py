@@ -120,7 +120,7 @@ class Install(Command):
             paths += list(preproc_dir.rglob('*.json'))
 
             # Get with DataLad
-            get([str(p) for p in paths], dataset=self.preproc_dir)
+            get([str(p) for p in paths], dataset=self.preproc_dir.parent)
 
             if self.options.pop('--unlock', False):
                 unlock(paths)
