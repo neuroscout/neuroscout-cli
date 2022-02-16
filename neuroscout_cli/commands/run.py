@@ -5,6 +5,7 @@ from pathlib import Path
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
 from neuroscout_cli.commands.install import Install
+from neuroscout_cli.tools.convert import check_convert_model
 from fitlins.cli.run import run_fitlins
 from bids.layout import BIDSLayout
 from datalad.api import drop
@@ -18,6 +19,7 @@ class Run(Install):
         super().run(download_data=(not upload_only))
         
         model_path = (self.bundle_dir / 'model.json').absolute()
+        model_path = check_convert_model(model_path) # Convert if necessary
         neurovault = self.options.pop('--neurovault', 'group')
         nv_force = self.options.pop('--force-neurovault', False)
         no_drop = self.options.pop('--no-datalad-drop', False)
