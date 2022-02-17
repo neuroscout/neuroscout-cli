@@ -121,9 +121,6 @@ class Install(Command):
             # Get with DataLad
             get([str(p) for p in paths], dataset=self.preproc_dir.parent)
 
-            if self.options.pop('--unlock', False):
-                unlock(paths)
-
         except Exception as exp:
             if hasattr(exp, 'failed'):
                 message = exp.failed[0]['message']

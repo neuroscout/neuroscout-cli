@@ -1,45 +1,30 @@
 """
-neuroscout
+neuroscout-cli
 
 Usage:
-    neuroscout install [-ui <dir>] <outdir> <bundle_id>...
-    neuroscout run [-mviuf -w <dir> -s <k> -c <n> -n <nv> -e <es>] <outdir> <bundle_id>...
-    neuroscout upload [-f -n <nv>] <outdir> <bundle_id>...
+    neuroscout run [options] <outdir> <bundle_id> <fitlins_args>...
+    neuroscout install [--install-dir <dir>] <outdir> <bundle_id>
+    neuroscout upload [--force-upload -neurovault <nv>] <outdir> <bundle_id>
     neuroscout -h | --help
     neuroscout --version
 
 Options:
-    -w, --work-dir <dir>     Optional Fitlins working directory 
-    -c, --n-cpus <n>         Maximum number of threads across all processes
-                             [default: 1]
-    -m, --drop-missing       If contrast is missing in a run, skip.
-    -s, --smoothing <k>      Smoothing to apply in format: FWHM:level:type.
-                             See fitlins documentation for more information.
-                             [default: 4:Dataset:iso]
-    -v, --verbose	         Verbose mode
-    -i, --install-dir <dir>  Optional directory to cache input images
-    -u, --unlock             Unlock datalad dataset
-    -n, --neurovault <nv>    Upload mode (disable, all, or group)
-                             [default: group]
-    -e, --estimator <es>     Estimator to use for first-level model
-                             [default: afni]
-    -f, --force-neurovault   Force upload, if a NV collection already exists
+    --install-dir <dir>  Optional directory to cache input datasets
+    --neurovault <nv>    Upload mode (disable, all, or group)
+                         [default: group]
+    --force-upload       Force upload, if a NV collection already exists
     
-
 Commands:
-    run                      Runs analysis.
+    run                      Runs analysis using FitLins. Installs inputs & uploads results automatically. 
+                             You can pass arbitrary arguments to FitLins after the <bundle_id>.
     install                  Installs a bundle and/or dataset.
     upload                   Upload existing analysis results to Neurovault.
 
-Examples:
-    neuroscout run 5xhaS /out --n-cpus=10
-    neuroscout run 5xhaS 38fdx /out
+Example:
+    neuroscout run --force-upload 5xhaS /out --n-cpus=10
 
 Help:
-    For help using this tool, please open an issue on the Github
-    repository: https://github.com/neuroscout/neuroscout-cli.
-
-    For help using neuroscout and creating a bundle, visit www.neuroscout.org.
+    For help using neuroscout, visit https://neuroscout.github.io/neuroscout/
 """
 import sys
 from copy import deepcopy
@@ -58,14 +43,13 @@ def main():
         if hasattr(ncl, k) and val:
             k = k[0].upper() + k[1:]
             command = getattr(ncl, k)
-            bundles = args.pop('<bundle_id>')
+            bundle = args.pop('<bundle_id>')
+            print(args['<fitlins_args>'])
             # Loop over bundles
-            for bundle in bundles:
-                logging.info("Analysis ID : {}".format(bundle))
-                args['<bundle_id>'] = bundle
-                retcode = command(deepcopy(args)).run()
-                
-                # If any execution fails, then exit
-                if retcode != 0:
-                    sys.exit(retcode)
+            logging.info("Analysis ID : {}".format(bundle))
+            retcode = command(deepcopy(args)).run()
+            
+            # If any execution fails, then exit
+            if retcode != 0:
+                sys.exit(retcode)
             sys.exit(0)
