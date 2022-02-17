@@ -28,28 +28,55 @@ Help:
 """
 import sys
 from copy import deepcopy
-from docopt import docopt
 from neuroscout_cli import __version__ as VERSION
-import neuroscout_cli.commands as ncl
 import logging
+import click
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+import neuroscout_cli.commands as ncl
 logging.getLogger().setLevel(logging.INFO)
 
 
+@click.group()
 def main():
     # CLI entry point
-    args = docopt(__doc__, version=VERSION)
-
-    for (k, val) in args.items():
-        if hasattr(ncl, k) and val:
-            k = k[0].upper() + k[1:]
-            command = getattr(ncl, k)
-            bundle = args['<bundle_id>']
-            print(args)
-            # Loop over bundles
-            logging.info("Analysis ID : {}".format(bundle))
-            retcode = command(deepcopy(args)).run()
+    # for (k, val) in args.items():
+    #     if hasattr(ncl, k) and val:
+    #         k = k[0].upper() + k[1:]
+    #         command = getattr(ncl, k)
+    #         bundle = args['<bundle_id>']
+    #         print(args)
+    #         # Loop over bundles
+    #         logging.info("Analysis ID : {}".format(bundle))
+    #         retcode = command(deepcopy(args)).run()
             
-            # If any execution fails, then exit
-            if retcode != 0:
-                sys.exit(retcode)
-            sys.exit(0)
+    #         # If any execution fails, then exit
+    #         if retcode != 0:
+    #             sys.exit(retcode)
+    #         sys.exit(0)
+    pass
+
+@click.argument('out_dir')
+@click.argument('analysis_id')
+@click.option('--install-dir', help='optional directory to cache input datasets')
+@click.option('--neurovault', default='group', help='neurovault upload mode (disable, all or group)')
+@click.option('--force-upload', default=False, is_flag=True, help='neurovault upload mode (disable, all or group)')
+@click.argument('fitlins_args', nargs=-1, type=click.UNPROCESSED)
+@main.command(context_settings=dict(
+    ignore_unknown_options=True,
+    allow_interspersed_args=False
+))
+def run(analysis_id, out_dir, install_dir, neurovault, force_upload, fitlins_args):
+    print(install_dir)
+    print(neurovault)
+    print(force_upload)
+    print(fitlins_args)
+    click.echo('Initialized the database')
+
+@main.command()
+def install():
+    click.echo('Dropped the database')
+    
+@main.command()
+def upload():
+    click.echo('Initialized the database')
