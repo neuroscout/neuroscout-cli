@@ -2,38 +2,34 @@
 neuroscout
 
 Usage:
-    neuroscout run [-mfuvd -i <dir> -w <dir> -s <k> -c <n> -n <nv> -e <es>] <outdir> <bundle_id>...
     neuroscout install [-ui <dir>] <outdir> <bundle_id>...
+    neuroscout run [-mv -w <dir> -s <k> -c <n> -n <nv> -e <es>] <outdir> <bundle_id>...
     neuroscout upload [-f -n <nv>] <outdir> <bundle_id>...
-    neuroscout ls <bundle_id>
     neuroscout -h | --help
     neuroscout --version
 
 Options:
-    -i, --install-dir <dir>  Optional directory to cache input images
     -w, --work-dir <dir>     Optional Fitlins working directory 
     -c, --n-cpus <n>         Maximum number of threads across all processes
                              [default: 1]
+    -m, --drop-missing       If contrast is missing in a run, skip.
     -s, --smoothing <k>      Smoothing to apply in format: FWHM:level:type.
                              See fitlins documentation for more information.
                              [default: 4:Dataset:iso]
+    -v, --verbose	         Verbose mode
+    -i, --install-dir <dir>  Optional directory to cache input images
     -u, --unlock             Unlock datalad dataset
     -n, --neurovault <nv>    Upload mode (disable, all, or group)
                              [default: group]
     -e, --estimator <es>     Estimator to use for first-level model
                              [default: afni]
     -f, --force-neurovault   Force upload, if a NV collection already exists
-    -m, --drop-missing       If contrast is missing in a run, skip.
-    -d, --no-datalad-drop    Don't drop DataLad sourcedata. True by default
-                             if install-dir is specified.
-    -v, --verbose	         Verbose mode
     
 
 Commands:
     run                      Runs analysis.
     install                  Installs a bundle and/or dataset.
     upload                   Upload existing analysis results to Neurovault.
-    ls                       Lists the available files in a bundle's dataset.
 
 Examples:
     neuroscout run 5xhaS /out --n-cpus=10
@@ -62,15 +58,14 @@ def main():
         if hasattr(ncl, k) and val:
             k = k[0].upper() + k[1:]
             command = getattr(ncl, k)
-            if k in ['Run', 'Install', 'Upload']:
-                bundles = args.pop('<bundle_id>')
-                # Loop over bundles
-                for bundle in bundles:
-                    logging.info("Analysis ID : {}".format(bundle))
-                    args['<bundle_id>'] = bundle
-                    retcode = command(deepcopy(args)).run()
-                    
-                    # If any execution fails, then exit
-                    if retcode != 0:
-                        sys.exit(retcode)
+            bundles = args.pop('<bundle_id>')
+            # Loop over bundles
+            for bundle in bundles:
+                logging.info("Analysis ID : {}".format(bundle))
+                args['<bundle_id>'] = bundle
+                retcode = command(deepcopy(args)).run()
+                
+                # If any execution fails, then exit
+                if retcode != 0:
+                    sys.exit(retcode)
             sys.exit(0)
