@@ -2,7 +2,6 @@ import json
 import tarfile
 import logging
 import sys
-import tempfile
 
 from pathlib import Path
 from shutil import copy
