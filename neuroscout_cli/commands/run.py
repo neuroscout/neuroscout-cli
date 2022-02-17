@@ -1,7 +1,8 @@
 import logging
 import json
 from pathlib import Path
-from neuroscout_cli.commands import Install, Upload
+from neuroscout_cli.commands.install import Install
+from neuroscout_cli.commands.upload import Upload
 from neuroscout_cli import __version__ as VERSION
 from fitlins.cli.run import run_fitlins
 
