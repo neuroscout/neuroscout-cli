@@ -43,8 +43,8 @@ def main():
         if hasattr(ncl, k) and val:
             k = k[0].upper() + k[1:]
             command = getattr(ncl, k)
-            bundle = args.pop('<bundle_id>')
-            print(args['<fitlins_args>'])
+            bundle = args['<bundle_id>']
+            print(args)
             # Loop over bundles
             logging.info("Analysis ID : {}".format(bundle))
             retcode = command(deepcopy(args)).run()
