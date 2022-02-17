@@ -17,14 +17,14 @@ Options:
 Commands:
     run                      Runs analysis using FitLins. Installs inputs & uploads results automatically. 
                              You can pass arbitrary arguments to FitLins after the <bundle_id>.
-    install                  Installs a bundle and/or dataset.
+    install                  Installs a bundle and/or dataset without executing analysis.
     upload                   Upload existing analysis results to Neurovault.
 
 Example:
     neuroscout run --force-upload 5xhaS /out --n-cpus=10
 
 Help:
-    For help using neuroscout, visit https://neuroscout.github.io/neuroscout/
+    For help using neuroscout, visit https://neuroscout.github.io/neuroscout/cli/
 """
 import sys
 from copy import deepcopy
