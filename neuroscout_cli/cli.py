@@ -2,7 +2,7 @@
 neuroscout-cli
 
 Usage:
-    neuroscout run [options] <outdir> <bundle_id> (<fitlins_args>...)
+    neuroscout run [options] <outdir> <bundle_id> [<fitlins_args>...]
     neuroscout install [--install-dir <dir>] <outdir> <bundle_id>
     neuroscout upload [--force-upload --neurovault <nv>] <outdir> <bundle_id>
     neuroscout -h | --help
