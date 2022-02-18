@@ -12,59 +12,13 @@ The easiest way to get Neuroscout running is using Docker. Just pull it from Doc
     
 You can also pull a pre-built singularity image from Github Packages as well:
 
-
     singularity pull oras://ghcr.io/neuroscout/neuroscout-cli:master
 
-#### Usage
-Neuroscout is easy to use. Assuming you've already created an analysis on neuroscout.org, and have its analysis id (e.g.: `5xH93`) you can run it in one line:
+#### Quickstart
+Assuming you've already created an analysis on neuroscout.org, you can run it in one line using the analysis_id (e.g.: `5xH93`):
 
-    docker run -it neuroscout/neuroscout-cli run /outdir 5xH93
+    docker run -it -v /local/outdir:/outdir neuroscout/neuroscout-cli run 5xH93 /outdir
 
 Neuroscout will download the necessary images, analysis bundle, fit your model, and upload group images to NeuroVault.
 
-To cache the downloaded data, and output the results to your local filesystem, mount the appropriate volumes:
-
-    docker run -it -v /local/datadir:/data -v /local/outdir:/out neuroscout/neuroscout-cli run /out 5xH93 -i /data
-
-This will create an output folder for your analysis (e.g. `neuroscout-5xH93`), which contains the fitted statistical maps, as well as the input event files from Neuroscout.
-
-In addition, the input fMRI images will be saved in `/local/datadir/{dataset_name}` as a DataLad dataset. Next time you fit a model from the same dataset,
-you won't have to re-download the images that you used for this analysis. 
-
-See the output of `neuroscout --help` for more information:
-
-```
-neuroscout
-
-Usage:
-    neuroscout run [-mfuvd -i <dir> -w <dir> -s <k> -c <n> -n <nv> -e <es>] out_dir analysis_id...
-    neuroscout install [-ui <dir>] out_dir analysis_id...
-    neuroscout upload [-f -n <nv>] out_dir analysis_id...
-    neuroscout ls analysis_id
-    neuroscout -h | --help
-    neuroscout --version
-
-Options:
-    -i, --install-dir <dir>  Optional directory to cache input images
-    -w, --work-dir <dir>     Optional Fitlins working directory 
-    -c, --n-cpus <n>         Maximum number of threads across all processes
-                             [default: 1]
-    -s, --smoothing <k>      Smoothing to apply in format: FWHM:level:type.
-                             See fitlins documentation for more information.
-                             [default: 4:Dataset:iso]
-    -u, --unlock             Unlock datalad dataset
-    -n, --neurovault <nv>    Upload mode (disable, all, or group)
-                             [default: group]
-    -e, --estimator <es>     Estimator to use for first-level model
-                             [default: nistats]
-    -f, --force-neurovault   Force upload, if a NV collection already exists
-    -m, --skip-missing       If contrast is missing in a run, skip run.
-    -d, --no-drop            Don't drop DataLad inputs. Also true, if
-                             an install-dir is specified.
-    -v, --verbose	         Verbose mode
-
-Commands:
-    run                      Runs analysis.
-    install                  Installs a bundle and/or dataset.
-    ls                       Lists the available files in a bundle's dataset.
-```
+For more information, see the Neuroscout [documentation](https://neuroscout.github.io/neuroscout/cli/).

@@ -20,10 +20,11 @@ class Command(metaclass=ABCMeta):
 
         self.model_path = (self.bundle_dir / 'model.json').absolute()
         
+        # Convert model to v1 if necessary
         if self.model_path.exists():
             self.model_path = check_convert_model(
                 (self.bundle_dir / 'model.json').absolute()         
-                ) # Convert if necessary
+                ) 
 
     @abstractmethod
     def run(self):
