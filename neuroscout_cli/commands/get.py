@@ -13,7 +13,7 @@ from bids.utils import convert_JSON
 from ..tools.convert import check_convert_model
 
 
-class Install(Command):
+class Get(Command):
 
     ''' Command for retrieving neuroscout bundles and their corresponding
     data. '''
@@ -21,9 +21,9 @@ class Install(Command):
     def __init__(self, options):
         super().__init__(options)
         self.resources = None
-        self.install_dir = self.options.get('--install-dir', None)
-        if self.install_dir is not None:
-            self.install_dir = Path(self.install_dir)
+        self.download_dir = self.options.get('--download-dir', None)
+        if self.download_dir is not None:
+            self.download_dir = Path(self.download_dir)
             
         self.preproc_dir = None
             
@@ -59,9 +59,9 @@ class Install(Command):
             (self.bundle_dir / 'model.json').absolute()   
             ) # Convert if necessary
                 
-        # If install dir is defined, download there
-        if self.install_dir:
-            download_dir = self.install_dir
+        # If download dir is defined, download there
+        if self.download_dir:
+            download_dir = self.download_dir
         else:
             download_dir = self.main_dir / 'sourcedata'
             

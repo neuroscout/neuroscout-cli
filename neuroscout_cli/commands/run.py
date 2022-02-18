@@ -1,17 +1,17 @@
 import logging
 import json
 from pathlib import Path
-from neuroscout_cli.commands.install import Install
+from neuroscout_cli.commands.get import Get
 from neuroscout_cli.commands.upload import Upload
 from neuroscout_cli import __version__ as VERSION
 from fitlins.cli.run import run_fitlins
 
 
-class Run(Install):
+class Run(Get):
     ''' Command for running neuroscout workflows. '''
 
     def run(self):
-        # Download bundle and install dataset if necessary
+        # Download bundle and get dataset if necessary
         retcode = super().run()
         
         # Need to retrieve this from fitlins output once it's available
@@ -25,7 +25,7 @@ class Run(Install):
         ]
         
         # Append pass through options
-        fitlins_args.append(list(self.options['fitlings_args']))
+        fitlins_args+= list(self.options['fitlins_args'])
             
         # Save options used in execution
         json.dump(self.options, (self.main_dir / 'options.json').open('w'))
