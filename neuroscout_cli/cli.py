@@ -92,7 +92,6 @@ def get(**kwargs):
 @click.argument('out_dir', type=click.Path())
 @click.argument('analysis_id')
 @click.option('--upload-first-level', is_flag=True, help='Upload first-level results, in addition to group')
-@click.option('--no-upload', is_flag=True, help="Don't upload results to NeuroVault")
 @click.option('--force-upload', is_flag=True, help='Force upload even if a NV collection already exists')
 @main.command()
 def upload(**kwargs):

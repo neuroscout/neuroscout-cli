@@ -13,8 +13,8 @@ class Upload(Command):
         super().__init__(options)
 
     def run(self, preproc_dir=None):
-        neurovault = self.options.get('--neurovault')
-        nv_force = self.options.pop('--force-neurovault', False)
+        subject_level = self.options.get('--upload-first-level')
+        nv_force = self.options.pop('--force-upload', False)
         resources = json.load((self.bundle_dir / 'resources.json').open())
         
         model = json.load(open(self.model_path, 'r'))
@@ -50,7 +50,7 @@ class Upload(Command):
                     if re.match(
                         '.*stat-(t|F|variance|effect)+.*', i.name)]
 
-        if neurovault == 'all':
+        if subject_level:
             sub = [str(i) for i in images.glob('sub*/*statmap.nii.gz')
                     if re.match('.*stat-(variance|effect)+.*', i.name)]
         else:
