@@ -27,7 +27,7 @@ class Run(Get):
         ]
         
         # Append pass through options
-        fitlins_args+= list(self.options['fitlins_args'])
+        fitlins_args+= list(self.options['fitlins_options'])
             
         # Save options used in execution
         json.dump(
