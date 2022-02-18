@@ -1,133 +1,58 @@
 import logging
-import re
 import json
 from pathlib import Path
-from neuroscout_cli.commands.base import Command
+from re import L
+from textwrap import indent
+from neuroscout_cli.commands.get import Get
+from neuroscout_cli.commands.upload import Upload
 from neuroscout_cli import __version__ as VERSION
-from neuroscout_cli.commands.install import Install
-from neuroscout_cli.tools.convert import check_convert_model
 from fitlins.cli.run import run_fitlins
-from bids.layout import BIDSLayout
-from datalad.api import drop
 
 
-class Run(Install):
+class Run(Get):
     ''' Command for running neuroscout workflows. '''
 
-    def run(self, upload_only=False):
-        # Download bundle and install dataset if necessary
-        super().run(download_data=(not upload_only))
+    def run(self):
+        # Download bundle and get dataset if necessary
+        retcode = super().run()
         
-        model_path = (self.bundle_dir / 'model.json').absolute()
-        model_path = check_convert_model(model_path) # Convert if necessary
-        neurovault = self.options.pop('--neurovault', 'group')
-        nv_force = self.options.pop('--force-neurovault', False)
-        no_drop = self.options.pop('--no-datalad-drop', False)
-        
-        out_dir = self.main_dir
-        out_dir.mkdir(exist_ok=True)
-
-        if neurovault not in ['disable', 'group', 'all']:
-            raise ValueError("Invalid neurovault option.")
-
         # Need to retrieve this from fitlins output once it's available
-        estimator = None
-        retcode = 0
-        if not upload_only:
-            fitlins_args = [
-                str(self.preproc_dir.absolute()),
-                str(out_dir),
-                'dataset',
-                f'--model={model_path}',
-                '--ignore=/(.*desc-confounds_regressors.*)/',
-                f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_dir.absolute())}',
-                f'--smoothing={self.options["--smoothing"]}',
-                f'--estimator={self.options["--estimator"]}',
-                f'--n-cpus={self.options["--n-cpus"]}'
-            ]
-
-            verbose = self.options.pop('--verbose')
-            if verbose:
-                fitlins_args.append('-vvv')
-            work_dir = self.options.pop('--work-dir', None)
-            if work_dir:
-                work_dir = str(Path(work_dir).absolute() / self.bundle_id)
-                fitlins_args.append(f"--work-dir={work_dir}")
-                
-            if self.options["--drop-missing"]:
-                fitlins_args.append(f"--drop-missing")
-                
-            # Save options used in execution
-            json.dump(self.options, (out_dir / 'options.json').open('w'))
-                        
-            # Call fitlins as if CLI
-            retcode = run_fitlins(fitlins_args)
-
-            if retcode != 0:
-                logging.error(
-                    "\n"
-                    "-------------------------------------------------------\n"
-                    "Model execution failed! \n"
-                    f"neuroscout-cli version: {VERSION}\n"
-                    "Update neuroscout-cli or revise your model, "
-                    "and try again \n"
-                    "If you believe there is a bug, please report it:\n"
-                    "https://github.com/neuroscout/neuroscout-cli/issues\n"
-                    "-------------------------------------------------------\n"
-                    )
-                return retcode
-
-        if neurovault != 'disable':
-            model = json.load(open(model_path, 'r'))
-            n_subjects = len(model['Input']['Subject'])
+        fitlins_args = [
+            str(self.preproc_dir),
+            str(self.main_dir),
+            'dataset',
+            f'--model={self.model_path}',
+            '--ignore=/(.*desc-confounds_regressors.*)/',
+            f'--derivatives={str(self.bundle_dir)} {str(self.preproc_dir)}',
+        ]
+        
+        # Append pass through options
+        fitlins_args+= list(self.options['fitlins_args'])
             
-            # Load esimator from file in case of upload only
-            try:
-                options = json.load((out_dir / 'options.json').open('r'))
-                estimator = options.get('--estimator')
-            except:
-                options = None
-                print("No saved options found skipping...")
+        # Save options used in execution
+        json.dump(
+            self.options, (self.main_dir / 'options.json').open('w'),
+            indent=4
+            )
+                    
+        # Call fitlins as if CLI
+        retcode = run_fitlins(fitlins_args)
 
-            try:
-                fmriprep_version = BIDSLayout(
-                    self.preproc_dir).description['PipelineDescription']['Version']
-            except Exception:
-                fmriprep_version = None
+        if retcode != 0:
+            logging.error(
+                "\n"
+                "-------------------------------------------------------\n"
+                "Model execution failed! \n"
+                f"neuroscout-cli version: {VERSION}\n"
+                "Update neuroscout-cli or revise your model, and try again \n"
+                "If you believe there is a bug, please report it:\n"
+                "https://github.com/neuroscout/neuroscout-cli/issues\n"
+                "-------------------------------------------------------\n"
+                )
+            return retcode
 
-            logging.info("Uploading results to NeuroVault...")
-
-            # Find files
-            images = out_dir / 'fitlins'
-
-            ses_dirs = [a for a in images.glob('ses*') if a.is_dir()]
-            if ses_dirs:  # If session, look for stat files in session fld
-                images = images / ses_dirs[0]
-
-            group = [str(i) for i in images.glob('*statmap.nii.gz')
-                     if re.match(
-                         '.*stat-(t|F|variance|effect)+.*', i.name)]
-
-            if neurovault == 'all':
-                sub = [str(i) for i in images.glob('sub*/*statmap.nii.gz')
-                       if re.match('.*stat-(variance|effect)+.*', i.name)]
-            else:
-                sub = None
-
-            # Upload results NeuroVault
-            self.api.analyses.upload_neurovault(
-                id=self.bundle_id,
-                validation_hash=self.resources['validation_hash'],
-                group_paths=group, subject_paths=sub,
-                force=nv_force,
-                fmriprep_version=fmriprep_version,
-                estimator=estimator,
-                cli_version=VERSION,
-                cli_args=options,
-                n_subjects=n_subjects)
-
-        # Drop files if no separate install dir, and the user has not said otherwise.
-        if not self.install_dir and not no_drop:
-            drop(str(self.preproc_dir.absolute()))
+        # Upload results
+        up = Upload(self.options)
+        up.run(preproc_dir=self.preproc_dir)
         
         return retcode

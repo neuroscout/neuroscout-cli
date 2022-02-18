@@ -1,76 +1,105 @@
 """
-neuroscout
-
-Usage:
-    neuroscout run [-mfuvd -i <dir> -w <dir> -s <k> -c <n> -n <nv> -e <es>] <outdir> <bundle_id>...
-    neuroscout install [-ui <dir>] <outdir> <bundle_id>...
-    neuroscout upload [-f -n <nv>] <outdir> <bundle_id>...
-    neuroscout ls <bundle_id>
-    neuroscout -h | --help
-    neuroscout --version
-
-Options:
-    -i, --install-dir <dir>  Optional directory to cache input images
-    -w, --work-dir <dir>     Optional Fitlins working directory 
-    -c, --n-cpus <n>         Maximum number of threads across all processes
-                             [default: 1]
-    -s, --smoothing <k>      Smoothing to apply in format: FWHM:level:type.
-                             See fitlins documentation for more information.
-                             [default: 4:Dataset:iso]
-    -u, --unlock             Unlock datalad dataset
-    -n, --neurovault <nv>    Upload mode (disable, all, or group)
-                             [default: group]
-    -e, --estimator <es>     Estimator to use for first-level model
-                             [default: afni]
-    -f, --force-neurovault   Force upload, if a NV collection already exists
-    -m, --drop-missing       If contrast is missing in a run, skip.
-    -d, --no-datalad-drop    Don't drop DataLad sourcedata. True by default
-                             if install-dir is specified.
-    -v, --verbose	         Verbose mode
-    
-
-Commands:
-    run                      Runs analysis.
-    install                  Installs a bundle and/or dataset.
-    upload                   Upload existing analysis results to Neurovault.
-    ls                       Lists the available files in a bundle's dataset.
-
-Examples:
-    neuroscout run 5xhaS /out --n-cpus=10
-    neuroscout run 5xhaS 38fdx /out
-
-Help:
-    For help using this tool, please open an issue on the Github
-    repository: https://github.com/neuroscout/neuroscout-cli.
-
-    For help using neuroscout and creating a bundle, visit www.neuroscout.org.
+neuroscout-cli
 """
+
 import sys
 from copy import deepcopy
-from docopt import docopt
 from neuroscout_cli import __version__ as VERSION
-import neuroscout_cli.commands as ncl
 import logging
+import click
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+import neuroscout_cli.commands as ncl
+from fitlins.cli.run import run_fitlins
 logging.getLogger().setLevel(logging.INFO)
 
+def fitlins_help(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    run_fitlins(['--help'])
+    ctx.exit()
 
+@click.group()
 def main():
-    # CLI entry point
-    args = docopt(__doc__, version=VERSION)
+    """Runs analyses created on https://neuroscout.org. 
+    
+    Neuroscout-CLI downloads the required data, configures outputs, and uses FitLins to execute analyses. Results
+    are automatically uploaded to NeuroVault, facilitating data sharing. 
+    
+    In most use cases, the "run" command will handle all of the above, although the "get" and "upload" command
+    are available for piecemeal execution.
+    
+    Note: If using Docker, remember to map local volumes to the container using "-v" (such as OUT_DIR).
+    
+    For additional help visit: https://neuroscout.github.io/neuroscout/cli/
+    """
+    pass
 
-    for (k, val) in args.items():
-        if hasattr(ncl, k) and val:
-            k = k[0].upper() + k[1:]
-            command = getattr(ncl, k)
-            if k in ['Run', 'Install', 'Upload']:
-                bundles = args.pop('<bundle_id>')
-                # Loop over bundles
-                for bundle in bundles:
-                    logging.info("Analysis ID : {}".format(bundle))
-                    args['<bundle_id>'] = bundle
-                    retcode = command(deepcopy(args)).run()
-                    
-                    # If any execution fails, then exit
-                    if retcode != 0:
-                        sys.exit(retcode)
-            sys.exit(0)
+@click.argument('out_dir', type=click.Path())
+@click.argument('analysis_id')
+@click.option('--fitlins-help', is_flag=True, callback=fitlins_help, expose_value=False, is_eager=True,
+              help='Display FitLins help and options')
+@click.option('--upload-first-level', is_flag=True, help='Upload first-level results, in addition to group')
+@click.option('--no-upload', is_flag=True, help="Don't upload results to NeuroVault")
+@click.option('--force-upload', is_flag=True, help='Force upload even if a NV collection already exists')
+@click.option('--no-get', is_flag=True, help="Don't automatically fetch bundle & dataset")
+@click.option('--download-dir', help='Directory to cache input datasets, instead of OUT_DIR', type=click.Path())
+@click.argument('fitlins_options', nargs=-1, type=click.UNPROCESSED)
+@main.command(context_settings=dict(
+    ignore_unknown_options=True,
+    allow_interspersed_args=False
+))
+def run(**kwargs):
+    """ Run an analysis. 
+    
+    Automatically gets inputs and uploads results to NeuroVault by default.
+    
+    This command uses FitLins for execution. Thus, any valid options can be passed through
+    in [FITLINS_OPTIONS]. 
+
+    Note: `--model`, `--derivatives` and `--ignore` and positional arguments
+    are automatically configured.
+    
+    Example:
+
+        neuroscout run --force-upload --n-cpus=3 a54oo /out
+
+
+    If using Docker, remember to map local volumes to save outputs:
+
+        docker run --rm -it -v /local/dir:/out neuroscout/neuroscout-cli run a54oo /out
+    """
+    sys.exit(ncl.Run(kwargs).run())
+
+  
+@click.argument('out_dir', type=click.Path())
+@click.argument('analysis_id')
+@click.option('--bundle-only', is_flag=True, help="Only fetch analysis bundle, not imaging data")
+@click.option('--download-dir', help='Directory to cache input datasets, instead of OUT_DIR', type=click.Path())
+@main.command()
+def get(**kwargs):
+    """ Fetch analysis inputs.
+    
+    Downloads the analysis bundle, preprocessed fMRI inputs, and configures output directory.
+    
+    Inputs are downloaded to the output directory under `sourcedata`. If you run many analyses,
+    you may wish to provide an `--download-dir` where datasets can be cached across analyses. 
+    
+    Note: `run` automatically calls `get` prior to execution, by default.
+    """
+    sys.exit(ncl.Get(kwargs).run())
+
+@click.argument('out_dir', type=click.Path())
+@click.argument('analysis_id')
+@click.option('--upload-first-level', is_flag=True, help='Upload first-level results, in addition to group')
+@click.option('--no-upload', is_flag=True, help="Don't upload results to NeuroVault")
+@click.option('--force-upload', is_flag=True, help='Force upload even if a NV collection already exists')
+@main.command()
+def upload(**kwargs):
+   """ Upload results.
+   
+   This command can be used to upload existing results to NeuroVault.
+   
+   Note: `run` automatically calls `upload` after execution, by default.
+   """
+   sys.exit(ncl.Upload(kwargs).run())
