@@ -13,8 +13,8 @@ class Upload(Command):
         super().__init__(options)
 
     def run(self, preproc_dir=None):
-        subject_level = self.options.get('--upload-first-level')
-        nv_force = self.options.pop('--force-upload', False)
+        subject_level = self.options.get('--upload-first-level', False)
+        nv_force = self.options.get('--force-upload', False)
         resources = json.load((self.bundle_dir / 'resources.json').open())
         
         model = json.load(open(self.model_path, 'r'))

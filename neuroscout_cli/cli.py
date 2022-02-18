@@ -39,8 +39,8 @@ def main():
 @click.argument('analysis_id')
 @click.option('--fitlins-help', is_flag=True, callback=fitlins_help, expose_value=False, is_eager=True,
               help='Display FitLins help and options')
-@click.option('--upload-first-level', is_flag=True, help='Upload first-level results, in addition to group')
 @click.option('--no-upload', is_flag=True, help="Don't upload results to NeuroVault")
+@click.option('--upload-first-level', is_flag=True, help='Upload first-level results, in addition to group')
 @click.option('--force-upload', is_flag=True, help='Force upload even if a NV collection already exists')
 @click.option('--no-get', is_flag=True, help="Don't automatically fetch bundle & dataset")
 @click.option('--download-dir', help='Directory to cache input datasets, instead of OUT_DIR', type=click.Path())

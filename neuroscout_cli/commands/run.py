@@ -14,7 +14,8 @@ class Run(Get):
 
     def run(self):
         # Download bundle and get dataset if necessary
-        retcode = super().run()
+        if not self.options.get('--no-get', False):
+            retcode = super().run()
         
         # Need to retrieve this from fitlins output once it's available
         fitlins_args = [
@@ -51,8 +52,9 @@ class Run(Get):
                 )
             return retcode
 
-        # Upload results
-        up = Upload(self.options)
-        up.run(preproc_dir=self.preproc_dir)
+        if self.options.get('--no-upload', False):
+            # Upload results
+            up = Upload(self.options)
+            up.run(preproc_dir=self.preproc_dir)
         
         return retcode
