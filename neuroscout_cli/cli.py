@@ -10,8 +10,14 @@ import click
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 import neuroscout_cli.commands as ncl
+from fitlins.cli.run import run_fitlins
 logging.getLogger().setLevel(logging.INFO)
 
+def fitlins_help(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    run_fitlins(['--help'])
+    ctx.exit()
 
 @click.group()
 def main():
@@ -31,12 +37,14 @@ def main():
 
 @click.argument('out_dir', type=click.Path())
 @click.argument('analysis_id')
-@click.option('--download-dir', help='Directory to cache input datasets, instead of OUT_DIR', type=click.Path())
-@click.option('--no-get', is_flag=True, help="Don't automatically fetch bundle & dataset")
+@click.option('--fitlins-help', is_flag=True, callback=fitlins_help, expose_value=False, is_eager=True,
+              help='Display FitLins help and options')
 @click.option('--upload-first-level', is_flag=True, help='Upload first-level results, in addition to group')
 @click.option('--no-upload', is_flag=True, help="Don't upload results to NeuroVault")
-@click.option('--force-upload', default=False, is_flag=True, help='Force upload even if a NV collection already exists')
-@click.argument('fitlins_args', nargs=-1, type=click.UNPROCESSED)
+@click.option('--force-upload', is_flag=True, help='Force upload even if a NV collection already exists')
+@click.option('--no-get', is_flag=True, help="Don't automatically fetch bundle & dataset")
+@click.option('--download-dir', help='Directory to cache input datasets, instead of OUT_DIR', type=click.Path())
+@click.argument('fitlins_options', nargs=-1, type=click.UNPROCESSED)
 @main.command(context_settings=dict(
     ignore_unknown_options=True,
     allow_interspersed_args=False
@@ -44,23 +52,30 @@ def main():
 def run(**kwargs):
     """ Run an analysis. 
     
-    This command uses FitLins for analysis execution. Thus, any valid options can be passed through to FitLins
-    in [FITLINS_ARGS]. Note: FitLins' `--model`, `--derivatives` and `--ignore` options are automatically 
-    configured.
+    Automatically gets inputs and uploads results to NeuroVault by default.
     
-    By default, automatically gets inputs (if you haven't already run "get") and uploads results
-    to NeuroVault ("upload" command).
+    This command uses FitLins for execution. Thus, any valid options can be passed through
+    in [FITLINS_OPTIONS]. 
+
+    Note: `--model`, `--derivatives` and `--ignore` and positional arguments
+    are automatically configured.
     
     Example:
-        neuroscout run --upload-first-level --n-cpus=3 a54oo /out
+
+        neuroscout run --force-upload --n-cpus=3 a54oo /out
+
+
+    If using Docker, remember to map local volumes to save outputs:
+
+        docker run --rm -it -v /local/dir:/out neuroscout/neuroscout-cli run a54oo /out
     """
     sys.exit(ncl.Run(kwargs).run())
 
   
 @click.argument('out_dir', type=click.Path())
 @click.argument('analysis_id')
-@click.option('--download-dir', help='Directory to cache input datasets, instead of OUT_DIR', type=click.Path())
 @click.option('--bundle-only', is_flag=True, help="Only fetch analysis bundle, not imaging data")
+@click.option('--download-dir', help='Directory to cache input datasets, instead of OUT_DIR', type=click.Path())
 @main.command()
 def get(**kwargs):
     """ Fetch analysis inputs.
@@ -78,7 +93,7 @@ def get(**kwargs):
 @click.argument('analysis_id')
 @click.option('--upload-first-level', is_flag=True, help='Upload first-level results, in addition to group')
 @click.option('--no-upload', is_flag=True, help="Don't upload results to NeuroVault")
-@click.option('--force-upload', default=False, is_flag=True, help='Force upload even if a NV collection already exists')
+@click.option('--force-upload', is_flag=True, help='Force upload even if a NV collection already exists')
 @main.command()
 def upload(**kwargs):
    """ Upload results.

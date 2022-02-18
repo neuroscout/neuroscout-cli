@@ -1,3 +1,0 @@
-datalad==0.13.1
-tqdm
-pyns==0.4.8

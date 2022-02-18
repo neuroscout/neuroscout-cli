@@ -1,6 +1,8 @@
 import logging
 import json
 from pathlib import Path
+from re import L
+from textwrap import indent
 from neuroscout_cli.commands.get import Get
 from neuroscout_cli.commands.upload import Upload
 from neuroscout_cli import __version__ as VERSION
@@ -28,7 +30,10 @@ class Run(Get):
         fitlins_args+= list(self.options['fitlins_args'])
             
         # Save options used in execution
-        json.dump(self.options, (self.main_dir / 'options.json').open('w'))
+        json.dump(
+            self.options, (self.main_dir / 'options.json').open('w'),
+            indent=4
+            )
                     
         # Call fitlins as if CLI
         retcode = run_fitlins(fitlins_args)
