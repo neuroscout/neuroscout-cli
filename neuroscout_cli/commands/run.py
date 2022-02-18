@@ -22,21 +22,10 @@ class Run(Install):
             f'--model={self.model_path}',
             '--ignore=/(.*desc-confounds_regressors.*)/',
             f'--derivatives={str(self.bundle_dir)} {str(self.preproc_dir)}',
-            f'--smoothing={self.options["--smoothing"]}',
-            f'--estimator={self.options["--estimator"]}',
-            f'--n-cpus={self.options["--n-cpus"]}'
         ]
-
-        verbose = self.options.pop('--verbose')
-        if verbose:
-            fitlins_args.append('-vvv')
-        work_dir = self.options.pop('--work-dir', None)
-        if work_dir:
-            work_dir = str(Path(work_dir).absolute() / self.bundle_id)
-            fitlins_args.append(f"--work-dir={work_dir}")
-            
-        if self.options["--drop-missing"]:
-            fitlins_args.append(f"--drop-missing")
+        
+        # Append pass through options
+        fitlins_args.append(list(self.options['fitlings_args']))
             
         # Save options used in execution
         json.dump(self.options, (self.main_dir / 'options.json').open('w'))
@@ -50,15 +39,14 @@ class Run(Install):
                 "-------------------------------------------------------\n"
                 "Model execution failed! \n"
                 f"neuroscout-cli version: {VERSION}\n"
-                "Update neuroscout-cli or revise your model, "
-                "and try again \n"
+                "Update neuroscout-cli or revise your model, and try again \n"
                 "If you believe there is a bug, please report it:\n"
                 "https://github.com/neuroscout/neuroscout-cli/issues\n"
                 "-------------------------------------------------------\n"
                 )
             return retcode
 
-        # Instatiate Upload commmand with current options, and then run
+        # Upload results
         up = Upload(self.options)
         up.run(preproc_dir=self.preproc_dir)
         

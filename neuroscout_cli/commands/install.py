@@ -10,6 +10,7 @@ from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
 from datalad.api import install, get, unlock
 from bids.utils import convert_JSON
+from ..tools.convert import check_convert_model
 
 
 class Install(Command):
@@ -17,8 +18,8 @@ class Install(Command):
     ''' Command for retrieving neuroscout bundles and their corresponding
     data. '''
 
-    def __init__(self, options, *args, **kwargs):
-        super().__init__(options, *args, **kwargs)
+    def __init__(self, options):
+        super().__init__(options)
         self.resources = None
         self.install_dir = self.options.get('--install-dir', None)
         if self.install_dir is not None:
@@ -53,6 +54,10 @@ class Install(Command):
                 logging.info(
                     "Bundle installed at %s", self.bundle_dir
                 )
+                
+        self.model_path = check_convert_model(
+            (self.bundle_dir / 'model.json').absolute()   
+            ) # Convert if necessary
                 
         # If install dir is defined, download there
         if self.install_dir:

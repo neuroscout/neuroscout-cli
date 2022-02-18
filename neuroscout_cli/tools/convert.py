@@ -63,10 +63,9 @@ def convert_to_v1(model):
 def check_convert_model(model_path):
     model = json.load(model_path.open())
     
-    if "BIDSModelVersion" not in model or "BIDSModelVersion" < 1.0:
+    if "BIDSModelVersion" not in model or modle["BIDSModelVersion"] < 1.0:
         new_model = convert_to_v1(model)
         model_path = model_path.parent / "model_v1.json"
         json.dump(new_model, model_path.open('w'))
     
     return model_path
-    

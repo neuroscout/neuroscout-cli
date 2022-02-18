@@ -9,8 +9,8 @@ from neuroscout_cli import __version__ as VERSION
 class Upload(Command):
     ''' Command for running neuroscout workflows. '''
 
-    def __init__(self, options, *args, **kwargs):
-        super().__init__(options, *args, **kwargs)
+    def __init__(self, options):
+        super().__init__(options)
 
     def run(self, preproc_dir=None):
         neurovault = self.options.get('--neurovault')
