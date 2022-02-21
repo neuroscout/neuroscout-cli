@@ -14,11 +14,7 @@ RUN git config --global  user.email "user@example.edu"
 COPY [".", "/src/neuroscout"]
 
 RUN /bin/bash -c "source activate neuro \
-      && pip install -q --no-cache-dir -e /src/neuroscout/" \
-    && sync
-
-RUN /bin/bash -c "source activate neuro \
-      && pip install -q --no-cache-dir --upgrade -r /src/neuroscout/requirements.txt" \
+      && pip install -q --no-cache-dir /src/neuroscout/" \
     && sync
 
 WORKDIR /work

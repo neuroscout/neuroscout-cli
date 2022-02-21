@@ -13,21 +13,23 @@ class Upload(Command):
         super().__init__(options)
 
     def run(self, preproc_dir=None):
-        subject_level = self.options.get('--upload-first-level', False)
-        nv_force = self.options.get('--force-upload', False)
+        subject_level = self.options['upload_first_level']
+        nv_force = self.options['force_upload']
         resources = json.load((self.bundle_dir / 'resources.json').open())
         
         model = json.load(open(self.model_path, 'r'))
         n_subjects = len(model['Input']['Subject'])
         
-        # Load esimator from file in case of upload only
+        # Load esimator from fitlins output & neuroscout-cli options
+        saved_options = json.load(
+            (self.main_dir / 'options.json').open('r'))
         try:
-            saved_options = json.load((self.main_dir / 'options.json').open('r'))
-            estimator = saved_options.get('--estimator')
+            dataset_description = json.load(
+                (self.main_dir / 'fitlins' / 'dataset_description.json').open('r'))
+            estimator = dataset_description['PipelineDescription']['Parameters']['estimator']
         except:
             estimator = None
-            saved_options = None
-            print("No saved options found skipping...")
+            logging.info("No estimator information found skipping...")
 
         fmriprep_version = None
         if preproc_dir:

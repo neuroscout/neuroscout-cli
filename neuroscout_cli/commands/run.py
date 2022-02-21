@@ -14,7 +14,7 @@ class Run(Get):
 
     def run(self):
         # Download bundle and get dataset if necessary
-        if not self.options.get('--no-get', False):
+        if not self.options['no_get']:
             retcode = super().run()
         
         # Need to retrieve this from fitlins output once it's available
@@ -22,9 +22,9 @@ class Run(Get):
             str(self.preproc_dir),
             str(self.main_dir),
             'dataset',
-            f'--model={self.model_path}',
+            f'--model={str(self.model_path.absolute())}',
             '--ignore=/(.*desc-confounds_regressors.*)/',
-            f'--derivatives={str(self.bundle_dir)} {str(self.preproc_dir)}',
+            f'--derivatives={str(self.bundle_dir.absolute())} {str(self.preproc_dir.absolute())}',
         ]
         
         # Append pass through options
@@ -52,7 +52,7 @@ class Run(Get):
                 )
             return retcode
 
-        if self.options.get('--no-upload', False):
+        if not self.options['no_upload']:
             # Upload results
             up = Upload(self.options)
             up.run(preproc_dir=self.preproc_dir)

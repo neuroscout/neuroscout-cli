@@ -20,12 +20,9 @@ class Get(Command):
 
     def __init__(self, options):
         super().__init__(options)
-        self.resources = None
-        self.download_dir = self.options.get('--download-dir', None)
+        self.download_dir = self.options['download_dir']
         if self.download_dir is not None:
             self.download_dir = Path(self.download_dir)
-            
-        self.preproc_dir = None
             
         # Make dirs
         self.main_dir.mkdir(parents=True, exist_ok=True)
@@ -83,13 +80,11 @@ class Get(Command):
     
     def download_data(self):
         """ Use DataLad to download necessary data to disk """
-        self.download_bundle()
         with self.model_path.open() as f:
             model = convert_JSON(json.load(f))
 
         try:
             # Custom logic to fetch and avoid indexing dataset
-            preproc_dir = self.preproc_dir
             paths = []
             
             # Custom logic to fetch relevant files
@@ -114,14 +109,14 @@ class Get(Command):
                 for run in runs:
                     for task in tasks:
                         pre =  f'sub-{sub}/**/func/*{task}{run}space-MNI152NLin2009cAsym*'
-                        paths += list(preproc_dir.glob(pre + 'preproc*.nii.gz'))
-                        paths += list(preproc_dir.glob(pre + 'brain_mask.nii.gz'))
+                        paths += list(self.preproc_dir.glob(pre + 'preproc*.nii.gz'))
+                        paths += list(self.preproc_dir.glob(pre + 'brain_mask.nii.gz'))
 
             if not paths:
                 raise Exception("No images suitable for download.")
             
             # Get all JSON files
-            paths += list(preproc_dir.rglob('*.json'))
+            paths += list(self.preproc_dir.rglob('*.json'))
 
             # Get with DataLad
             get([str(p) for p in paths], dataset=self.preproc_dir.parent)
@@ -154,5 +149,10 @@ class Get(Command):
             sys.exit(1)
 
     def run(self):
-        return self.download_data()
+        retcode = self.download_bundle()
+        
+        if not self.options.get('bundle_only', False):
+            retcode = self.download_data()
+            
+        return retcode
 

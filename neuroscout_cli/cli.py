@@ -9,11 +9,10 @@ import logging
 import click
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
-import neuroscout_cli.commands as ncl
-from fitlins.cli.run import run_fitlins
 logging.getLogger().setLevel(logging.INFO)
 
 def fitlins_help(ctx, param, value):
+    from fitlins.cli.run import run_fitlins
     if not value or ctx.resilient_parsing:
         return
     run_fitlins(['--help'])
@@ -69,7 +68,8 @@ def run(**kwargs):
 
         docker run --rm -it -v /local/dir:/out neuroscout/neuroscout-cli run a54oo /out
     """
-    sys.exit(ncl.Run(kwargs).run())
+    from neuroscout_cli.commands import Run
+    sys.exit(Run(kwargs).run())
 
   
 @click.argument('out_dir', type=click.Path())
@@ -87,7 +87,8 @@ def get(**kwargs):
     
     Note: `run` automatically calls `get` prior to execution, by default.
     """
-    sys.exit(ncl.Get(kwargs).run())
+    from neuroscout_cli.commands import Get
+    sys.exit(Get(kwargs).run())
 
 @click.argument('out_dir', type=click.Path())
 @click.argument('analysis_id')
@@ -101,4 +102,5 @@ def upload(**kwargs):
    
    Note: `run` automatically calls `upload` after execution, by default.
    """
-   sys.exit(ncl.Upload(kwargs).run())
+   from neuroscout_cli.commands import Upload
+   sys.exit(Upload(kwargs).run())
