@@ -152,7 +152,7 @@ class Get(Command):
     def run(self):
         retcode = self.download_bundle()
         
-        if not self.options['bundle_only']:
+        if not self.options.get('bundle_only', False):
             retcode = self.download_data()
             
         return retcode
