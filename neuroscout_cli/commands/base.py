@@ -12,7 +12,6 @@ class Command(metaclass=ABCMeta):
 
     def __init__(self, options):
         self.options = options
-        print(self.options)
         self.bundle_id = self.options['analysis_id']
         self.api = Neuroscout()
         self.main_dir = Path(self.options['out_dir']) / f'neuroscout-{self.bundle_id}'
