@@ -29,7 +29,7 @@ class Upload(Command):
             estimator = dataset_description['PipelineDescription']['Parameters']['estimator']
         except:
             estimator = None
-            print("No estimator information found skipping...")
+            logging.info("No estimator information found skipping...")
 
         fmriprep_version = None
         if preproc_dir:

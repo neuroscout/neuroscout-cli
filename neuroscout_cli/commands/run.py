@@ -53,7 +53,6 @@ class Run(Get):
             return retcode
 
         if not self.options['no_upload']:
-            print("Uploading attempt")
             # Upload results
             up = Upload(self.options)
             up.run(preproc_dir=self.preproc_dir)

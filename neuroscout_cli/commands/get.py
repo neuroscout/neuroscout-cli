@@ -56,7 +56,6 @@ class Get(Command):
             (self.bundle_dir / 'model.json').absolute()   
             ) # Convert if necessary
                 
-        print(f"DOWNLOAD DIR: {self.download_dir}")
         # If download dir is defined, download there
         if self.download_dir:
             download_dir = self.download_dir
