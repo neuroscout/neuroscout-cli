@@ -21,16 +21,15 @@ class Upload(Command):
         n_subjects = len(model['Input']['Subject'])
         
         # Load esimator from fitlins output & neuroscout-cli options
+        saved_options = json.load(
+            (self.main_dir / 'options.json').open('r'))
         try:
-            saved_options = json.load(
-                (self.main_dir / 'options.json').open('r'))
             dataset_description = json.load(
                 (self.main_dir / 'fitlins' / 'dataset_description.json').open('r'))
-            estimator = dataset_description['Pi[elineDescription']['Parameters']['estimator']
+            estimator = dataset_description['PipelineDescription']['Parameters']['estimator']
         except:
             estimator = None
-            saved_options = None
-            print("No saved options found skipping...")
+            print("No estimator information found skipping...")
 
         fmriprep_version = None
         if preproc_dir:
