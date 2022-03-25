@@ -121,7 +121,7 @@ class Get(Command):
             paths += list(self.preproc_dir.rglob('*.json'))
 
             # Get with DataLad
-            get([str(p) for p in paths], dataset=self.preproc_dir.parent)
+            get([str(p) for p in paths], dataset=self.dataset_dir)
 
         except Exception as exp:
             if hasattr(exp, 'failed'):
