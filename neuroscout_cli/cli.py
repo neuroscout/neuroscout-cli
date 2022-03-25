@@ -77,7 +77,7 @@ def run(**kwargs):
 @click.argument('analysis_id')
 @click.option('--bundle-only', is_flag=True, help="Only fetch analysis bundle, not imaging data")
 @click.option('--download-dir', help='Directory to cache input datasets, instead of OUT_DIR', type=click.Path())
-@click.option('--datalad-jobs', help='Number of parallel jobs for DataLad when fetching files', default='auto', type=click.str())
+@click.option('--datalad-jobs', help='Number of parallel jobs for DataLad when fetching files', default='auto')
 @main.command()
 def get(**kwargs):
     """ Fetch analysis inputs.
