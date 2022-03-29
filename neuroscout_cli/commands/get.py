@@ -43,7 +43,6 @@ class Get(Command):
         with tarfile.open(bundle_tarball) as tF:
             self.resources = json.loads(
                 tF.extractfile('resources.json').read().decode("utf-8"))
-fr
             # Check version
             self._check_version()
 
