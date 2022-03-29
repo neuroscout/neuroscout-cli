@@ -62,19 +62,21 @@ class Get(Command):
         else:
             download_dir = self.main_dir / 'sourcedata'
             
-        self.preproc_dir = download_dir / self.resources['dataset_name']
+        self.dataset_dir = download_dir / self.resources['dataset_name']
 
         # Install DataLad dataset if dataset_dir does not exist
-        if not self.preproc_dir.exists():
+        if not self.dataset_dir.exists():
             # Use datalad to install the preproc dataset
             install(source=self.resources['preproc_address'],
-                    path=str(self.preproc_dir))
+                    path=str(self.dataset_dir))
 
         # Set preproc dir to specific directory, depending on contents
         for option in ['preproc', 'fmriprep']:
-            if (self.preproc_dir / option).exists():
-                self.preproc_dir = (self.preproc_dir / option).absolute()
+            if (self.dataset_dir / option).exists():
+                self.preproc_dir = (self.dataset_dir / option).absolute()
                 break
+        else:
+            self.preproc_dir = self.dataset_dir
 
         return 0
     
@@ -119,7 +121,7 @@ class Get(Command):
             paths += list(self.preproc_dir.rglob('*.json'))
 
             # Get with DataLad
-            get([str(p) for p in paths], dataset=self.preproc_dir.parent)
+            get([str(p) for p in paths], dataset=self.dataset_dir, jobs=self.options['datalad_jobs'])
 
         except Exception as exp:
             if hasattr(exp, 'failed'):
@@ -128,7 +130,7 @@ class Get(Command):
             else:
                 raise exp
 
-        # Copy meta-data to root of dataset_dir
+        # Copy meta-data to root of preproc_dir
         copy(list(self.bundle_dir.glob('task-*json'))[0], self.preproc_dir)
 
         return 0
