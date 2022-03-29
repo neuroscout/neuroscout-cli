@@ -9,10 +9,12 @@ from packaging import version
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
 from datalad.api import install, get, unlock
+import datalad
 from bids.utils import convert_JSON
 from ..tools.convert import check_convert_model
 
-
+datalad.ui.ui.set_backend('console')
+                          
 class Get(Command):
 
     ''' Command for retrieving neuroscout bundles and their corresponding
@@ -41,7 +43,7 @@ class Get(Command):
         with tarfile.open(bundle_tarball) as tF:
             self.resources = json.loads(
                 tF.extractfile('resources.json').read().decode("utf-8"))
-
+fr
             # Check version
             self._check_version()
 
