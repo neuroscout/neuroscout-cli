@@ -8,13 +8,11 @@ from shutil import copy
 from packaging import version
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
-from datalad.api import install, get, unlock
-import datalad
+from datalad.api import install, get
+
 from bids.utils import convert_JSON
 from ..tools.convert import check_convert_model
-
-datalad.ui.ui.set_backend('console')
-                          
+       
 class Get(Command):
 
     ''' Command for retrieving neuroscout bundles and their corresponding
@@ -32,6 +30,33 @@ class Get(Command):
 
 
     def download_bundle(self):
+        
+        from tqdm import tqdm
+        from time import sleep
+        from datalad.ui import ui
+        import datalad
+        
+        print(datalad.__version__)
+
+        print(f"{ui.backend}")
+        print(f"{ui.ui}")
+        print(f"Datalad thinks: {ui.is_interactive}")
+        
+        print("TQDM works:")
+        for i in tqdm(range(1000)):
+            sleep(0.001)
+
+        pbar = ui.get_progressbar(total=1000)
+
+        print("Datalad:")
+        pbar.start()
+        for i in range(1000):
+            pbar.update(i)
+            sleep(0.001)
+            
+        pbar.finish()
+
+            
         """ Download analysis bundle and setup preproc dir """
         # If tarball doesn't exist, download it
         bundle_tarball = self.bundle_dir / f'{self.bundle_id}.tar.gz'
@@ -70,6 +95,15 @@ class Get(Command):
             # Use datalad to install the preproc dataset
             install(source=self.resources['preproc_address'],
                     path=str(self.dataset_dir))
+            
+        from tqdm import tqdm
+        from time import sleep
+        from datalad.config import ConfigManager
+        from datalad.ui import ui
+
+        print(f"{ui.backend}")
+        print(f"{ui.ui}")
+        print(f"Datalad thinks: {ui.is_interactive}")
 
         # Set preproc dir to specific directory, depending on contents
         for option in ['preproc', 'fmriprep']:
