@@ -23,7 +23,7 @@ def convert_to_v1(model):
         elif node["Level"] == "subject":
             node["GroupBy"] = ["subject", "contrast"]
         elif node["Level"] == "dataset":
-            node["GroupBy"] = ["dataset", "contrast"]
+            node["GroupBy"] = ["contrast"]
         
         # Model is mandatory, add constant
         if "Model" not in node:
