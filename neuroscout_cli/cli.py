@@ -105,3 +105,38 @@ def upload(**kwargs):
    """
    from neuroscout_cli.commands import Upload
    sys.exit(Upload(kwargs).run())
+
+
+@main.command()
+def progress(**kwargs):
+   """ Upload results.
+   
+   This command can be used to upload existing results to NeuroVault.
+   
+   Note: `run` automatically calls `upload` after execution, by default.
+   """
+   from tqdm import tqdm
+   from time import sleep
+   from datalad.log import is_interactive
+   from datalad.config import ConfigManager
+   from datalad.ui import ui
+
+   cfg = ConfigManager()
+   print(f"Datalad thinks: {is_interactive()}")
+
+   print(f"{cfg.obtain('datalad.tests.ui.backend')}")
+   print(f"{ui.backend}")
+   print(f"{ui.ui}")
+   print(f"Datalad thinks: {ui.is_interactive}")
+
+   
+   pb = ui.ui.get_progressbar(label='test', unit='s', total=1000)
+   
+   print("Datalad:")
+   for i in tqdm(range(1000)):
+       pb.update(1)
+       sleep(0.001)
+   
+   print("TQDM:")
+   for i in tqdm(range(1000)):
+       sleep(0.001)
