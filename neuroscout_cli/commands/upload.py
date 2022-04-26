@@ -14,7 +14,6 @@ class Upload(Command):
 
     def run(self, preproc_dir=None):
         subject_level = self.options['upload_first_level']
-        nv_force = self.options['force_upload']
         resources = json.load((self.bundle_dir / 'resources.json').open())
         
         model = json.load(open(self.model_path, 'r'))
@@ -63,7 +62,7 @@ class Upload(Command):
             id=self.bundle_id,
             validation_hash=resources['validation_hash'],
             group_paths=group, subject_paths=sub,
-            force=nv_force,
+            force=True,
             fmriprep_version=fmriprep_version,
             estimator=estimator,
             cli_version=VERSION,
