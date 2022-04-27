@@ -67,7 +67,7 @@ class Get(Command):
             install(source=self.resources['preproc_address'],
                     path=str(self.dataset_dir))
 
-        selt.set_preproc_dir()
+        self.set_preproc_dir()
 
         return 0
     
