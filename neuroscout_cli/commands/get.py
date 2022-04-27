@@ -22,7 +22,7 @@ class Get(Command):
 
     def __init__(self, options):
         super().__init__(options)
-        self.download_dir = self.options.get('download_dir', None]
+        self.download_dir = self.options.get('download_dir', None)
         if self.download_dir is not None:
             self.download_dir = Path(self.download_dir)
         else:
