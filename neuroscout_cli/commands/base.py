@@ -26,6 +26,15 @@ class Command(metaclass=ABCMeta):
                 (self.bundle_dir / 'model.json').absolute()         
                 ) 
 
+    def set_preproc_dir():
+        # Set preproc dir to specific directory, depending on contents
+        for option in ['preproc', 'fmriprep']:
+            if (self.dataset_dir / option).exists():
+                self.preproc_dir = (self.dataset_dir / option).absolute()
+                break
+        else:
+            self.preproc_dir = self.dataset_dir
+
     @abstractmethod
     def run(self):
         pass

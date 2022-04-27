@@ -22,9 +22,11 @@ class Get(Command):
 
     def __init__(self, options):
         super().__init__(options)
-        self.download_dir = self.options['download_dir']
+        self.download_dir = self.options.get('download_dir', None]
         if self.download_dir is not None:
             self.download_dir = Path(self.download_dir)
+        else:
+            self.download_dir = self.main_dir / 'sourcedata'
             
         # Make dirs
         self.main_dir.mkdir(parents=True, exist_ok=True)
@@ -56,14 +58,8 @@ class Get(Command):
         self.model_path = check_convert_model(
             (self.bundle_dir / 'model.json').absolute()   
             ) # Convert if necessary
-                
-        # If download dir is defined, download there
-        if self.download_dir:
-            download_dir = self.download_dir
-        else:
-            download_dir = self.main_dir / 'sourcedata'
-            
-        self.dataset_dir = download_dir / self.resources['dataset_name']
+
+        self.dataset_dir = self.download_dir / self.resources['dataset_name']
 
         # Install DataLad dataset if dataset_dir does not exist
         if not self.dataset_dir.exists():
@@ -71,13 +67,7 @@ class Get(Command):
             install(source=self.resources['preproc_address'],
                     path=str(self.dataset_dir))
 
-        # Set preproc dir to specific directory, depending on contents
-        for option in ['preproc', 'fmriprep']:
-            if (self.dataset_dir / option).exists():
-                self.preproc_dir = (self.dataset_dir / option).absolute()
-                break
-        else:
-            self.preproc_dir = self.dataset_dir
+        selt.set_preproc_dir()
 
         return 0
     

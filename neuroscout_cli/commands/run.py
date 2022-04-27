@@ -16,6 +16,8 @@ class Run(Get):
         # Download bundle and get dataset if necessary
         if not self.options['no_get']:
             retcode = super().run()
+        else:
+            self.set_preproc_dir()
         
         # Need to retrieve this from fitlins output once it's available
         fitlins_args = [
