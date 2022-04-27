@@ -86,6 +86,8 @@ class Get(Command):
         with self.model_path.open() as f:
             model = convert_JSON(json.load(f))
 
+        print(self.preproc_dir)
+
         try:
             # Custom logic to fetch and avoid indexing dataset
             paths = []
@@ -107,6 +109,9 @@ class Get(Command):
             runs = [f'run-{r}*'  if r else r for r in run_ids]
             runs += [f'run-{str(r).zfill(2)}*'  if r else r for r in run_ids]
             runs = list(set(runs))
+            
+            print(subjects)
+            print(runs)
 
             for sub in subjects:
                 for run in runs:
