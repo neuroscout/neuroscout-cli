@@ -32,6 +32,19 @@ class Get(Command):
         self.main_dir.mkdir(parents=True, exist_ok=True)
         self.bundle_dir.mkdir(parents=True, exist_ok=True)        
 
+    def set_dataset_dir(self):
+        """ Set dataset_dir after resources are available"""
+        self.dataset_dir = self.download_dir / self.resources['dataset_name']
+
+    def set_preproc_dir(self):
+        """ Set preproc_dir after dataset_dir is availab;e"""
+        # Set preproc dir to specific directory, depending on contents
+        for option in ['preproc', 'fmriprep']:
+            if (self.dataset_dir / option).exists():
+                self.preproc_dir = (self.dataset_dir / option).absolute()
+                break
+        else:
+            self.preproc_dir = self.dataset_dir
 
     def download_bundle(self):
         """ Download analysis bundle and setup preproc dir """
@@ -59,7 +72,7 @@ class Get(Command):
             (self.bundle_dir / 'model.json').absolute()   
             ) # Convert if necessary
 
-        self.dataset_dir = self.download_dir / self.resources['dataset_name']
+        self.set_dataset_dir()
 
         # Install DataLad dataset if dataset_dir does not exist
         if not self.dataset_dir.exists():
