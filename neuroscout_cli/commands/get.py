@@ -8,7 +8,7 @@ from shutil import copy
 from packaging import version
 from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
-from datalad.api import install, get, unlock
+from datalad.api import install, get
 import datalad
 from bids.utils import convert_JSON
 from ..tools.convert import check_convert_model
@@ -22,16 +22,17 @@ class Get(Command):
 
     def __init__(self, options):
         super().__init__(options)
-        self.download_dir = self.options['download_dir']
+        self.download_dir = self.options.get('download_dir', None)
         if self.download_dir is not None:
             self.download_dir = Path(self.download_dir)
+        else:
+            self.download_dir = self.main_dir / 'sourcedata'
             
         # Make dirs
         self.main_dir.mkdir(parents=True, exist_ok=True)
         self.bundle_dir.mkdir(parents=True, exist_ok=True)        
 
-
-    def download_bundle(self):
+    def download_bundle(self, no_get=False):
         """ Download analysis bundle and setup preproc dir """
         # If tarball doesn't exist, download it
         bundle_tarball = self.bundle_dir / f'{self.bundle_id}.tar.gz'
@@ -56,22 +57,15 @@ class Get(Command):
         self.model_path = check_convert_model(
             (self.bundle_dir / 'model.json').absolute()   
             ) # Convert if necessary
-                
-        # If download dir is defined, download there
-        if self.download_dir:
-            download_dir = self.download_dir
-        else:
-            download_dir = self.main_dir / 'sourcedata'
-            
-        self.dataset_dir = download_dir / self.resources['dataset_name']
+
+        self.dataset_dir = self.download_dir / self.resources['dataset_name']
 
         # Install DataLad dataset if dataset_dir does not exist
-        if not self.dataset_dir.exists():
+        if not self.dataset_dir.exists() and not no_get:
             # Use datalad to install the preproc dataset
             install(source=self.resources['preproc_address'],
                     path=str(self.dataset_dir))
 
-        # Set preproc dir to specific directory, depending on contents
         for option in ['preproc', 'fmriprep']:
             if (self.dataset_dir / option).exists():
                 self.preproc_dir = (self.dataset_dir / option).absolute()
@@ -81,7 +75,7 @@ class Get(Command):
 
         return 0
     
-    def download_data(self):
+    def download_data(self, no_get=False):
         """ Use DataLad to download necessary data to disk """
         with self.model_path.open() as f:
             model = convert_JSON(json.load(f))
@@ -122,7 +116,8 @@ class Get(Command):
             paths += list(self.preproc_dir.rglob('*.json'))
 
             # Get with DataLad
-            get([str(p) for p in paths], dataset=self.dataset_dir, jobs=self.options['datalad_jobs'])
+            if not no_get:
+                get([str(p) for p in paths], dataset=self.dataset_dir, jobs=self.options['datalad_jobs'])
 
         except Exception as exp:
             if hasattr(exp, 'failed'):
@@ -151,11 +146,11 @@ class Get(Command):
                 )
             sys.exit(1)
 
-    def run(self):
-        retcode = self.download_bundle()
+    def run(self, no_get=False):
+        retcode = self.download_bundle(no_get=no_get)
         
         if not self.options.get('bundle_only', False):
-            retcode = self.download_data()
+            retcode = self.download_data(no_get=no_get)
             
         return retcode
 

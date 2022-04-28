@@ -14,8 +14,7 @@ class Run(Get):
 
     def run(self):
         # Download bundle and get dataset if necessary
-        if not self.options['no_get']:
-            retcode = super().run()
+        retcode = super().run(no_get=self.options['no_get'])
         
         # Need to retrieve this from fitlins output once it's available
         fitlins_args = [
