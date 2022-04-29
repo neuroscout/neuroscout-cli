@@ -24,7 +24,7 @@ class Command(metaclass=ABCMeta):
         if self.model_path.exists():
             self.model_path = check_convert_model(
                 (self.bundle_dir / 'model.json').absolute()         
-                ) 
+                )
 
     @abstractmethod
     def run(self):
