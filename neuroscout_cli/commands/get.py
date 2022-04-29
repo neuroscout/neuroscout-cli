@@ -132,7 +132,9 @@ class Get(Command):
                 raise exp
 
         # Copy meta-data to root of preproc_dir
-        copy(list(self.bundle_dir.glob('task-*json'))[0], self.preproc_dir)
+        meta = list(self.bundle_dir.glob('task-*json'))[0]
+        if not (self.preproc_dir/ meta).exists():
+            copy(meta, self.preproc_dir)
 
         return 0
 
