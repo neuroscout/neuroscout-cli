@@ -128,7 +128,7 @@ class Get(Command):
 
         # Copy meta-data to root of preproc_dir
         meta = list(self.bundle_dir.glob('task-*json'))[0]
-        if not (self.preproc_dir/ meta).exists():
+        if not (self.preproc_dir/ meta.parts[-1]).exists():
             copy(meta, self.preproc_dir)
 
         return 0
