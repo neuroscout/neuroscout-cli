@@ -8,7 +8,7 @@ For demonstration, it is possible to run `Neuroscout-CLI` in the cloud (for free
 
 ### Docker
 
-https://img.shields.io/docker/pulls/neuroscout/neuroscout-cli.svg
+![DockerPulls](https://img.shields.io/docker/pulls/neuroscout/neuroscout-cli.svg)
 
 For most systems, we recommend using [Docker](https://www.docker.com/resources/what-container). First, follow the instructions for installing [Docker](https://docs.docker.com/engine/install/) on your system.
 
@@ -22,7 +22,7 @@ First, check with your HPC administrator that _Singularity_ is available for use
 
 ## Google Colab
 
-To try Neuroscout without using any local resources, follow our guide to {doc}`neuroscout:cli/Neuroscout_CLI_Colab_Demo`.
+To try Neuroscout without using any local resources, follow our interactive guide to {doc}`neuroscout:cli/Neuroscout_CLI_Colab_Demo`.
 
 Google Colab allows you to execute Jupyer Notebooks for free, using two CPUs for several hours. This should be sufficient for individual Neuroscout analyses. A small demonstration can be run live in ~15 mins. 
 
