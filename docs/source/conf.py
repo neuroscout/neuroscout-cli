@@ -1,4 +1,8 @@
 # Configuration file for the Sphinx documentation builder.
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../'))
+from neuroscout_cli import  __version__
 
 # -- Project information
 
@@ -6,8 +10,7 @@ project = 'Neuroscout-CLI'
 copyright = '2022, Neuroscout Team'
 author = 'Neuroscout Team'
 
-release = '0.6'
-version = '0.6.7'
+version = __version__
 
 # -- General configuration
 
