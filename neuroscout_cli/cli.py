@@ -20,7 +20,7 @@ def fitlins_help(ctx, param, value):
 
 @click.group()
 def main():
-    """Runs analyses created on https://neuroscout.org. 
+    """Runs analyses created on neuroscout.org. 
     
     Neuroscout-CLI downloads the required data, configures outputs, and uses FitLins to execute analyses. Results
     are automatically uploaded to NeuroVault, facilitating data sharing. 
@@ -29,8 +29,6 @@ def main():
     are available for piecemeal execution.
     
     Note: If using Docker, remember to map local volumes to the container using "-v" (such as OUT_DIR).
-    
-    For additional help visit: https://neuroscout.github.io/neuroscout/cli/
     """
     pass
 

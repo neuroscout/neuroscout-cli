@@ -10,7 +10,7 @@ setup(
     install_requires=['datalad>=0.13.1', 'pyns>=0.4.8', 'click', 'fitlins'],
     author='UT Psychoinformatics Lab',
     author_email='delavega@utexas.edu',
-    license='MIT',
+    license='BSD-3 clause',
     packages=PACKAGES,
     keywords='cli',
     entry_points={
