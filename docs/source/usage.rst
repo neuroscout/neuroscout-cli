@@ -1,6 +1,10 @@
 Usage
 =====
 
+**Neuroscout-CLI** executes models built using Neuroscout by acting as a lightway layer that fetches 
+the data required for the model, and runs it using `FitLins <https://github.com/poldracklab/fitlins>`_.
+After the model is run, the results are outputs as BIDS Derivatives, and uploaded to NeuroVault (by default).
+
 Containerized execution
 -----------------------
 Note that depending on your :doc:`installation` method, the exact command will differ.
@@ -23,3 +27,11 @@ Command-Line Arguments
 .. click:: neuroscout_cli.cli:main
    :prog: neuroscout
    :nested: full
+
+Optional FitLins arguments
+--------------------------
+
+Under the hood Neuroscout-CLI uses `FitLins <https://github.com/poldracklab/fitlins>`_ to execute the model.
+As such, Neuroscout-CLI will forward any arguments passed as `[FITLINS_OPTIONS]` to __FitLins__. 
+
+For details on valid FitLins arguments, please see :doc:`fitlins:usage`.
