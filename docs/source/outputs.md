@@ -44,6 +44,6 @@ execution.
 
 Within the `reports` folder, you can view interactive HTML reports, including a summary of your model, design matrices, and quality control visualizations.
 
-# Uploading to NeuroVault
+## Uploading to NeuroVault
 
 By default, NeuroScout will upload all group and subject level results to NeuroVault, and update the NeuroScout API with the corresponding meta-data. You are free to opt out by specifiying ` --no-upload` at runtime.

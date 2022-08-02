@@ -23,7 +23,7 @@ a specific pre-downloaded image::
 For a complete guide, see :doc:`neuroscout:cli/docker` and :doc:`neuroscout:cli/singularity` in the offical `Neuroscout Docs <https://neuroscout.org/docs>`_.
 
 Command-Line Arguments
------------------------
+======================
 .. click:: neuroscout_cli.cli:main
    :prog: neuroscout
    :nested: full
