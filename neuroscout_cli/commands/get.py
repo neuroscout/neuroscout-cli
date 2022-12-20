@@ -32,7 +32,7 @@ class Get(Command):
         self.main_dir.mkdir(parents=True, exist_ok=True)
         self.bundle_dir.mkdir(parents=True, exist_ok=True)        
 
-    def download(self, no_get=False, bundle_only=False):
+    def download(self, no_get=False):
         """ Download analysis bundle and setup preproc dir """
         # If tarball doesn't exist, download it
         bundle_tarball = self.bundle_dir / f'{self.bundle_id}.tar.gz'
@@ -69,7 +69,7 @@ class Get(Command):
 
         self.dataset_dir = self.preproc_dir.parent
 
-        if not bundle_only:
+        if not no_get:
             # Copy meta-data to root of preproc_dir
             meta = list(self.bundle_dir.glob('task-*json'))[0]
             if not (self.preproc_dir/ meta.parts[-1]).exists():
@@ -96,8 +96,7 @@ class Get(Command):
         bundle_only = self.options.get('bundle_only', False)
         if bundle_only:
             no_get = True
-
-        retcode = self.download(no_get=no_get, bundle_only=bundle_only)
+        retcode = self.download(no_get=no_get)
             
         return retcode
 
