@@ -67,7 +67,7 @@ class Get(Command):
             preproc_address=self.resources['preproc_address'],
             datalad_jobs=self.options.get('datalad_jobs', -1), **model['input'])
 
-        self.dataset_dir = self.download_dir / self.resources['dataset_name']
+        self.dataset_dir = self.preproc_dir.parent
 
         if not bundle_only:
             # Copy meta-data to root of preproc_dir
