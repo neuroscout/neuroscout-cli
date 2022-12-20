@@ -11,7 +11,7 @@ from neuroscout_cli.commands.base import Command
 from neuroscout_cli import __version__ as VERSION
 from bids.utils import convert_JSON
 from ..tools.convert import check_convert_mode
-from pyns.fetch_utils import fetch_preproc
+from pyns.fetch_utils import fetch_images
 
 datalad.ui.ui.set_backend('console')
                           
@@ -62,10 +62,11 @@ class Get(Command):
         with self.model_path.open() as f:
             model = convert_JSON(json.load(f))
 
-        self.preproc_dir, paths = fetch_preproc(
+        self.preproc_dir, paths = fetch_images(
             self.resources['dataset_name'], self.dataset_dir, no_get=no_get, 
             preproc_address=self.resources['preproc_address'],
-            datalad_jobs=self.options.get('datalad_jobs', -1), **model['input'])
+            datalad_jobs=self.options.get('datalad_jobs', -1),
+            fetch_json=True, fetch_brain_mask=True, **model['input'])
 
         self.dataset_dir = self.preproc_dir.parent
 
